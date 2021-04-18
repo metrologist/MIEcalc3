@@ -1,6 +1,7 @@
 import wx
 import os
-from formbuild import MyFrame1, MyFrame2, MyDialog1
+from formbuild import MyFrame1
+import extras
 
 
 class ProjectFrame(MyFrame1):
@@ -103,6 +104,7 @@ class ProjectFrame(MyFrame1):
             grid_name.AppendCols(change_cols)  # always to end
         elif change_cols < 0:
             grid_name.DeleteRows(0, -change_cols)  # from posn 0
+
 
 
 if __name__ == '__main__':

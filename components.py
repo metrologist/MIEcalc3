@@ -49,7 +49,7 @@ class COMPONENT(object):
         All these elements are returned in 'summary' as a list of lines.
         """
         # file is not initialised in COMPONENT, but this is left to the derived classes.
-        reader = csv.reader(open(self.file, 'rb'))  # assumes file exists
+        reader = csv.reader(open(self.file, 'r'))  # assumes file exists
         self.summary = list()
         for row in reader:
             self.summary.append(row)
@@ -406,7 +406,7 @@ class LOAD(object):
         list of energies.  This is suitable for error calculation and is
         compatible with the csv file produced by 'hist_from_raw'.
         """
-        reader = csv.reader(open(self.csvfile, 'rb'))
+        reader = csv.reader(open(self.csvfile, 'r'))
         load = []
         for row in reader:
             load.append(row)
@@ -488,7 +488,7 @@ class LOAD(object):
         for i in range(len(xlist)):
             r.append((xlist[i], ylist[i], dz[i], xpos[i], ypos[i]))
             # note the file has the both the calculation and plotting points
-        writer = csv.writer(open(plotable_file, 'w'))
+        writer = csv.writer(open(plotable_file, 'w', newline=''))
         writer.writerows(r)
         return xpos, ypos, zpos, dx, dy, dz
 
@@ -529,7 +529,7 @@ class INSTALLATION(object):
         * ...                                             Site EM field
         * ...                                             Period of certification
         """
-        reader = csv.reader(open(self.conditions, 'rb'))
+        reader = csv.reader(open(self.conditions, 'r'))
         summary = []
         for row in reader:
             summary.append(row)

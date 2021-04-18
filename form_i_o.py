@@ -476,6 +476,33 @@ class IOForm(GraphForm):
             rownum += 1
         # need to consider error checks on file!
 
+    def OnAbout(self, event):
+        """
+        About Box *event*.
+        """
+        extras.VIEW(self).OnAboutBox()
+
+    def OnHelpTopic(self, event):
+        """
+        Help file *event*.
+        """
+        extras.VIEW(self).OnHelp()
+
+    def OnCloseHelp(self, event):
+        """
+        Close help *event*.
+        """
+        extras.VIEW(self).OnClose()
+
+    def OnCloseH(self, event):
+        extras.VIEW(self).OnClose()
+
+    def OnClearText(self, event):
+        """
+        Clear text *event*.
+        """
+        extras.VIEW(self).ClearText()
+
 
 if __name__ == '__main__':
     app = wx.App()

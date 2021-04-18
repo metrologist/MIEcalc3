@@ -138,24 +138,20 @@ class VIEW(object):
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-    The code is written in Python 2.7.6.  It uses open source modules wxPython,
-    matplotlib, scipy, numpy, xlrd and python-docx. It also uses Python modules developed for
-    Gum Tree Calculator (GTC 0.9.8). A stand-alone version of the GTC uncertanity calculator is available on request
-    from http://www.msl.irl.cri.nz/services/specialist-user-groups/measurement-software-toolkit/mst-software.
+    The code is written in Python 3.9.2.  It uses open source modules GTC, wxPython,
+    matplotlib, scipy, numpy, xlrd, openpyxl and python-docx. It also uses Python modules developed for
+    Gum Tree Calculator (GTC 0.9.8).
     """
 
         info = wx.adv.AboutDialogInfo()
     ##     info.SetIcon(wx.Icon('hunter.png', wx.BITMAP_TYPE_PNG))
         info.SetName('MIEcalculator')
-        info.SetVersion('1.0.0')
+        info.SetVersion('1.1.0')
         info.SetDescription(description)
-        info.SetCopyright('(C) 2011-2014 Measurement Standards Laboratory of New Zealand')
-        info.SetWebSite('http://www.msl.irl.cri.nz')
+        info.SetCopyright('(C) 2011-2021 Measurement Standards Laboratory of New Zealand')
+        info.SetWebSite('https://measurement.govt.nz')
         info.SetLicence(licence)
-        info.AddDeveloper('Keith Jones (keith.jones@callaghaninnovation.govt.nz)')
-    ##     info.AddDocWriter('Jan Bodnar')
-    ##     info.AddArtist('The Tango crew')
-    ##     info.AddTranslator('Jan Bodnar')
+        info.AddDeveloper('Keith Jones (keith.jones@measurement.govt.nz)')
         wx.adv.AboutBox(info)
 
     def OnHelp(self):

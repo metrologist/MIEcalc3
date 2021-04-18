@@ -1,0 +1,8 @@
+Gradually duplicating the original program using Python 3.
+MIEcalculator.py needs modification with the new python-docx for producing the saved report.
+I am yet to deal with any GTC issues in the grand-finale.
+There are some strange tricks I used in the original in terms of equation choices where I should use kwargs.
+
+As of 18 April 2021 formeqns.py works to read the excel files and allow component by component calculation.
+MIEcalculator.py is still revealing problems.
+I might remove the snapshot utility rather than try to create a new version.
