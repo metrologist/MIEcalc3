@@ -1,4 +1,5 @@
 import wx
+import wx.richtext as richtext
 from formeqns import EqnForm
 import os
 import csv
@@ -11,6 +12,7 @@ import GTC as gtc
 import extras
 import docx
 import time
+import sys
 
 
 class MIECALC(EqnForm):
@@ -20,6 +22,9 @@ class MIECALC(EqnForm):
         Adds the overall calculation process.
         """
         EqnForm.__init__(self, parent)
+        log = self.m_textCtrl3  # where stdout will be redirected
+        redir = extras.RedirectText(log)
+        sys.stdout = redir
 
     #######################Creating Summary Files###########################
     def OnMeterSummary(self, event):
@@ -236,7 +241,7 @@ class MIECALC(EqnForm):
             Z1[i] = Z[i] + uZ * kZ
             Z2[i] = Z[i] - uZ * kZ
         edge_no = np.sqrt(no_of_points)  # assuming an nxn grid
-        dummy = np.zeros((edge_no, edge_no), dtype=float)  # assumes nxn
+        dummy = np.zeros((int(edge_no), int(edge_no)), dtype=float)  # assumes nxn
         ZZ = np.reshape(Z, np.shape(dummy))
         XX = np.reshape(X, np.shape(dummy))
         YY = np.reshape(Y, np.shape(dummy))
@@ -251,7 +256,6 @@ class MIECALC(EqnForm):
             np.seterr(invalid='print')
         self.report_graph.ax.autoscale(enable=True, axis='both', tight=True)
         self.report_graph.canvas.draw()
-
         # create report
         self.m_statusBar1.SetStatusText('Generating report', 0)
         self.reporter(error[1])
@@ -269,7 +273,7 @@ class MIECALC(EqnForm):
         dirname = self.projwd[:-9]  # the one above xls_temp (remove 9 characters)
         dlg = wx.FileDialog(self, "Choose folder to save report", defaultDir=dirname,
                             defaultFile=self.proj_file + '.docx',
-                            wildcard=wildcard, style=wx.SAVE)
+                            wildcard=wildcard, style=wx.FD_SAVE)
 
         if dlg.ShowModal() == wx.ID_OK:
             filename = dlg.GetFilename()
@@ -278,6 +282,21 @@ class MIECALC(EqnForm):
             # create and save word report
             self.wordreport(self.report_text, self.report_images, docx_file)
         dlg.Destroy()
+
+    def OnPrint(self, event):
+        self.PrintNow()
+
+    def PrintNow(self):
+        """
+        Prints the rich text report without preview but with a printer dialog.
+        Printing to a system pdf printer can be a convenient way of saving a
+        record of the report.
+        """
+        rtp = richtext.RichTextPrinting("Print")
+        localtime = time.asctime(time.localtime(time.time()))
+        footer = self.m_statusBar1.GetStatusText(1) + ' printed on ' + localtime
+        rtp.SetFooterText(footer)  # reads file name
+        rtp.PrintBuffer(self.report_richText.GetBuffer())
 
     def reporter(self, final_error):
         """
@@ -410,14 +429,14 @@ class MIECALC(EqnForm):
         report.Newline()
 
         extras.VIEW(self).scaleImage(image_files[0], size)
-        report.WriteImageFile(image_files[0][:-4] + '1.png', bitmapType=wx.BITMAP_TYPE_PNG)
+        report.WriteImage(image_files[0][:-4] + '1.png', bitmapType=wx.BITMAP_TYPE_PNG)
         report.Newline()
         report.Newline()
         report.WriteText(t_strings[17])
         report.Newline()
 
         extras.VIEW(self).scaleImage(image_files[1], size)
-        report.WriteImageFile(image_files[1][:-4] + '1.png', bitmapType=wx.BITMAP_TYPE_PNG)
+        report.WriteImage(image_files[1][:-4] + '1.png', bitmapType=wx.BITMAP_TYPE_PNG)
         report.Newline()
         report.WriteText(t_strings[18])
         report.Newline()
@@ -428,19 +447,19 @@ class MIECALC(EqnForm):
         report.Newline()
 
         extras.VIEW(self).scaleImage(image_files[2], size)
-        report.WriteImageFile(image_files[2][:-4] + '1.png', bitmapType=wx.BITMAP_TYPE_PNG)
+        report.WriteImage(image_files[2][:-4] + '1.png', bitmapType=wx.BITMAP_TYPE_PNG)
         report.Newline()
         report.WriteText(t_strings[20])
         report.Newline()
 
         extras.VIEW(self).scaleImage(image_files[3], size)
-        report.WriteImageFile(image_files[3][:-4] + '1.png', bitmapType=wx.BITMAP_TYPE_PNG)
+        report.WriteImage(image_files[3][:-4] + '1.png', bitmapType=wx.BITMAP_TYPE_PNG)
         report.Newline()
         report.WriteText(t_strings[21])
         report.Newline()
 
         extras.VIEW(self).scaleImage(image_files[4], size)
-        report.WriteImageFile(image_files[4][:-4] + '1.png', bitmapType=wx.BITMAP_TYPE_PNG)
+        report.WriteImage(image_files[4][:-4] + '1.png', bitmapType=wx.BITMAP_TYPE_PNG)
         report.Newline()
         report.EndBold()
 

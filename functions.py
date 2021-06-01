@@ -3,10 +3,11 @@ This module holds all the functions used to model component behaviour in the
 MODEL claas and also holds the non-linear least squares method used for fitting
 these model functions to calibration data.
 """
-import GTC as gtc #lower case for convenience only
-import numpy as np #can differentiate, e.g. np.log from gtc.log
+import GTC as gtc  # lower case for convenience only
+import numpy as np  # can differentiate, e.g. np.log from gtc.log
 from scipy.optimize import leastsq
 from scipy.stats import chi2
+
 
 class FUNC(object):
     """
@@ -18,10 +19,12 @@ class FUNC(object):
     and a *label* to identify the method. These three arguments can then be
     accessed as needed
     """
+
     def __init__(self, function, no_coeffs, label):
         self.fn = function
         self.no = no_coeffs
         self.label = label
+
 
 class PARAMETER(object):
     """
@@ -30,13 +33,17 @@ class PARAMETER(object):
     It takes an *initial value* and a *name* and this value can be reset with
     the 'set' method.
     """
+
     def __init__(self, initialvalue, name):
         self.value = initialvalue
         self.name = name
+
     def set(self, value):
         self.value = value
+
     def __call__(self):
         return self.value
+
 
 class MODEL(object):
     """
@@ -47,6 +54,7 @@ class MODEL(object):
     each item in the input list *X* or *r*.  Function coefficients are all
     entered as lists, *a*.
     """
+
     def __init__(self, name):
         self.name = name
         self.f_mean = FUNC(self.mean, 1, 'y = a0')
@@ -57,12 +65,12 @@ class MODEL(object):
         self.f_tan_s1 = FUNC(self.tan_s1, 3, 'z = a0 + a1*x + a2*tan(y)')
         self.f_tan_s2 = FUNC(self.tan_s2, 4, 'z= a0 + a1*x + (a2 + a3*log(x))*tan(y)')
 
-#functions require X to be a list (1 or more values) and return a list
+    # functions require X to be a list (1 or more values) and return a list
     def mean(self, X, a):
         """
         A single value, the mean of the input data.
         """
-        #a0
+        # a0
         return [a[0] for x in X]
 
     def line(self, X, a):
@@ -70,34 +78,34 @@ class MODEL(object):
         A straight line, a0 + a1*x.
         """
         # a0 + a1*x
-        return [a[0] + a[1]*x for x in X]
+        return [a[0] + a[1] * x for x in X]
 
     def logline(self, X, a):
         """
         A function that has proved to be a good empirical fit to CT phase and
         error behaviour, a0 + a1*x + a2*log(x).
         """
-        #a0 + a1*x + a2*log(x)
-        #allow for x being an UncertainReal, else no uncertainty from log(x)
+        # a0 + a1*x + a2*log(x)
+        # allow for x being an UncertainReal, else no uncertainty from log(x)
         if type(X[0]).__name__ == 'UncertainReal':
             package = gtc
         else:
             package = np
-        return [a[0] + a[1]*x + a[2]*package.log(x) for x in X]
+        return [a[0] + a[1] * x + a[2] * package.log(x) for x in X]
 
     def smean(self, r, a):
         """
         Bivariate version of 'mean'.
         """
-        #assumes that r comes in as a list of tuples of (x,y)
+        # assumes that r comes in as a list of tuples of (x,y)
         return [a[0] for x, y in r]
 
     def plane(self, r, a):
         """
         Bivariate version of 'line', a[0]+ a[1]*x + a[2]*y.
         """
-        #assumes that r comes in as a list of tuples of (x,y)
-        return [(a[0]+ a[1]*x + a[2]*y) for x, y in r]
+        # assumes that r comes in as a list of tuples of (x,y)
+        return [(a[0] + a[1] * x + a[2] * y) for x, y in r]
 
     def tan_s1(self, r, a):
         """
@@ -106,17 +114,17 @@ class MODEL(object):
         error between the voltage and current channels of the meter,
         a[0]+ a[1]*x + a[2]*np.tan(y*np.pi/180).
         """
-        #assumes that r comes in as a list of tuples of (x,y)
-        return [(a[0]+ a[1]*x + a[2]*np.tan(y*np.pi/180)) for x, y in r]
+        # assumes that r comes in as a list of tuples of (x,y)
+        return [(a[0] + a[1] * x + a[2] * np.tan(y * np.pi / 180)) for x, y in r]
 
     def tan_s2(self, r, a):
         """
         An extension of 'tan_s1' that allows the phase displacement to change
         as in a CT, a[0]+ a[1]*x + (a[2] + a[3]*np.log(x))*np.tan(y*np.pi/180).
         """
-        #assumes that r comes in as a list of tuples of (x,y)
-        return [(a[0]+ a[1]*x + (a[2] + a[3]*np.log(x))*np.tan(y*np.pi/180))
-        for x, y in r]
+        # assumes that r comes in as a list of tuples of (x,y)
+        return [(a[0] + a[1] * x + (a[2] + a[3] * np.log(x)) * np.tan(y * np.pi / 180))
+                for x, y in r]
 
     def influence1(self, w, w0, alpha):
         """
@@ -126,14 +134,14 @@ class MODEL(object):
         have zero value, but a finite uncertainty.  If the value of both numbers
         is greater than twice its uncertainty, then normal multiplication is used.
         """
-        trigger = 2.0 # could set the trigger as low as 1
-        delta = w -w0
-        if delta.u==0 or alpha.u==0:#some situations where unused influences given zero uncertainty
-            return alpha*delta
-        elif abs(delta.x)/delta.u < trigger or abs(alpha.x)/alpha.u < trigger:
+        trigger = 2.0  # could set the trigger as low as 1
+        delta = w - w0
+        if delta.u == 0 or alpha.u == 0:  # some situations where unused influences given zero uncertainty
+            return alpha * delta
+        elif abs(delta.x) / delta.u < trigger or abs(alpha.x) / alpha.u < trigger:
             return gtc.fn.mul2(alpha, delta)
         else:
-            return alpha*delta
+            return alpha * delta
 
     def fit(self, function, coefficients, x, data, u):
         """
@@ -144,10 +152,12 @@ class MODEL(object):
         varialble *x* and a list of their uncertainties (for weighting) *u*.
         The 'coefficents' are of PARAMETER class.
         """
+
         def fitfun(params):
             for i, p in enumerate(coefficients):
                 p.set(params[i])
-            return (data - function(x, params))/u
+            return (data - function(x, params)) / u
+
         if x is None:
             x = np.arange(data.shape[0])
         if u is None:
@@ -168,7 +178,7 @@ class MODEL(object):
         uncert = []
         for i in range(len(coeffs)):
             uncert.append(np.sqrt(cov[i, i]))
-        flag = 1 #assume no zero uncertainties
+        flag = 1  # assume no zero uncertainties
         for x in uncert:
             if x == 0.0:
                 flag = 0
@@ -177,10 +187,11 @@ class MODEL(object):
             # and now set the correlations between all coefficients
             for i in range(len(coeffs)):
                 for j in range(i):
-                    gtc.set_correlation(cov[i, j]/np.sqrt(cov[i, i]*cov[j, j]), a[j], a[i])
+                    gtc.set_correlation(cov[i, j] / np.sqrt(cov[i, i] * cov[j, j]), a[j], a[i])
 
-        else: #have a zero uncertainty so create separate ureals
-            print('A fit has returned zero uncertainty for a function coefficient.  This should only occur if input data has been purposely set to a perfect fit.')
+        else:  # have a zero uncertainty so create separate ureals
+            print(
+                'A fit has returned zero uncertainty for a function coefficient.  This should only occur if input data has been purposely set to a perfect fit.')
             a = []
             for i in range(len(coeffs)):
                 a.append(gtc.ureal(coeffs[i], uncert[i], dof, label[i]))
@@ -207,32 +218,32 @@ class MODEL(object):
         identified as a "good fit". Note that scaling of covaricance by
         chi-square gives the correct confidence level.
         """
-        prob = 0.1 #for now this is the trigger level determined to give acceptable long-run success
+        prob = 0.1  # for now this is the trigger level determined to give acceptable long-run success
         # fit_check = gtc.type_a.chisq_q(dof, red_chisq*dof)
-        fit_check = 1 - chi2.pdf(red_chisq*dof * dof, dof)  # need to check against old GTC as above
-        if fit_check > 1-prob:
+        fit_check = 1 - chi2.cdf(red_chisq * dof, dof)  # need to check against old GTC as above
+        if fit_check > 1 - prob:
             comment = 'Fit has lower uncertainty than expected from calibration data, so type B component added.'
-            var_b0 = variance #
-        elif fit_check < prob: # a bad fit to data!
-            #cov = cov*red_chisq
-            var_b0 = 0.0 #i.e. no offset uncertainty
+            var_b0 = variance  #
+        elif fit_check < prob:  # a bad fit to data!
+            # cov = cov*red_chisq
+            var_b0 = 0.0  # i.e. no offset uncertainty
             comment = 'Data scatter greater than expected, a poor fit'
         else:
             comment = 'Good fit.'
-            var_b0 = 0.0#i.e. no offset uncertainty
+            var_b0 = 0.0  # i.e. no offset uncertainty
         return [np.sqrt(var_b0), comment]
 
     def average_var(self, u, k):
         """
         Calculates the variance required as an input to 'fit_qual'.  It
         calculates the average of (*u*/*k*)**2, where *u* is a list of
-        expanded uncertainties and *k* a list of coresponding coverage factors.
+        expanded uncertainties and *k* a list of corresponding coverage factors.
         An average standard deviation might be a better choice.
         """
         total = 0
         for i in range(len(k)):
-            total = total + (u[i]/k[i])**2
-        return total/len(k)
+            total = total + (u[i] / k[i]) ** 2
+        return total / len(k)
 
     def budget_by_label(self, target, labels):
         """
@@ -243,25 +254,29 @@ class MODEL(object):
         on the programmer to choose relevant lists of labels for parameters.  A
         list of summed variance by label group is returned.
         """
-        n = len(labels)# expect a list of lists
+        n = len(labels)  # expect a list of lists
         total = []
         for i in range(n):
-            total.append(0.0) # the uncertainty for each list will be summed
-        for l, u in gtc.reporting.budget(target, trim = 0.0):
+            total.append(0.0)  # the uncertainty for each list will be summed
+        for l, u in gtc.reporting.budget(target, trim=0.0):
             for i in range(n):
                 if l in labels[i]:
-                    total[i] = total[i] + u**2
+                    total[i] = total[i] + u ** 2
         return total
-
-
 
 
 if __name__ == "__main__":
     print('Testing components')
-    model = MODEL('tran') # contains all fitting functions
+    model = MODEL('tran')  # contains all fitting functions
     print(model.line([1, 2], [3, 4]))
 
     alpha = gtc.ureal(0.0e-6, 1.0e-6, 9)
     t = gtc.ureal(20.0, 0.5, 9)
     t0 = 20.0
     print(model.influence1(t, t0, alpha).u)
+
+    # from old GTC
+    # >>> type_a.chisq_q(10,3.94)
+    # 0.9500130907900907
+    print('old GTC type_a.chisq_q(10,3.94) = 0.9500130907900907')
+    print('scipy function =', 1 - chi2.cdf(3.94, 10))

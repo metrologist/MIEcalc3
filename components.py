@@ -123,7 +123,7 @@ class COMPONENT(object):
         a = len(fn_list[0])
         assert [len(i) == a for i in fn_list], 'lists must be of equal length'
         result = map(sum, zip(*fn_list))  # improved method
-        return result
+        return list(result)  # converts map to list
 
     def list_mult(self, fn_list):
         """
@@ -134,7 +134,7 @@ class COMPONENT(object):
         a = len(fn_list[0])
         assert [len(i) == a for i in fn_list], 'lists must be of equal length'
         result = [a * b for a, b in zip(fn_list[0], fn_list[1])]
-        return result
+        return list(result)  # converts map to list
 
 
 class TRAN(COMPONENT):
@@ -608,7 +608,8 @@ class INSTALLATION(object):
         """
         A GTC utility for listing the uncertainty budget for *a*.
         """
-        print('\n\n', a.s)
+        print('\n\n')
+        print('error = {0:.3f}, standard uncertainty = {1:.3f}, degrees of freedom = {2:.1f}'.format(a.x, a.u, a.df))
         for l, u in gtc.reporting.budget(a, trim=0.0):
             print('%s: %G' % (l, u))
         print('\n')

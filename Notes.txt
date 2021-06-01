@@ -5,4 +5,7 @@ There are some strange tricks I used in the original in terms of equation choice
 
 As of 18 April 2021 formeqns.py works to read the excel files and allow component by component calculation.
 MIEcalculator.py is still revealing problems.
-I might remove the snapshot utility rather than try to create a new version.
+
+As of 31 May 2021 MIEcalculator is functioning. I have removed the print preview feature as it continues to
+to have some unreliable behaviours while not offering any real benefit. The snapshot feature has been updated
+and retained but offers marginal given that PrtScr does the same sort of thing in windows.

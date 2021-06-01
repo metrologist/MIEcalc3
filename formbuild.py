@@ -1,10 +1,10 @@
 # -*- coding: utf-8 -*-
 
 ###########################################################################
-## Python code generated with wxFormBuilder (version Oct 26 2018)
+## Python code originally generated with wxFormBuilder (version Oct 26 2018)
 ## http://www.wxformbuilder.org/
 ##
-## PLEASE DO *NOT* EDIT THIS FILE!
+## PLEASE DO *NOT* EDIT THIS FILE! Minor modifications by hand to work with wx Phoenix
 ###########################################################################
 
 import wx
@@ -12,6 +12,7 @@ import wx.xrc
 import wx.richtext
 import wx.grid
 import wx.html
+import os
 
 ###########################################################################
 ## Class MyFrame1
@@ -32,14 +33,23 @@ class MyFrame1 ( wx.Frame ):
 
 		bSizer6 = wx.BoxSizer( wx.VERTICAL )
 
-		self.m_button26 = wx.Button( self.Setup, wx.ID_ANY, u"Process opened project files", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText100 = wx.StaticText( self.Setup, wx.ID_ANY, u"Open workbook project file", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText100.Wrap( -1 )
+
+		bSizer6.Add( self.m_staticText100, 0, wx.ALL, 5 )
+
+		self.m_button26 = wx.Button( self.Setup, wx.ID_ANY, u"Process project file", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_button26.SetFont( wx.Font( wx.NORMAL_FONT.GetPointSize(), wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD, False, wx.EmptyString ) )
 
 		bSizer6.Add( self.m_button26, 0, wx.ALL, 5 )
 
-		self.m_button1 = wx.Button( self.Setup, wx.ID_ANY, u"Process manually created files", wx.DefaultPosition, wx.DefaultSize, 0 )
-		self.m_button1.SetFont( wx.Font( wx.NORMAL_FONT.GetPointSize(), wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_LIGHT, False, wx.EmptyString ) )
+		self.m_button1 = wx.Button( self.Setup, wx.ID_ANY, u"Process data", wx.DefaultPosition, wx.DefaultSize, 0 )
 
+		self.m_button1.SetFont( wx.Font( wx.NORMAL_FONT.GetPointSize(), wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_LIGHT, False, wx.EmptyString ) )
+		self.m_staticText101 = wx.StaticText( self.Setup, wx.ID_ANY, u"or manually enter data before processing", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText101.Wrap( -1 )
+
+		bSizer6.Add( self.m_staticText101, 0, wx.ALL, 5 )
 		bSizer6.Add( self.m_button1, 0, wx.ALL, 5 )
 
 		self.report_richText = wx.richtext.RichTextCtrl( self.Setup, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0|wx.VSCROLL|wx.HSCROLL|wx.WANTS_CHARS|wx.BORDER_NONE )
@@ -984,18 +994,18 @@ class MyFrame1 ( wx.Frame ):
 		self.m_statusBar1 = self.CreateStatusBar( 3, wx.STB_SIZEGRIP, wx.ID_ANY )
 		self.m_menubar1 = wx.MenuBar( 0 )
 		self.m_menu1 = wx.Menu()
-		self.m_menuItem1 = wx.MenuItem( self.m_menu1, wx.ID_ANY, u"Open", wx.EmptyString, wx.ITEM_NORMAL )
+		self.m_menuItem1 = wx.MenuItem( self.m_menu1, wx.ID_ANY, u"Open workbook", wx.EmptyString, wx.ITEM_NORMAL )
 		self.m_menu1.Append( self.m_menuItem1 )
 
-		self.m_menuItem2 = wx.MenuItem( self.m_menu1, wx.ID_ANY, u"Save", wx.EmptyString, wx.ITEM_NORMAL )
+		self.m_menuItem2 = wx.MenuItem( self.m_menu1, wx.ID_ANY, u"Save report", wx.EmptyString, wx.ITEM_NORMAL )
 		self.m_menu1.Append( self.m_menuItem2 )
-		self.m_menuItem2.Enable( False )
+		self.m_menuItem2.Enable( True )
 
-		self.m_menuItem10 = wx.MenuItem( self.m_menu1, wx.ID_ANY, u"Print report", wx.EmptyString, wx.ITEM_NORMAL )
+		self.m_menuItem10 = wx.MenuItem( self.m_menu1, wx.ID_ANY, u"Quick print", wx.EmptyString, wx.ITEM_NORMAL )
 		self.m_menu1.Append( self.m_menuItem10 )
 
-		self.m_menuItem11 = wx.MenuItem( self.m_menu1, wx.ID_ANY, u"Print preview", wx.EmptyString, wx.ITEM_NORMAL )
-		self.m_menu1.Append( self.m_menuItem11 )
+		# self.m_menuItem11 = wx.MenuItem( self.m_menu1, wx.ID_ANY, u"Print preview", wx.EmptyString, wx.ITEM_NORMAL )
+		# self.m_menu1.Append( self.m_menuItem11 )
 
 		self.m_menu1.AppendSeparator()
 
@@ -1109,7 +1119,7 @@ class MyFrame1 ( wx.Frame ):
 		self.Bind( wx.EVT_MENU, self.OnOpenFile, id = self.m_menuItem1.GetId() )
 		self.Bind( wx.EVT_MENU, self.OnSave, id = self.m_menuItem2.GetId() )
 		self.Bind( wx.EVT_MENU, self.OnPrint, id = self.m_menuItem10.GetId() )
-		self.Bind( wx.EVT_MENU, self.OnPrintPreview, id = self.m_menuItem11.GetId() )
+		# self.Bind( wx.EVT_MENU, self.OnPrintPreview, id = self.m_menuItem11.GetId() )
 		self.Bind( wx.EVT_MENU, self.OnQuit, id = self.m_menuItem3.GetId() )
 		self.Bind( wx.EVT_MENU, self.OnReportSelect, id = self.m_menuItem4.GetId() )
 		self.Bind( wx.EVT_MENU, self.OnMeterSelect, id = self.m_menuItem5.GetId() )
@@ -1252,8 +1262,8 @@ class MyFrame1 ( wx.Frame ):
 	def OnPrint( self, event ):
 		event.Skip()
 
-	def OnPrintPreview( self, event ):
-		event.Skip()
+	# def OnPrintPreview( self, event ):
+	# 	event.Skip()
 
 	def OnQuit( self, event ):
 		event.Skip()
@@ -1305,13 +1315,18 @@ class MyFrame1 ( wx.Frame ):
 class MyFrame2 ( wx.Frame ):
 
 	def __init__( self, parent ):
-		wx.Frame.__init__ ( self, parent, id = wx.ID_ANY, title = wx.EmptyString, pos = wx.DefaultPosition, size = wx.Size( 618,416 ), style = wx.DEFAULT_FRAME_STYLE|wx.TAB_TRAVERSAL )
-
-		self.SetSizeHints( wx.Size( 617,415 ), wx.Size( 618,416 ) )
-
+		wx.Frame.__init__ ( self, parent, id = wx.ID_ANY, title = wx.EmptyString, pos = wx.DefaultPosition, size = wx.Size( 600,600 ), style = wx.DEFAULT_FRAME_STYLE|wx.TAB_TRAVERSAL )
+		self.cwd = os.getcwd()  # identifies working directory at startup.
+		iconFile = os.path.join(self.cwd, 'MSL2.ico')
+		icon1 = wx.Icon(iconFile, wx.BITMAP_TYPE_ICO)
+		self.SetIcon(icon1)
+		self.SetTitle(u"Help file")
+		# self.SetSizeHints( wx.Size( 617,415 ), wx.Size( 618,416 ) )
+		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 		bSizer10 = wx.BoxSizer( wx.VERTICAL )
 
-		self.m_htmlWin2 = wx.html.HtmlWindow( self, wx.ID_ANY, wx.DefaultPosition, wx.Size( 600,380 ), wx.html.HW_SCROLLBAR_AUTO )
+		self.m_htmlWin2 = wx.html.HtmlWindow( self, wx.ID_ANY, wx.DefaultPosition, wx.Size( 600, 600 ), wx.html.HW_SCROLLBAR_AUTO )
+
 		bSizer10.Add( self.m_htmlWin2, 0, wx.ALL, 5 )
 
 
@@ -1340,12 +1355,12 @@ class MyDialog1 ( wx.Dialog ):
 
 	def __init__( self, parent ):
 		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Help", pos = wx.DefaultPosition, size = wx.Size( 617,415 ), style = wx.DEFAULT_DIALOG_STYLE )
-
 		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 
 		bSizer9 = wx.BoxSizer( wx.VERTICAL )
 
 		self.m_htmlWin1 = wx.html.HtmlWindow( self, wx.ID_ANY, wx.DefaultPosition, wx.Size( 600,380 ), wx.html.HW_SCROLLBAR_AUTO )
+
 		bSizer9.Add( self.m_htmlWin1, 0, wx.ALL, 5 )
 
 

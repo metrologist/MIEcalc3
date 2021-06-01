@@ -20,7 +20,7 @@ class ProjectFrame(MyFrame1):
         icon1 = wx.Icon(iconFile, wx.BITMAP_TYPE_ICO)
         self.SetIcon(icon1)
         self.SetTitle(u"Metering Installation Error Calculator\
-        (v1.1, April 2021)")  # keep title and version up to date.
+        (June 2021, v1.1)")  # keep title and version up to date.
         self.notebooks = {'Report notebook': self.m_notebook1, 'Meter notebook': self.m_notebook11,
                           'CT notebook': self.CT_notebook, 'VT notebook': self.VT_notebook,
                           'Load notebook': self.m_notebook14, 'Site notebook': self.m_notebook15}
@@ -105,6 +105,17 @@ class ProjectFrame(MyFrame1):
         elif change_cols < 0:
             grid_name.DeleteRows(0, -change_cols)  # from posn 0
 
+    def OnSnapshot(self, event):
+        """
+        Experimental screenshot option. Directly driven by the mouse *event*.
+        """
+        extras.VIEW(self).TakeScreenShot(os.path.join(self.cwd, 'e_data'))
+
+    def OnPrintSnap(self, event):
+        """
+        Experimental printing of screenshot.
+        """
+        extras.VIEW(self).onPrint(os.path.join(self.cwd, 'e_data'))
 
 
 if __name__ == '__main__':

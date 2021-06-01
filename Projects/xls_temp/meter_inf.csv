@@ -1,0 +1,8 @@
+7,6,,,,
+Meter temperature coefficient,0,%/deg,0.01,norm,12
+Meter calibration temperature,23,deg,0,norm,12
+Meter annual drift,0,%,0,norm,12
+Meter voltage dependence,0,%/(%V),0.01,norm,12
+Meter frequency dependence,0,%/(%f),0.025,norm,12
+Meter field dependence,0,%/mT,0,norm,12
+Meter harmonic dependence,0,%/(%dist),0.02,norm,12

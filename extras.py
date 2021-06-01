@@ -5,11 +5,9 @@ I/O stuff.  Some features are still experimental/buggy.
 
 import wx
 import wx.adv
-from wx.html import HtmlWindow
 import os
-import sys
-# import snapshotPrinter
-from formbuild import MyFrame2 #for the help dialog
+import snapshotPrinter
+from formbuild import MyFrame2  # for the help dialog
 import csv
 import xlrd  # for xls and xlsm
 import openpyxl  # for xlsx and xlsxm
@@ -64,7 +62,7 @@ class VIEW(object):
         #Create a Bitmap that will hold the screenshot image later on
         #Note that the Bitmap must have a size big enough to hold the screenshot
         #-1 means using the current default colour depth
-        bmp = wx.EmptyBitmap(rect.width, rect.height)
+        bmp = wx.Bitmap(rect.width, rect.height)
 
         #Create a memory DC that will be used for actually taking the screenshot
         memDC = wx.MemoryDC()
@@ -92,14 +90,14 @@ class VIEW(object):
         fileName = os.path.join(temp_path, "myImage.png")
         img.SaveFile(fileName, wx.BITMAP_TYPE_PNG)
 
-    # def onPrint(self, temp_path):
-    #     """
-    #     Send screenshot to the printer using folder *temp_path* to hold a
-    #     temporary copy of the file.
-    #     """
-    #     printer = snapshotPrinter.SnapshotPrinter(temp_path)
-    #     printer.sendToPrinter()
-    #     printer.Close()
+    def onPrint(self, temp_path):
+        """
+        Send screenshot to the printer using folder *temp_path* to hold a
+        temporary copy of the file.
+        """
+        printer = snapshotPrinter.SnapshotPrinter(temp_path)
+        printer.sendToPrinter()
+        printer.Close()
 
     def scaleImage(self, image, size):
         """
@@ -139,8 +137,7 @@ class VIEW(object):
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
     The code is written in Python 3.9.2.  It uses open source modules GTC, wxPython,
-    matplotlib, scipy, numpy, xlrd, openpyxl and python-docx. It also uses Python modules developed for
-    Gum Tree Calculator (GTC 0.9.8).
+    matplotlib, scipy, numpy, xlrd, openpyxl and python-docx.
     """
 
         info = wx.adv.AboutDialogInfo()
