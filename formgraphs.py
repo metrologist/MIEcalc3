@@ -104,6 +104,12 @@ class GraphForm(ProjectFrame):
         self.load_graph.ax.collections = []
         self.load_graph.canvas.draw()
 
+    def OnQuit(self, event):
+        """
+        Closes the frame and terminates the program from 'Quit' in the 'File'
+        menu.  No 'are you sure?' dialogue.
+        """
+        self.Destroy()
 
 if __name__ == '__main__':
     app = wx.App()

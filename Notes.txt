@@ -9,3 +9,27 @@ MIEcalculator.py is still revealing problems.
 As of 31 May 2021 MIEcalculator is functioning. I have removed the print preview feature as it continues to
 to have some unreliable behaviours while not offering any real benefit. The snapshot feature has been updated
 and retained but offers marginal given that PrtScr does the same sort of thing in windows.
+
+Pyinstaller has successfully created a dist folder using the GTC_py39 environment. Note that
+ pyinstaller -w MIEcalculator.py probably avoids the console coming up, although this will obscure windows
+ error messages.
+
+ -w, --windowed, --noconsole Windows and Mac OS X: do not provide a console window for standard
+i/o. On Mac OS X this also triggers building an OS X .app bundle. On Windows
+this option will be set if the first script is a ‘.pyw’ file. This option is ignored in
+*NIX systems.
+
+Inno Setup needs modifications to the wizard script to properly install sub directories by specifically adding the
+directory name after {app}
+
+MIEcalculator\wx\*"; DestDir: "{app}\wx"; Flags: ignoreversion recursesubdirs createallsubdirs
+
+Unfortunately, while the install now works, there is a permission problem with using the Program Files folder for
+caching calculation steps
+PermissionError: [Errno 13] Permission denied: 'C:\\Program Files (x86)\\MIEcalculator3\\e_data\\_meter.csv'
+
+So I should shift any write processes to the working directory. These are the e_data folder that holds images, the
+Projects directory that might have the report saved and its xls_temp directory for all the .csv files. With full admin
+rights this can be sorted. It will be useful to consider os.chdir(path) to shift the working directory, remembering
+that os.getcwd() is used to find the icon file. Just need to identify a safe spot for a temporary folder that is
+universally available in windows.
