@@ -33,3 +33,14 @@ Projects directory that might have the report saved and its xls_temp directory f
 rights this can be sorted. It will be useful to consider os.chdir(path) to shift the working directory, remembering
 that os.getcwd() is used to find the icon file. Just need to identify a safe spot for a temporary folder that is
 universally available in windows.
+
+Have successfully shifted all graph images into io buffers so no file folder (e_data) is required for them. The
+_meter.csv type files (output summaries) are still going to e_data and so will instead put them in the xls_temp
+directory. While these intermediate csv files may be dispensed with, it is probably best to retain them until we do a
+proper structural change to the calculation. Another option is to shift the _meter.csv etc. files into io buffers. The
+reasoning is that the meter.csv etc. input files provide a convenient alternative input path for testing while the
+_meter.csv set really are just an internal processing convenience. This will also remove the need to 'clear temporary
+files'.
+
+The 'Projects' folder should be installed somewhere like 'Documents' or 'Desktop' to avoid any permission problems
+when running them.

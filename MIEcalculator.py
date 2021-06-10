@@ -13,6 +13,8 @@ import extras
 import docx
 import time
 import sys
+from PIL import Image
+import io
 
 
 class MIECALC(EqnForm):
@@ -25,6 +27,8 @@ class MIECALC(EqnForm):
         log = self.m_textCtrl3  # where stdout will be redirected
         redir = extras.RedirectText(log)
         sys.stdout = redir
+        self.m_button26.Enable(False)  # 'Process project file' button initially greyed out
+
 
     #######################Creating Summary Files###########################
     def OnMeterSummary(self, event):
@@ -201,7 +205,42 @@ class MIECALC(EqnForm):
         file or manually. This is run when the 'Process manually created files'
         button is pushed.
         """
+        self.projwd = self.m_textCtrl999.GetValue()  # the project working directory can be altered
+        self.m_staticText22.SetLabel('Project directory:  ' + self.projwd)  # display on 'Input file list and messages'
         self.m_statusBar1.SetStatusText('Calculation started', 2)
+        self.m_statusBar1.SetStatusText('Meter calculation', 0)
+        self.PushLoadMeterData()
+        self.PushPlotMeter()
+        print('Meter data')
+        self.PushFit_Meter()
+        self.PushLoadMeterInf()
+        self.PushMeterSummary()
+        self.m_statusBar1.SetStatusText('CT calculation', 0)
+        self.PushLoadCTData()
+        self.PushPlotCTphase()
+        self.PushPlotCTratio()
+        print('CT ratio data')
+        self.PushFit_CTratio()
+        print('CT phase data')
+        self.PushFit_CTphase()
+        self.PushLoadCTInf()
+        self.PushCTSummary()
+        self.m_statusBar1.SetStatusText('VT calculation', 0)
+        self.PushLoadVTData()
+        self.PushPlotVTphase()
+        self.PushPlotVTratio()
+        print('VT ratio data')
+        self.PushFit_VTratio()
+        print('VT phase data')
+        self.PushFit_VTphase()
+        print('')
+        self.PushLoadVTInf()
+        self.PushVTSummary()
+        self.m_statusBar1.SetStatusText('Load processing', 0)
+        self.PushPlotLoadProfile()
+        self.PushLoadSiteInf()
+        self.PushSiteSummary()
+        self.m_statusBar1.SetStatusText('Overall calculation', 0)
         self.grand_finale()
 
     def grand_finale(self):
@@ -260,7 +299,6 @@ class MIECALC(EqnForm):
         self.m_statusBar1.SetStatusText('Generating report', 0)
         self.reporter(error[1])
         self.wxreport()
-        # self.wordreport(text_strings, images)
 
     def OnSave(self, event):
         """
@@ -280,7 +318,7 @@ class MIECALC(EqnForm):
             dirname = dlg.GetDirectory()
             docx_file = os.path.join(dirname, filename)
             # create and save word report
-            self.wordreport(self.report_text, self.report_images, docx_file)
+            self.wordreport(docx_file)
         dlg.Destroy()
 
     def OnPrint(self, event):
@@ -304,6 +342,9 @@ class MIECALC(EqnForm):
         ureal *final_error*, for feeding into reports. It also returns a list of
         png files for inclusion in reports.
         """
+        self.report_txt = []  # vital to clear these lists before writing a new report
+        self.report_images = []
+        self.report_images_wx = []
         # overall_error = final_error
         uncertainty = final_error.u * gtc.reporting.k_factor(final_error.df)
         maximum = final_error.x + uncertainty
@@ -330,55 +371,71 @@ class MIECALC(EqnForm):
                             xx[3] / excluding_site, xx[4] / excluding_site, xx[5] / excluding_site]
 
         # prepare text/strings needed for any output version
-        text_strings = []
-        text_strings.append('Metering Installation Error Report')  # 0
-        text_strings.append('The error calculated for the given load profile is ')  # 1
-        text_strings.append("%+ 0.2f %s" % (final_error.x, '%.'))  # 2
-        text_strings.append('The expanded uncertainty at an estimated 95% level of confidence is')  # 3
-        text_strings.append("%s %0.2f %s" % ('', uncertainty, '%.'))  # 4
-        text_strings.append('The uncertainty interval extends from ')  # 5
-        text_strings.append("%+ 0.2f %s to %+0.2f %s" % (minimum, '%', maximum, '%.'))  # 6
-        text_strings.append('Uncertainty contribution by component as a percentage of total variance,')  # 7
-        text_strings.append('Meter:')  # 8
-        text_strings.append("%s %0.2G %s" % (' ', (normalised_share[0] + normalised_share[1]) * 100, ' %'))  # 9
-        text_strings.append('CT:')  # 10
-        text_strings.append("%s %0.2G %s" % (' ', (normalised_share[2] + normalised_share[3]) * 100, ' %'))  # 11
-        text_strings.append('VT:')  # 12
-        text_strings.append("%s %0.2G %s" % (' ', (normalised_share[4] + normalised_share[5]) * 100, ' %'))  # 13
-        text_strings.append('A full list of components contributing to the total uncertainty can be found in the')  # 14
-        text_strings.append('report workbook tab, "Input file list and messages".')  # 15
-        text_strings.append('Installation error over the phase and current ranges that match the load profile.')  # 16
-        text_strings.append('Annual load profile used for this error calculation.')  # 17
-        text_strings.append(
+        self.report_txt.append('Metering Installation Error Report')  # 0
+        self.report_txt.append('The error calculated for the given load profile is ')  # 1
+        self.report_txt.append("%+ 0.2f %s" % (final_error.x, '%.'))  # 2
+        self.report_txt.append('The expanded uncertainty at an estimated 95% level of confidence is')  # 3
+        self.report_txt.append("%s %0.2f %s" % ('', uncertainty, '%.'))  # 4
+        self.report_txt.append('The uncertainty interval extends from ')  # 5
+        self.report_txt.append("%+ 0.2f %s to %+0.2f %s" % (minimum, '%', maximum, '%.'))  # 6
+        self.report_txt.append('Uncertainty contribution by component as a percentage of total variance,')  # 7
+        self.report_txt.append('Meter:')  # 8
+        self.report_txt.append("%s %0.2G %s" % (' ', (normalised_share[0] + normalised_share[1]) * 100, ' %'))  # 9
+        self.report_txt.append('CT:')  # 10
+        self.report_txt.append("%s %0.2G %s" % (' ', (normalised_share[2] + normalised_share[3]) * 100, ' %'))  # 11
+        self.report_txt.append('VT:')  # 12
+        self.report_txt.append("%s %0.2G %s" % (' ', (normalised_share[4] + normalised_share[5]) * 100, ' %'))  # 13
+        self.report_txt.append('A full list of components contributing to the total uncertainty can be found in the')  # 14
+        self.report_txt.append('report workbook tab, "Input file list and messages".')  # 15
+        self.report_txt.append('Installation error over the phase and current ranges that match the load profile.')  # 16
+        self.report_txt.append('Annual load profile used for this error calculation.')  # 17
+        self.report_txt.append(
             'Component calibration data with calculated fits over the calibration ranges shown overleaf.')  # 18
-        text_strings.append('Current Transformer')  # 19
-        text_strings.append('Voltage Transformer')  # 20
-        text_strings.append('Meter')  # 21
+        self.report_txt.append('Current Transformer')  # 19
+        self.report_txt.append('Voltage Transformer')  # 20
+        self.report_txt.append('Meter')  # 21
 
         # gather graphs for reporting
-        temp_path = os.path.join(self.cwd, 'e_data')
-        site_graphf = os.path.join(temp_path, 'sitegraph_image.png')
-        load_graphf = os.path.join(temp_path, 'loadgraph_image.png')
-        CT_graphf = os.path.join(temp_path, 'CTgraph_image.png')
-        VT_graphf = os.path.join(temp_path, 'VTgraph_image.png')
-        meter_graphf = os.path.join(temp_path, 'metergraph_image.png')
-        self.report_graph.canvas.print_figure(site_graphf, format='png')
-        self.load_graph.canvas.print_figure(load_graphf, format='png')
-        self.CT_graph_1.canvas.print_figure(CT_graphf, format='png')
-        self.VT_graph_1.canvas.print_figure(VT_graphf, format='png')
-        self.meter_graph.canvas.print_figure(meter_graphf, format='png')
-        images = [site_graphf, load_graphf, CT_graphf, VT_graphf, meter_graphf]
-        self.report_text = text_strings
-        self.report_images = images
-        # return text_strings, images
+        image = self.buffer_image_wx(self.report_graph.canvas)
+        self.report_images_wx.append(image[0])
+        self.report_images.append(image[1])
+        image = self.buffer_image_wx(self.load_graph.canvas)
+        self.report_images_wx.append(image[0])
+        self.report_images.append(image[1])
+        image = self.buffer_image_wx(self.CT_graph_1.canvas)
+        self.report_images_wx.append(image[0])
+        self.report_images.append(image[1])
+        image = self.buffer_image_wx(self.VT_graph_1.canvas)
+        self.report_images_wx.append(image[0])
+        self.report_images.append(image[1])
+        image = self.buffer_image_wx(self.meter_graph.canvas)
+        self.report_images_wx.append(image[0])
+        self.report_images.append(image[1])
+
+    def buffer_image_wx(self, plot_canvas):
+        """
+
+        Takes the plot on a canvas and prints it to a buffer which is then scaled
+        and created as a wx richtext compatible image. The size (360, 270) could be
+        an input parameter.
+        :param plot_canvas: is a canvas in wx holding a graph
+        :return:
+        """
+        buffer = io.BytesIO()
+        plot_canvas.print_figure(buffer, format='png', dpi=300)
+        buffer.seek(0)
+        img1 = Image.open(buffer)
+        img = img1.resize((360, 270), Image.ANTIALIAS)
+        image = wx.Image(img.size[0], img.size[1])
+        image.SetData(img.convert("RGB").tobytes())
+        return image, buffer
 
     def wxreport(self):
         """
         Takes the *t_strings* and *image_files* lists prepared in 'reporter'
         and writes the report to the wxRichText panel in the GUI.
         """
-        t_strings = self.report_text
-        image_files = self.report_images
+        t_strings = self.report_txt
         # write to the wxRichText panel
         report = self.report_richText
         report.BeginFontSize(14)
@@ -424,19 +481,16 @@ class MIECALC(EqnForm):
 
         # add graph images to report, first rescaling them to fit a simple printout.
         # image resolution is degraded by the scaling.
-        size = (360, 270)
         report.WriteText(t_strings[16])
         report.Newline()
 
-        extras.VIEW(self).scaleImage(image_files[0], size)
-        report.WriteImage(image_files[0][:-4] + '1.png', bitmapType=wx.BITMAP_TYPE_PNG)
+        report.WriteImage(self.report_images_wx[0])  # insert image buffer in wx rich text
         report.Newline()
         report.Newline()
         report.WriteText(t_strings[17])
         report.Newline()
 
-        extras.VIEW(self).scaleImage(image_files[1], size)
-        report.WriteImage(image_files[1][:-4] + '1.png', bitmapType=wx.BITMAP_TYPE_PNG)
+        report.WriteImage(self.report_images_wx[1])
         report.Newline()
         report.WriteText(t_strings[18])
         report.Newline()
@@ -446,24 +500,21 @@ class MIECALC(EqnForm):
         report.WriteText(t_strings[19])
         report.Newline()
 
-        extras.VIEW(self).scaleImage(image_files[2], size)
-        report.WriteImage(image_files[2][:-4] + '1.png', bitmapType=wx.BITMAP_TYPE_PNG)
+        report.WriteImage(self.report_images_wx[2])
         report.Newline()
         report.WriteText(t_strings[20])
         report.Newline()
 
-        extras.VIEW(self).scaleImage(image_files[3], size)
-        report.WriteImage(image_files[3][:-4] + '1.png', bitmapType=wx.BITMAP_TYPE_PNG)
+        report.WriteImage(self.report_images_wx[3])
         report.Newline()
         report.WriteText(t_strings[21])
         report.Newline()
 
-        extras.VIEW(self).scaleImage(image_files[4], size)
-        report.WriteImage(image_files[4][:-4] + '1.png', bitmapType=wx.BITMAP_TYPE_PNG)
+        report.WriteImage(self.report_images_wx[4])
         report.Newline()
         report.EndBold()
 
-    def wordreport(self, t_strings, image_files, docx_file):
+    def wordreport(self, docx_file):
         """
         Takes the *t_strings* and *image_files* lists prepared in 'reporter' and writes
         the report to a word document. The document will display the text in the
@@ -472,6 +523,7 @@ class MIECALC(EqnForm):
         the Excel input file is used simply with .docx added at the end. A folder
         'templates' is assumed to hold default.docx on which to build the report.
         """
+        t_strings = self.report_txt
         assert len(t_strings) > 0, "Nothing to report.  Run calculation before attempting to save"
         template = os.path.join(self.cwd, 'templates', 'default.docx')
         document = docx.Document(template)
@@ -483,6 +535,7 @@ class MIECALC(EqnForm):
         document.add_paragraph(t_strings[3] + t_strings[4])
         document.add_paragraph(t_strings[5] + t_strings[6])
         document.add_heading(t_strings[16], level=2)
+        image_files = self.report_images
         document.add_picture(image_files[0], width=docx.shared.Mm(100))
         document.add_heading(t_strings[17], level=2)
         document.add_picture(image_files[1], width=docx.shared.Mm(100))

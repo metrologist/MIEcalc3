@@ -40,16 +40,23 @@ class MyFrame1 ( wx.Frame ):
 
 		self.m_button26 = wx.Button( self.Setup, wx.ID_ANY, u"Process project file", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_button26.SetFont( wx.Font( wx.NORMAL_FONT.GetPointSize(), wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD, False, wx.EmptyString ) )
+		self.m_button26.SetBackgroundColour(colour='PINK')
 
 		bSizer6.Add( self.m_button26, 0, wx.ALL, 5 )
 
 		self.m_button1 = wx.Button( self.Setup, wx.ID_ANY, u"Process data", wx.DefaultPosition, wx.DefaultSize, 0 )
 
 		self.m_button1.SetFont( wx.Font( wx.NORMAL_FONT.GetPointSize(), wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_LIGHT, False, wx.EmptyString ) )
-		self.m_staticText101 = wx.StaticText( self.Setup, wx.ID_ANY, u"or manually enter data before processing", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText101 = wx.StaticText( self.Setup, wx.ID_ANY, u"or manually enter data before processing.", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText101.Wrap( -1 )
 
+		self.m_staticText999 = wx.StaticText( self.Setup, wx.ID_ANY, u"First check/update directory for the csv files", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText999.Wrap( -1 )
+		self.m_textCtrl999 = wx.TextCtrl( self.Setup,size=(400,20))
+		self.m_textCtrl999.SetMaxLength( 0 )
 		bSizer6.Add( self.m_staticText101, 0, wx.ALL, 5 )
+		bSizer6.Add(self.m_staticText999, 0, wx.ALL, 5)
+		bSizer6.Add(self.m_textCtrl999, 0, wx.ALL, 5)
 		bSizer6.Add( self.m_button1, 0, wx.ALL, 5 )
 
 		self.report_richText = wx.richtext.RichTextCtrl( self.Setup, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0|wx.VSCROLL|wx.HSCROLL|wx.WANTS_CHARS|wx.BORDER_NONE )
@@ -997,7 +1004,7 @@ class MyFrame1 ( wx.Frame ):
 		self.m_menuItem1 = wx.MenuItem( self.m_menu1, wx.ID_ANY, u"Open workbook", wx.EmptyString, wx.ITEM_NORMAL )
 		self.m_menu1.Append( self.m_menuItem1 )
 
-		self.m_menuItem2 = wx.MenuItem( self.m_menu1, wx.ID_ANY, u"Save report", wx.EmptyString, wx.ITEM_NORMAL )
+		self.m_menuItem2 = wx.MenuItem( self.m_menu1, wx.ID_ANY, u"Save word report", wx.EmptyString, wx.ITEM_NORMAL )
 		self.m_menu1.Append( self.m_menuItem2 )
 		self.m_menuItem2.Enable( True )
 

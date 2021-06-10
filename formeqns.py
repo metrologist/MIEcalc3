@@ -22,7 +22,10 @@ class EqnForm(IOForm):
         Convenient way to add current working directory file path to *name* for
         temporary files placed in the e_data folder.
         """
-        return os.path.join(self.cwd, 'e_data', name)
+        # os_path = os.path.join(self.cwd, 'e_data', name)
+        os_path = os.path.join(self.projwd, name)
+        # print('os_path', os_path)
+        return os_path
 
     #############Calculating and plotting fits############################
     def fit_2D(self, function, input_grid, output_grid, graph, axes):
@@ -253,6 +256,7 @@ class EqnForm(IOForm):
         # self.LoadProfile(self.load_data.GetValue(), self.load_values.GetValue())
         if self.load_data.GetValue()[-3:] == 'txt':
             self.PushCreateLoadProfile()
+        # print('looking for',self.load_values.GetValue())
         reader = csv.reader(open(self.load_values.GetValue(), 'r'))
         load = []
         for row in reader:

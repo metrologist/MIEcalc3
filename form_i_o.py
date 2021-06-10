@@ -30,7 +30,9 @@ class IOForm(GraphForm):
         self.straight_line(self.VTphase_staticText, self.VTphase_fit_grid)
         self.eqn_choice_Meter.SetSelection(3)
         self.tan_surface2(self.Meter_staticText, self.Meter_fit_grid)
-
+        self.report_txt = []  # list of strings for writing to the reports
+        self.report_images = []  # list of image buffers for pasting graphs in word report
+        self.report_images_wx = []  # list of scaled wx images for placing in wx.richtext
     def OnOpenFile(self, event):
         """
         Opens either a csv file with a list of component csv files, or opens
@@ -64,9 +66,12 @@ class IOForm(GraphForm):
                 dirname = os.path.join(dirname, 'xls_temp')
                 self.projwd = dirname
 
-            # now read information from the selected or created csv file and place in file table
-            self.LoadProjFiles(os.path.join(dirname, filename))
-            self.m_staticText22.SetLabel('Project directory:  ' + self.projwd)
+        # now read information from the selected or created csv file and place in file table
+        self.LoadProjFiles(os.path.join(dirname, filename))
+        self.m_staticText22.SetLabel('Project directory:  ' + self.projwd)
+        self.m_textCtrl999.WriteText(self.projwd)
+        self.m_button26.Enable(True)  # 'Process project file' button available once file is loaded
+        self.m_button26.SetBackgroundColour(colour='PALE GREEN')
         dlg.Destroy()
 
     def LoadProjFiles(self, proj_file):
@@ -76,12 +81,12 @@ class IOForm(GraphForm):
         table.  There is no error checking!!!
         """
         # assume a new calculation is wanted, so clear all old inputs/outputs stored in GUI and temp files
-        extras.VIEW(self).ClearText()
         self.pushClearAllGraphs()
-        self.PushClearFiles()
-        self.report_text = []
+        self.PushClearText()
+        # self.PushClearFiles()  # the open process has just created a new project.csv, so do not delete!
+        self.report_text = []  # these 3 report lists need to be reset, otherwise get the old report with the new data!
         self.report_images = []
-
+        self.report_images_wx = []
         reader = csv.reader(open(proj_file, 'r'))
         project_files = []
         for row in reader:
@@ -97,7 +102,7 @@ class IOForm(GraphForm):
             self.load_data.SetValue('')  # no raw txt file
         elif name[-3:] == 'txt':
             self.load_values.SetValue(
-                os.path.join(self.cwd, 'e_data', '_load.csv'))  # raw txt will be processed into this
+                os.path.join(self.projwd, '_load.csv'))  # raw txt will be processed into this
             self.load_data.SetValue(os.path.join(self.projwd, name))  # raw txt file available
         else:
             print('problem with load file!!')
@@ -107,11 +112,12 @@ class IOForm(GraphForm):
 
     def PushClearFiles(self):
         """
-        Files that have been created in the e_data directory are deleted.  This
+        Files that have been created in the xls_temp directory are deleted.  This
         is good house-keeping and avoids hiding bugs that prevent a new csv
         data file from being created.
         """
-        folder = os.path.join(self.cwd, 'e_data')
+        # folder = os.path.join(self.cwd, 'e_data')
+        folder = self.projwd
         for the_file in os.listdir(folder):
             file_path = os.path.join(folder, the_file)
             try:
@@ -501,6 +507,8 @@ class IOForm(GraphForm):
         """
         Clear text *event*.
         """
+        self.PushClearText()
+    def PushClearText(self):
         extras.VIEW(self).ClearText()
 
 
