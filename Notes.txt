@@ -44,3 +44,10 @@ files'.
 
 The 'Projects' folder should be installed somewhere like 'Documents' or 'Desktop' to avoid any permission problems
 when running them.
+
+Remember to use the 'no window' option for the python exe.
+
+Snapshot now shifter to using project working directory and so it doesn't function until after a project is opened.
+This is an unintended consequence of not having a fixed working directory location.
+
+Having some success running MIEcalculator on Centos 7, but GTK does not allow some pythonwx commands.

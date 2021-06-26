@@ -38,7 +38,7 @@ class MyFrame1 ( wx.Frame ):
 
 		bSizer6.Add( self.m_staticText100, 0, wx.ALL, 5 )
 
-		self.m_button26 = wx.Button( self.Setup, wx.ID_ANY, u"Process project file", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_button26 = wx.Button( self.Setup, wx.ID_ANY, u"Process workbook file", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_button26.SetFont( wx.Font( wx.NORMAL_FONT.GetPointSize(), wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD, False, wx.EmptyString ) )
 		self.m_button26.SetBackgroundColour(colour='PINK')
 

@@ -105,18 +105,6 @@ class ProjectFrame(MyFrame1):
         elif change_cols < 0:
             grid_name.DeleteRows(0, -change_cols)  # from posn 0
 
-    def OnSnapshot(self, event):
-        """
-        Experimental screenshot option. Directly driven by the mouse *event*.
-        """
-        extras.VIEW(self).TakeScreenShot(os.path.join(self.cwd, 'e_data'))
-
-    def OnPrintSnap(self, event):
-        """
-        Experimental printing of screenshot.
-        """
-        extras.VIEW(self).onPrint(os.path.join(self.cwd, 'e_data'))
-
 
 if __name__ == '__main__':
     app = wx.App()

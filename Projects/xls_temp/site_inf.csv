@@ -1,9 +1,0 @@
-8,6,,,,
-Site temperature,19.5,deg,5,norm,12
-Site voltage,0,%,3,norm,12
-Site frequency,0,%,0.75,norm,12
-Site harmonics,0,%,2,norm,12
-Site CT burden,1,ohm,0.1,norm,12
-Site VT burden,0.000248000496000992,S,2.48000496000992e-05,norm,12
-Site EM field,0,mT,0,norm,10
-Period of certification,1,year,0,norm,50
