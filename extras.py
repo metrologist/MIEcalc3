@@ -38,7 +38,7 @@ class VIEW(object):
     the MainFrame to ensure there is access to all GUI features.
     """
     def __init__(self, frame):
-        self.frame = frame #need for screenshot
+        self.frame = frame  # need it for screenshot
 
     def TakeScreenShot(self, temp_path):
         """
@@ -57,7 +57,7 @@ class VIEW(object):
     ## 		rect.width += (border_width * 2)
     ## 		rect.height += title_bar_height + border_width
         #Create a DC for the whole screen area
-        dcScreen = wx.ScreenDC()
+        dcScreen = wx.ScreenDC()  # all screens of extended desktop
 
         #Create a Bitmap that will hold the screenshot image later on
         #Note that the Bitmap must have a size big enough to hold the screenshot
@@ -136,16 +136,16 @@ class VIEW(object):
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-    The code is written in Python 3.9.2.  It uses open source modules GTC, wxPython,
+    The code is written in Python 3.10.11.  It uses open source modules GTC, wxPython,
     matplotlib, scipy, numpy, xlrd, openpyxl and python-docx.
     """
 
         info = wx.adv.AboutDialogInfo()
     ##     info.SetIcon(wx.Icon('hunter.png', wx.BITMAP_TYPE_PNG))
         info.SetName('MIEcalculator')
-        info.SetVersion('1.1.0')
+        info.SetVersion('1.1.1')
         info.SetDescription(description)
-        info.SetCopyright('(C) 2011-2021 Measurement Standards Laboratory of New Zealand')
+        info.SetCopyright('(C) 2011-2023 Measurement Standards Laboratory of New Zealand')
         info.SetWebSite('https://measurement.govt.nz')
         info.SetLicence(licence)
         info.AddDeveloper('Keith Jones (keith.jones@measurement.govt.nz)')

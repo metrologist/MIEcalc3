@@ -67,8 +67,11 @@ class SnapshotPrinter(wx.Frame):
         that contains the information to display the snapshot. Note that page
         needs to be smaller than frame.
         """
+        frame_size = self.panel.GetSize()
+        print('frame size', frame_size)
         first = '<html>\n<body>\n<center><img src='
-        second = ' width = 800 height = 600></center>\n</body>\n</html>'
+        # second = ' width = 800 height = 600></center>\n</body>\n</html>'
+        second = ' width = 1000 height = 1000></center>\n</body>\n</html>'
         html = first +os.path.join(self.temp_path, 'myImage.png') +second
         f = open(os.path.join(self.temp_path, 'screenshot.htm'), 'w')
         f.write(html)
@@ -87,8 +90,10 @@ class SnapshotPrinter(wx.Frame):
         """
         Generates the html and prints it.
         """
-        self.printer.GetPrintData().SetPaperId(wx.PAPER_LETTER)
+        self.printer.GetPrintData().SetPaperId(wx.PAPER_A4)
         self.printer.PrintFile(self.html.GetOpenedPage())
+        # should then delete the html file
+        os.remove(os.path.join(self.temp_path, 'screenshot.htm'))
 
     #----------------------------------------------------------------------
     def onCancel(self, event):

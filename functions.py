@@ -258,7 +258,7 @@ class MODEL(object):
         total = []
         for i in range(n):
             total.append(0.0)  # the uncertainty for each list will be summed
-        for l, u in gtc.reporting.budget(target, trim=0.0):
+        for l, u, id_thing in gtc.reporting.budget(target, trim=0.0):
             for i in range(n):
                 if l in labels[i]:
                     total[i] = total[i] + u ** 2

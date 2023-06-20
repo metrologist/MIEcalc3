@@ -79,30 +79,34 @@ class GraphForm(ProjectFrame):
 
     def pushClearAllGraphs(self):
         """
-        Clears all drawn graphs by line and collections. This may compromise
-        the autoscaling behaviour when the graphs are re-used.
+        Clears all drawn graphs by axes.
         """
         #Note the draw() calls only needed if a graph is being viewed when
         #the graph is cleared.  The hidden graphs get redrwn when next viewed.
-        self.VT_graph_1.axes1.lines = [] # all 2D lines
-        self.VT_graph_1.axes1.collections = [] #vertical error bars
-        self.VT_graph_1.axes2.lines = []
-        self.VT_graph_1.axes2.collections = []
-        self.VT_graph_1.canvas.draw()
+        graphs_2D = [self.VT_graph_1, self.CT_graph_1]
+        for y in graphs_2D:
+            the_xlabel = y.axes1.get_xlabel()
+            the_ylabel = y.axes1.get_ylabel()
+            y.axes1.clear()
+            y.axes1.set_xlabel(the_xlabel)
+            y.axes1.set_ylabel(the_ylabel)
+            the_xlabel = y.axes2.get_xlabel()
+            the_ylabel = y.axes2.get_ylabel()
+            y.axes2.clear()
+            y.axes2.set_xlabel(the_xlabel)
+            y.axes2.set_ylabel(the_ylabel)
+            y.canvas.draw()
 
-        self.CT_graph_1.axes1.lines = []
-        self.CT_graph_1.axes1.collections = []
-        self.CT_graph_1.axes2.lines = []
-        self.CT_graph_1.axes2.collections = []
-        self.CT_graph_1.canvas.draw()
-
-        self.meter_graph.ax.collections = []
-        self.meter_graph.ax.lines = [] # error bar lines
-        self.meter_graph.canvas.draw()
-        self.report_graph.ax.collections = []
-        self.report_graph.canvas.draw()
-        self.load_graph.ax.collections = []
-        self.load_graph.canvas.draw()
+        graphs_3D = [self.meter_graph, self.report_graph, self.load_graph]
+        for y in graphs_3D:
+            the_x = y.ax.get_xlabel()
+            the_y = y.ax.get_ylabel()
+            the_z = y.ax.get_zlabel()
+            y.ax.clear()
+            y.ax.set_xlabel(the_x)
+            y.ax.set_ylabel(the_y)
+            y.ax.set_zlabel(the_z)
+            y.canvas.draw()
 
     def OnQuit(self, event):
         """

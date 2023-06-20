@@ -17,7 +17,7 @@ class IOForm(GraphForm):
         GraphForm.__init__(self, parent)
         self.proj_file = 'bbb'
         self.dirname = 'ccc'
-        self.projwd = 'aaa'
+        self.projwd = r'C:\Users\Public'  # default to C: drive for snapshot until a working directory is defined
         # forcing default equation choice for properly filled in grid
         self.model = functions.MODEL('for_labels')
         self.eqn_choice_CTratio.SetSelection(2)

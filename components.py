@@ -610,7 +610,7 @@ class INSTALLATION(object):
         """
         print('\n\n')
         print('error = {0:.3f}, standard uncertainty = {1:.3f}, degrees of freedom = {2:.1f}'.format(a.x, a.u, a.df))
-        for l, u in gtc.reporting.budget(a, trim=0.0):
+        for l, u, id_thing in gtc.reporting.budget(a, trim=0.0):
             print('%s: %G' % (l, u))
         print('\n')
 

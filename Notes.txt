@@ -8,7 +8,7 @@ MIEcalculator.py is still revealing problems.
 
 As of 31 May 2021 MIEcalculator is functioning. I have removed the print preview feature as it continues to
 to have some unreliable behaviours while not offering any real benefit. The snapshot feature has been updated
-and retained but offers marginal given that PrtScr does the same sort of thing in windows.
+and retained but offers marginal utility given that PrtScr does the same sort of thing in windows.
 
 Pyinstaller has successfully created a dist folder using the GTC_py39 environment. Note that
  pyinstaller -w MIEcalculator.py probably avoids the console coming up, although this will obscure windows
@@ -47,7 +47,29 @@ when running them.
 
 Remember to use the 'no window' option for the python exe.
 
-Snapshot now shifter to using project working directory and so it doesn't function until after a project is opened.
+Snapshot now shifted to using project working directory and so it doesn't function until after a project is opened.
 This is an unintended consequence of not having a fixed working directory location.
 
 Having some success running MIEcalculator on Centos 7, but GTK does not allow some pythonwx commands.
+
+18 June 2023
+------------
+Tidied up some matplotlib (clearing graphs) and GTC (budget) issues relating to the latest versions under python 3.10.11
+I now see the priorities as
+    1/ Modify to
+        a) easily include 3 load profiles in standard report with more help on forms of raw data
+        b) make selection of temperature range clear in the report
+        c) link meter sensitivity coefficients directly to a selected IEC class (this is my best-practice use for 'class
+           accuracy')
+        d) explicitly manage the different % scales for current between the CT and meter
+        e) remove snapshot feature (unless there is clearly a trivial fix)
+    2/ Improve documentation
+        a) Might be able to do everything with Sphinx, i.e. avoiding a separate pdf or word-based html
+        b) Consider a video guide (takes the pressure off TEEM)
+        c) Produce the technical guide for class A test houses
+    3/ Separately investigate alternative function fits including a simple avoidance of relative % errors (the ln fit
+       might change into a quadratic plus offset?)
+    4/ Extend to all quadrants and, perhaps, treat phases individually
+    5/ Continue to improve code/workflow including, maybe, a move away from Excel.
+
+Completing item 1 and 2 will make MIEcalculator more relevant to current industry practice.

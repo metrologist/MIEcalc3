@@ -136,7 +136,7 @@ class MIECALC(EqnForm):
 
     def JoinErrorPhase(self, error, phase, joined):
         """
-        Concatanates the *error* and *phase* files produced by 'create_summary'
+        Concatenates the *error* and *phase* files produced by 'create_summary'
         into the single *joined* file that does not include the header row of the
         phase file.  This is overhead management to produce the required csv file.
         """
@@ -425,7 +425,7 @@ class MIECALC(EqnForm):
         plot_canvas.print_figure(buffer, format='png', dpi=300)
         buffer.seek(0)
         img1 = Image.open(buffer)
-        img = img1.resize((360, 270), Image.ANTIALIAS)
+        img = img1.resize((360, 270), Image.LANCZOS)
         image = wx.Image(img.size[0], img.size[1])
         image.SetData(img.convert("RGB").tobytes())
         return image, buffer
