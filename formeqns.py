@@ -48,6 +48,7 @@ class EqnForm(IOForm):
             dof = len(X) - len(p)
             chisq = sum(info["fvec"] * info["fvec"])
             red_chisq = chisq / dof
+            cov = cov * red_chisq  # this is a July 2023 change
             fit_check = self.model.fit_qual(b_var, red_chisq, dof)
             ub0 = fit_check[0]
             temp_b0 = gtc.ureal(0, ub0)
@@ -61,7 +62,8 @@ class EqnForm(IOForm):
             label = []  # labels are required for fit_ureals
             for coefficient in p:
                 label.append(coefficient.name)
-            ucoeffs = self.model.fit_ureals(p2, cov * red_chisq, dof, label)  # note use of red_chisq
+            # ucoeffs = self.model.fit_ureals(p2, cov * red_chisq, dof, label)  # note use of red_chisq
+            ucoeffs = self.model.fit_ureals(p2, cov, dof, label)  # note red_chisq now done above, July 2023
             for_plotting = function.fn(XX, ucoeffs)
             Y = np.zeros(len(for_plotting))
             U = np.zeros(len(for_plotting))
@@ -100,6 +102,7 @@ class EqnForm(IOForm):
             dof = len(XY) - len(p)
             chisq = sum(info["fvec"] * info["fvec"])
             red_chisq = chisq / dof
+            cov = cov * red_chisq  # July 2023 modification
             fit_check = self.model.fit_qual(b_var, red_chisq, dof)
             ub0 = fit_check[0]
             temp_b0 = gtc.ureal(0, ub0)
@@ -126,7 +129,8 @@ class EqnForm(IOForm):
             label = []  # labels are required for fit_ureals
             for coefficient in p:
                 label.append(coefficient.name)
-            ucoeffs = self.model.fit_ureals(p2, cov * red_chisq, dof, label)  # note use of red_chisq
+            # ucoeffs = self.model.fit_ureals(p2, cov * red_chisq, dof, label)  # note use of red_chisq
+            ucoeffs = self.model.fit_ureals(p2, cov, dof, label)  # note red_chisq done above July 2023
             for_plotting = function.fn(RS, ucoeffs)
             ZZ = np.zeros(len(RS))
             UU = np.zeros(len(RS))

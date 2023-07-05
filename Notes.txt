@@ -11,10 +11,10 @@ to have some unreliable behaviours while not offering any real benefit. The snap
 and retained but offers marginal utility given that PrtScr does the same sort of thing in windows.
 
 Pyinstaller has successfully created a dist folder using the GTC_py39 environment. Note that
- pyinstaller -w MIEcalculator.py probably avoids the console coming up, although this will obscure windows
- error messages.
+pyinstaller -w MIEcalculator.py probably avoids the console coming up, although this will obscure windows
+error messages.
 
- -w, --windowed, --noconsole Windows and Mac OS X: do not provide a console window for standard
+-w, --windowed, --noconsole Windows and Mac OS X: do not provide a console window for standard
 i/o. On Mac OS X this also triggers building an OS X .app bundle. On Windows
 this option will be set if the first script is a ‘.pyw’ file. This option is ignored in
 *NIX systems.
@@ -73,3 +73,26 @@ I now see the priorities as
     5/ Continue to improve code/workflow including, maybe, a move away from Excel.
 
 Completing item 1 and 2 will make MIEcalculator more relevant to current industry practice.
+
+21/6/23
+Separate MIEcalulator.py into MIEcalc3.py and reporting.py. This puts the tedious report writing into the REPORT class,
+which is the basis for the MIECALC class. A crude split, but it makes it easier to find relevant pieces of code.
+
+26/6/23
+As part of this rework consider having a GUI free option, starting by ensuring that wxgrids are not being relied on as
+temporary storage of equation coefficients and similar. The notebook was originally built so that each component could
+be investigated by manually modifying/entering data and recalculating the result for the component, with the wxgrid
+being the primary source. This should simplify running tests and also batch processing of sites.
+
+1/7/23
+An error was found in components.py where the transformer covariance matrix for phase was not correctly indexed. Loading
+failed when the fitting function was changed to a straight line for error and the covariance matrix tried to load a
+string. This means that the phase uncertainties were, in fact, the error uncertainties. This would likely lead to a
+modest underestimate of the total site uncertainty in conditions of poor power factor.
+
+Removed snapshot.
+
+5/7/23
+The covariances used for the final error calculation were not scaled by the reduced chi-square. The plots did use the
+reduced chi-square, essentially showing the correct uncertainties. Note that the correctly scaled covariances are now
+shown in the grids so that the square root of the diagonals match to the standard deviation.

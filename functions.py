@@ -149,8 +149,8 @@ class MODEL(object):
         Levenberg-Marquardt optimisation routine that returns  statistics
         of the least-squares fit and the fitted values of the coefficients.
         Input is in the form of a list of *data* values for independent
-        varialble *x* and a list of their uncertainties (for weighting) *u*.
-        The 'coefficents' are of PARAMETER class.
+        variable *x* and a list of their uncertainties (for weighting) *u*.
+        The 'coefficients' are of PARAMETER class.
         """
 
         def fitfun(params):
@@ -175,6 +175,7 @@ class MODEL(object):
         errors set to zero (e.g. no VT) or the input data has been fabricated to
         be a perfect fit.
         """
+        # print('MODEL fit_ureals ', cov)  # for checking correct covariance being used
         uncert = []
         for i in range(len(coeffs)):
             uncert.append(np.sqrt(cov[i, i]))

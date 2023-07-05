@@ -17,7 +17,7 @@ class IOForm(GraphForm):
         GraphForm.__init__(self, parent)
         self.proj_file = 'bbb'
         self.dirname = 'ccc'
-        self.projwd = r'C:\Users\Public'  # default to C: drive for snapshot until a working directory is defined
+        self.projwd = r'no path'  # must avoid accidental deletion with clearing temporary files
         # forcing default equation choice for properly filled in grid
         self.model = functions.MODEL('for_labels')
         self.eqn_choice_CTratio.SetSelection(2)
@@ -118,13 +118,17 @@ class IOForm(GraphForm):
         """
         # folder = os.path.join(self.cwd, 'e_data')
         folder = self.projwd
-        for the_file in os.listdir(folder):
-            file_path = os.path.join(folder, the_file)
-            try:
-                if os.path.isfile(file_path):
-                    os.unlink(file_path)
-            except OSError:
-                print("OS error:", sys.exc_info()[0])
+        if folder != 'no path':
+            for the_file in os.listdir(folder):
+                file_path = os.path.join(folder, the_file)
+                print("***HELLO***" , file_path)
+                try:
+                    if os.path.isfile(file_path):
+                        os.unlink(file_path)
+                except OSError:
+                    print("OS error:", sys.exc_info()[0])
+        else:
+            print("No working folder, files not cleared")
 
     def OnMeterModel(self, event):
         self.onMeterModel()
@@ -511,17 +515,17 @@ class IOForm(GraphForm):
     def PushClearText(self):
         extras.VIEW(self).ClearText()
 
-    def OnSnapshot(self, event):
-        """
-        Experimental screenshot option. Directly driven by the mouse *event*.
-        """
-        extras.VIEW(self).TakeScreenShot(self.projwd)  # os.path.join(self.cwd, 'e_data'))
-
-    def OnPrintSnap(self, event):
-        """
-        Experimental printing of screenshot.
-        """
-        extras.VIEW(self).onPrint(self.projwd)  #os.path.join(self.cwd, 'e_data'))
+    # def OnSnapshot(self, event):
+    #     """
+    #     Experimental screenshot option. Directly driven by the mouse *event*.
+    #     """
+    #     extras.VIEW(self).TakeScreenShot(self.projwd)  # os.path.join(self.cwd, 'e_data'))
+    #
+    # def OnPrintSnap(self, event):
+    #     """
+    #     Experimental printing of screenshot.
+    #     """
+    #     extras.VIEW(self).onPrint(self.projwd)  #os.path.join(self.cwd, 'e_data'))
 
 if __name__ == '__main__':
     app = wx.App()

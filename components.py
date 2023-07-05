@@ -21,16 +21,6 @@ class COMPONENT(object):
     of file and data formats is subject to change.
     """
 
-    ##     def __init__(self):
-    ##         # these values will be set by the methods that read them from csv files.
-    ##         self.summary = []
-    ##         self.err_choice = 0.0
-    ##         self.err_no = 0.0
-    ##         self.err_a = 0.0
-    ##         self.err_b = 0.0
-    ##         self.err_alpha = 0.0
-    ##         self.t0 = 0.0
-
     def LoadCoeffs(self):
         """
         'LoadCoeffs()' opens a csv file formatted by line as
@@ -40,7 +30,7 @@ class COMPONENT(object):
         * 'value', 'uncertainty', 'dof', 'label' of first coefficient
         * 'value', 'uncertainty', 'dof', 'label' of second coefficient
         * ...
-        * 'correlation coefficient','correllation coefficient'...
+        * 'correlation coefficient','correlation coefficient'...
         * 'value', 'uncertainty', 'dof', 'label' of b0 coefficient
         * 'value', 'uncertainty', 'dof', 'label' of temperature coefficient
         * 'value', 'uncertainty', 'dof', 'label' of calibration temperature
@@ -194,8 +184,7 @@ class TRAN(COMPONENT):
         dof = float(self.summary[2][2])  # all fit parameters have same dof
         for i in range(self.ph_no):
             for j in range(self.ph_no):
-                cov_matrix[i, j] = float(self.summary[2 + self.ph_no][i * self.ph_no + j])
-
+                cov_matrix[i, j] = float(self.summary[1 + phase_start + self.ph_no][i * self.ph_no + j])
         self.ph_a = self.model.fit_ureals(coeffs, cov_matrix, dof, label)
         ref_row = phase_start + 1 + self.ph_no
         self.ph_b = self.ureal_from_list(self.summary[ref_row + 1])
@@ -641,4 +630,3 @@ if __name__ == "__main__":
     ax.set_ylabel('Phase/degrees')
     ax.set_zlabel('Energy')
     plt.show()
-

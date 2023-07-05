@@ -33,7 +33,7 @@ class MyFrame1 ( wx.Frame ):
 
 		bSizer6 = wx.BoxSizer( wx.VERTICAL )
 
-		self.m_staticText100 = wx.StaticText( self.Setup, wx.ID_ANY, u"Open workbook project file", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText100 = wx.StaticText( self.Setup, wx.ID_ANY, u"Select workbook from file menu", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText100.Wrap( -1 )
 
 		bSizer6.Add( self.m_staticText100, 0, wx.ALL, 5 )
@@ -44,10 +44,11 @@ class MyFrame1 ( wx.Frame ):
 
 		bSizer6.Add( self.m_button26, 0, wx.ALL, 5 )
 
-		self.m_button1 = wx.Button( self.Setup, wx.ID_ANY, u"Process data", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_button1 = wx.Button( self.Setup, wx.ID_ANY, u"Expert/Manual", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_button1.SetBackgroundColour(colour='STEEL BLUE')
 
 		self.m_button1.SetFont( wx.Font( wx.NORMAL_FONT.GetPointSize(), wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_LIGHT, False, wx.EmptyString ) )
-		self.m_staticText101 = wx.StaticText( self.Setup, wx.ID_ANY, u"or manually enter data before processing.", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText101 = wx.StaticText( self.Setup, wx.ID_ANY, u"Expert Only - manually load and process csv files.", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText101.Wrap( -1 )
 
 		self.m_staticText999 = wx.StaticText( self.Setup, wx.ID_ANY, u"First check/update directory for the csv files", wx.DefaultPosition, wx.DefaultSize, 0 )
@@ -71,8 +72,8 @@ class MyFrame1 ( wx.Frame ):
 		self.m_notebook1.AddPage( self.report_graph, u"Total error graph", False )
 		self.report_files = wx.Panel( self.m_notebook1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer8 = wx.BoxSizer( wx.VERTICAL )
-
-		self.m_staticText22 = wx.StaticText( self.report_files, wx.ID_ANY, u"Project directory", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText22 = wx.StaticText(self.report_files, wx.ID_ANY, u"Project directory", wx.DefaultPosition,
+											wx.Size(500,20), 0)
 		self.m_staticText22.Wrap( -1 )
 
 		bSizer8.Add( self.m_staticText22, 0, wx.ALL, 5 )
@@ -1042,14 +1043,14 @@ class MyFrame1 ( wx.Frame ):
 
 		self.m_menubar1.Append( self.m_menu2, u"Select Notebook" )
 
-		self.m_menu3 = wx.Menu()
-		self.m_menuItem12 = wx.MenuItem( self.m_menu3, wx.ID_ANY, u"Take snapshot", wx.EmptyString, wx.ITEM_NORMAL )
-		self.m_menu3.Append( self.m_menuItem12 )
-
-		self.m_menuItem13 = wx.MenuItem( self.m_menu3, wx.ID_ANY, u"Print snaphsot", wx.EmptyString, wx.ITEM_NORMAL )
-		self.m_menu3.Append( self.m_menuItem13 )
-
-		self.m_menubar1.Append( self.m_menu3, u"Snapshot" )
+		# self.m_menu3 = wx.Menu()
+		# self.m_menuItem12 = wx.MenuItem( self.m_menu3, wx.ID_ANY, u"Take snapshot", wx.EmptyString, wx.ITEM_NORMAL )
+		# self.m_menu3.Append( self.m_menuItem12 )
+		#
+		# self.m_menuItem13 = wx.MenuItem( self.m_menu3, wx.ID_ANY, u"Print snaphsot", wx.EmptyString, wx.ITEM_NORMAL )
+		# self.m_menu3.Append( self.m_menuItem13 )
+		#
+		# self.m_menubar1.Append( self.m_menu3, u"Snapshot" )
 
 		self.m_menu4 = wx.Menu()
 		self.m_menuItem14 = wx.MenuItem( self.m_menu4, wx.ID_ANY, u"Clear all graphs", wx.EmptyString, wx.ITEM_NORMAL )
@@ -1134,8 +1135,8 @@ class MyFrame1 ( wx.Frame ):
 		self.Bind( wx.EVT_MENU, self.OnVTSelect, id = self.m_menuItem7.GetId() )
 		self.Bind( wx.EVT_MENU, self.OnLoadSelect, id = self.m_menuItem8.GetId() )
 		self.Bind( wx.EVT_MENU, self.OnSiteSelect, id = self.m_menuItem9.GetId() )
-		self.Bind( wx.EVT_MENU, self.OnSnapshot, id = self.m_menuItem12.GetId() )
-		self.Bind( wx.EVT_MENU, self.OnPrintSnap, id = self.m_menuItem13.GetId() )
+		# self.Bind( wx.EVT_MENU, self.OnSnapshot, id = self.m_menuItem12.GetId() )
+		# self.Bind( wx.EVT_MENU, self.OnPrintSnap, id = self.m_menuItem13.GetId() )
 		self.Bind( wx.EVT_MENU, self.OnClearAllGraphs, id = self.m_menuItem14.GetId() )
 		self.Bind( wx.EVT_MENU, self.OnClearText, id = self.m_menuItem17.GetId() )
 		self.Bind( wx.EVT_MENU, self.OnClearFiles, id = self.m_menuItem18.GetId() )
@@ -1293,8 +1294,8 @@ class MyFrame1 ( wx.Frame ):
 	def OnSiteSelect( self, event ):
 		event.Skip()
 
-	def OnSnapshot( self, event ):
-		event.Skip()
+	# def OnSnapshot( self, event ):
+	# 	event.Skip()
 
 	def OnPrintSnap( self, event ):
 		event.Skip()
