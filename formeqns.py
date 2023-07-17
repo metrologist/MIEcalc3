@@ -242,6 +242,7 @@ class EqnForm(IOForm):
         """
         Button to create load profile from half-hour data and store in csv file.
         """
+        print('calculating load profile', self.n_profiles, self.profile_list)
         profile = comp.LOAD('half-hour', self.load_values.GetValue(), self.load_data.GetValue())
         profile.hist_from_raw(self.load_data.GetValue(), self.e_data('_load.csv'))  # this creates the output file
         # it also returns graphing information, but this is not used here
@@ -415,7 +416,7 @@ class EqnForm(IOForm):
             axes = panel.axes1
         else:
             axes = panel.axes2
-        axes.errorbar(x, y, u, fmt='ro')
+        axes.errorbar(x, y, u, fmt='ro', capsize=5)
         axes.relim()  # this and line below are needed if graph was previously cleared
         axes.autoscale_view(True, True, False)
         panel.canvas.draw()

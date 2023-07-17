@@ -33,7 +33,7 @@ class MyFrame1 ( wx.Frame ):
 
 		bSizer6 = wx.BoxSizer( wx.VERTICAL )
 
-		self.m_staticText100 = wx.StaticText( self.Setup, wx.ID_ANY, u"Select workbook from file menu", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText100 = wx.StaticText( self.Setup, wx.ID_ANY, u"Select workbook from file menu. Wait for 'Process workbook file' to turn green.", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText100.Wrap( -1 )
 
 		bSizer6.Add( self.m_staticText100, 0, wx.ALL, 5 )
@@ -78,17 +78,19 @@ class MyFrame1 ( wx.Frame ):
 
 		bSizer8.Add( self.m_staticText22, 0, wx.ALL, 5 )
 
-		self.file_table = wx.grid.Grid( self.report_files, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.file_table = wx.grid.Grid( self.report_files, wx.ID_ANY, wx.DefaultPosition, wx.Size(500, 225), 0 )
+		# self.file_table = wx.grid.Grid(self.report_files, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
 
 		# Grid
 		self.file_table.CreateGrid( 10, 1 )
 		self.file_table.EnableEditing( True )
 		self.file_table.EnableGridLines( True )
-		self.file_table.EnableDragGridSize( False )
+		self.file_table.EnableDragGridSize( True )
 		self.file_table.SetMargins( 0, 0 )
 
 		# Columns
-		self.file_table.SetColSize( 0, 131 )
+		# self.file_table.SetColSize( 0, 131)
+		self.file_table.SetColSize( 0, 350 )
 		self.file_table.EnableDragColMove( False )
 		self.file_table.EnableDragColSize( True )
 		self.file_table.SetColLabelSize( 30 )

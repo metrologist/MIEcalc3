@@ -33,6 +33,9 @@ class IOForm(GraphForm):
         self.report_txt = []  # list of strings for writing to the reports
         self.report_images = []  # list of image buffers for pasting graphs in word report
         self.report_images_wx = []  # list of scaled wx images for placing in wx.richtext
+        self.profile_list = []  # in anticipation of having more than one load profile as a txt file
+        self.n_profiles = 1  # assume a default of one load profile before a spreadsheet is loaded
+        self.csv_profile = ['_load.csv']  # a matching set of csv files for the processed normalised load profiles
     def OnOpenFile(self, event):
         """
         Opens either a csv file with a list of component csv files, or opens
@@ -81,9 +84,9 @@ class IOForm(GraphForm):
         table.  There is no error checking!!!
         """
         # assume a new calculation is wanted, so clear all old inputs/outputs stored in GUI and temp files
+        self.profile_list = []  # reset for repeat loading, otherwise it continues to increment
         self.pushClearAllGraphs()
         self.PushClearText()
-        # self.PushClearFiles()  # the open process has just created a new project.csv, so do not delete!
         self.report_text = []  # these 3 report lists need to be reset, otherwise get the old report with the new data!
         self.report_images = []
         self.report_images_wx = []
@@ -92,7 +95,12 @@ class IOForm(GraphForm):
         for row in reader:
             project_files.append(row)
         for i in range(len(project_files)):
-            self.file_table.SetCellValue(i, 0, project_files[i][0])
+            if project_files[i][0][-3:]=='txt':  # the load files must be all at the end and are added as a list
+                self.profile_list.append(project_files[i][0])
+            else:
+                self.file_table.SetCellValue(i, 0, project_files[i][0])
+        self.n_profiles = len(self.profile_list)  # have now confirmed the number of profiles to calculate
+        self.file_table.SetCellValue(len(project_files) - len(self.profile_list), 0, repr(self.profile_list))
         # noting that the 'load' file calculation is different, set up for
         # choice of *.txt for plotting csv from e_data folder or directly from
         # the csv file.
@@ -100,12 +108,24 @@ class IOForm(GraphForm):
         if name[-3:] == 'csv':
             self.load_values.SetValue(os.path.join(self.projwd, name))
             self.load_data.SetValue('')  # no raw txt file
-        elif name[-3:] == 'txt':
-            self.load_values.SetValue(
-                os.path.join(self.projwd, '_load.csv'))  # raw txt will be processed into this
-            self.load_data.SetValue(os.path.join(self.projwd, name))  # raw txt file available
+        # elif name[-3:] == 'txt':
+        #     self.load_values.SetValue(
+        #         os.path.join(self.projwd, '_load.csv'))  # raw txt will be processed into this
+        #     self.load_data.SetValue(os.path.join(self.projwd, name))  # raw txt file available
+        elif name[-1:]=="]":  # have now reached the list of load files, just go back to the list
+            if len(self.profile_list)==0:  #1:  # a list of one txt file the zero option just skips this non-list method
+                self.load_values.SetValue(
+                            os.path.join(self.projwd, '_load.csv'))  # raw txt will be processed into this
+                self.load_data.SetValue(os.path.join(self.projwd, self.profile_list[0]))  # raw txt file available
+
+            else:  # now have a list of profiles/loads to work through
+                loadcsvfiles = []
+                for prof in self.profile_list:  # create a matching list of csv loadcsvfiles
+                    loadcsvfiles.append('_' + prof[:-3] + 'csv')
+                self.load_values.SetValue(repr(loadcsvfiles))
+                self.load_data.SetValue(repr(self.profile_list))
         else:
-            print('problem with load file!!')
+            print('problem with load file!!', project_files)
 
     def OnClearFiles(self, event):
         self.PushClearFiles()
@@ -514,18 +534,6 @@ class IOForm(GraphForm):
         self.PushClearText()
     def PushClearText(self):
         extras.VIEW(self).ClearText()
-
-    # def OnSnapshot(self, event):
-    #     """
-    #     Experimental screenshot option. Directly driven by the mouse *event*.
-    #     """
-    #     extras.VIEW(self).TakeScreenShot(self.projwd)  # os.path.join(self.cwd, 'e_data'))
-    #
-    # def OnPrintSnap(self, event):
-    #     """
-    #     Experimental printing of screenshot.
-    #     """
-    #     extras.VIEW(self).onPrint(self.projwd)  #os.path.join(self.cwd, 'e_data'))
 
 if __name__ == '__main__':
     app = wx.App()

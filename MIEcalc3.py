@@ -20,6 +20,7 @@ class MIECALC(REPORT):
         log = self.m_textCtrl3  # where stdout will be redirected
         redir = extras.RedirectText(log)
         sys.stdout = redir
+        sys.stderr = redir  # not sure this is desirable for normal users, but helps with debugging
         self.m_button26.Enable(False)  # 'Process project file' button initially greyed out
 
 

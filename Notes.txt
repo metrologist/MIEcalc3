@@ -96,3 +96,9 @@ Removed snapshot.
 The covariances used for the final error calculation were not scaled by the reduced chi-square. The plots did use the
 reduced chi-square, essentially showing the correct uncertainties. Note that the correctly scaled covariances are now
 shown in the grids so that the square root of the diagonals match to the standard deviation.
+
+6/7/23
+Check how tricky it would be to put 3D plots in a grid. This would likely be better than adding tabs as all load
+profiles could be visualised together.
+Start with https://matplotlib.org/stable/gallery/mplot3d/subplot3d.html#sphx-glr-gallery-mplot3d-subplot3d-py
+Also a double y axis for the transformers might look less cluttered than separate error and phase plots.

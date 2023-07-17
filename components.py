@@ -498,7 +498,7 @@ class INSTALLATION(object):
         self.meter = meter
         self.ct = ct
         self.vt = vt
-        self.load = load
+        self.load = load  # could make this a list of n loads
         self.conditions = conditions
         self.make_inst_ureals()
         self.comp = COMPONENT()  # provides access to component methods

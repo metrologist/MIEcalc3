@@ -169,7 +169,7 @@ class EXCEL(object):
         wb = xlrd.open_workbook(os.path.join(directory, excel_input))
         sheet_names = wb.sheet_names()
         target_names = ['project', 'meter', 'meter_inf', 'VT', 'VTe_inf', 'VTp_inf',
-        'CT', 'CTe_inf', 'CTp_inf', 'site_inf', 'load']
+        'CT', 'CTe_inf', 'CTp_inf', 'site_inf', 'load']  # picking up alternative load tab for .xls
         a = set(target_names)
         assert len(a.intersection(sheet_names)) == len(target_names), 'missing worksheet(s)?'
         dirname = os.path.join(directory, 'xls_temp')
@@ -209,7 +209,28 @@ class EXCEL(object):
         wb = openpyxl.load_workbook(os.path.join(directory, excel_input), data_only=True)
         sheet_names = wb.sheetnames
         target_names = ['project', 'meter', 'meter_inf', 'VT', 'VTe_inf', 'VTp_inf',
-                        'CT', 'CTe_inf', 'CTp_inf', 'site_inf', 'load']
+                        'CT', 'CTe_inf', 'CTp_inf', 'site_inf', 'load']  # alternative load tab for xlsx
+
+        # need to know how many load files exist
+        if 'project' in sheet_names:  # if not, nothing will work!
+            temp_file_list = []  # just looking for the txt files at this stage
+            sh = wb['project']
+            for row in sh.values:
+                temp_file_list.append(row[0])
+            nmb_profiles = 0
+            for x in temp_file_list:
+                if x[-3:]=='txt':
+                    nmb_profiles += 1
+        else:
+            print('incorrectly formatted spreadsheet')
+            raise
+        # self.nmb_profiles is now set
+
+        if nmb_profiles > 1:
+            print('adding load names')  # does not print, stdout not redirected yet?
+            for i in range(1, nmb_profiles):
+                target_names.append('load' + str(i))
+
         a = set(target_names)
         assert len(a.intersection(sheet_names)) == len(target_names), 'missing worksheet(s)?'
         dirname = os.path.join(directory, 'xls_temp')
