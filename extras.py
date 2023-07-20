@@ -155,68 +155,33 @@ class EXCEL(object):
     Reads data from Excel and converts into csv files.
     """
 
-    def excel_to_csv(self, directory, excel_input):
+    def excelx_to_csv(self, directory, excel_input, xlsx):
         """
-        This reads an xls spread sheet, *excel input* in *directory*, formatted
-        to hold all metering input information.The format matches that
-        for the 11 csv files that are produced when the data is loaded directly
-        into the grids in the GUI.  Excel uses 11 worksheets and each worksheet
-        is converted to its corresponding csv file for feeding into MIEcalculator.
-
-        The workbook must have worksheets named meter, meter_inf, VT, VTe_inf,
-        VTp_inf, CT, CTe_inf, CTp_inf, site_inf and load.
-        """
-        wb = xlrd.open_workbook(os.path.join(directory, excel_input))
-        sheet_names = wb.sheet_names()
-        target_names = ['project', 'meter', 'meter_inf', 'VT', 'VTe_inf', 'VTp_inf',
-        'CT', 'CTe_inf', 'CTp_inf', 'site_inf', 'load']  # picking up alternative load tab for .xls
-        a = set(target_names)
-        assert len(a.intersection(sheet_names)) == len(target_names), 'missing worksheet(s)?'
-        dirname = os.path.join(directory, 'xls_temp')
-
-        try:
-            os.makedirs(dirname)
-        except OSError:
-            if os.path.isdir(dirname):
-                pass
-            else:
-                # There was an error on creation, so make sure we know about it
-                raise
-
-        # should allow for project page to have variations on the file names
-        sh = wb.sheet_by_name(target_names[0])
-        file_names = [u'project.csv'] #start with default project.csv
-        for rownum in range(sh.nrows):
-            file_names.append(sh.row_values(rownum)[0])
-
-        for i in range(len(file_names)):
-            sh = wb.sheet_by_name(target_names[i])
-            with open(os.path.join(dirname, file_names[i]), 'w', newline='') as f:
-                if file_names[i][-3:] == 'csv':
-                    c = csv.writer(f)
-                elif file_names[i][-3:] == 'txt': #txt file will be tab delimited
-                    c = csv.writer(f, dialect='excel-tab')
-                for r in range(sh.nrows):
-                    c.writerow(sh.row_values(r))
-
-    def excelx_to_csv(self, directory, excel_input):
-        """
-        As for excel_to _csv but using openpyxl for xlsm and xlsx spreadsheets.
+        Uses openpyxl for xlsx files and xlrd for xls files
         :param directory: Usually the xls_tmp directory
-        :param excel_input:  Excel file name
+        :param excel_input: Excel file name
+        :param xlsx: True for an xlsx file, False for an xls file
         :return:
         """
-        wb = openpyxl.load_workbook(os.path.join(directory, excel_input), data_only=True)
-        sheet_names = wb.sheetnames
-        target_names = ['project', 'meter', 'meter_inf', 'VT', 'VTe_inf', 'VTp_inf',
-                        'CT', 'CTe_inf', 'CTp_inf', 'site_inf', 'load']  # alternative load tab for xlsx
 
+        if xlsx:  # using different modules for xlsx and xls
+            wb = openpyxl.load_workbook(os.path.join(directory, excel_input), data_only=True)
+            sheetxnames = wb.sheetnames
+        else:
+            wb = xlrd.open_workbook(os.path.join(directory, excel_input))
+            sheetxnames = wb.sheet_names()
+        target_names = ['project', 'meter', 'meter_inf', 'VT', 'VTe_inf', 'VTp_inf',
+                        'CT', 'CTe_inf', 'CTp_inf', 'site_inf', 'load']
         # need to know how many load files exist
-        if 'project' in sheet_names:  # if not, nothing will work!
+        if 'project' in sheetxnames:  # if not, nothing will work!
             temp_file_list = []  # just looking for the txt files at this stage
             sh = wb['project']
-            for row in sh.values:
-                temp_file_list.append(row[0])
+            if xlsx:
+                for row in sh.values:
+                    temp_file_list.append(row[0])
+            else:
+                for rownum in range(sh.nrows):
+                    temp_file_list.append(sh.row_values(rownum)[0])
             nmb_profiles = 0
             for x in temp_file_list:
                 if x[-3:]=='txt':
@@ -232,7 +197,7 @@ class EXCEL(object):
                 target_names.append('load' + str(i))
 
         a = set(target_names)
-        assert len(a.intersection(sheet_names)) == len(target_names), 'missing worksheet(s)?'
+        assert len(a.intersection(sheetxnames)) == len(target_names), 'missing worksheet(s)?'
         dirname = os.path.join(directory, 'xls_temp')
 
         try:
@@ -245,16 +210,30 @@ class EXCEL(object):
                 raise
 
         # should allow for project page to have variations on the file names
-        sh = wb[target_names[0]]
+        if xlsx:
+            sh = wb[target_names[0]]
+        else:
+            sh = wb.sheet_by_name(target_names[0])
         file_names = [u'project.csv']  # start with default project.csv
-        for row in sh.values:
-            file_names.append(row[0])
+        if xlsx:
+            for row in sh.values:
+                file_names.append(row[0])
+        else:
+            for rownum in range(sh.nrows):
+                file_names.append(sh.row_values(rownum)[0])
         for i in range(len(file_names)):
-            sh = wb[target_names[i]]
+            if xlsx:
+                sh = wb[target_names[i]]
+            else:
+                sh = wb.sheet_by_name(target_names[i])
             with open(os.path.join(dirname, file_names[i]), 'w', newline='') as f:
                 if file_names[i][-3:] == 'csv':
                     c = csv.writer(f)
                 elif file_names[i][-3:] == 'txt': #txt file will be tab delimited
                     c = csv.writer(f, dialect='excel-tab')
-                for r in sh.values:
-                    c.writerow(r)
+                if xlsx:
+                    for r in sh.values:
+                        c.writerow(r)
+                else:
+                    for rownum in range(sh.nrows):
+                        c.writerow(sh.row_values(rownum))

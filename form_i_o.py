@@ -59,12 +59,13 @@ class IOForm(GraphForm):
             self.m_statusBar1.SetStatusText(filename, 1)
             self.projwd = dirname  # remember the project working directory
             if filename[-3:] == 'xls':
-                extras.EXCEL().excel_to_csv(dirname, filename)
+                # extras.EXCEL().excel_to_csv(dirname, filename)
+                extras.EXCEL().excelx_to_csv(dirname, filename, False)  # false for xls not xlsx
                 filename = 'project.csv'  # default output of excel_to_csv
                 dirname = os.path.join(dirname, 'xls_temp')
                 self.projwd = dirname
             elif filename[-4:] == 'xlsx' or filename[-4:] == 'xlsm':
-                extras.EXCEL().excelx_to_csv(dirname, filename)
+                extras.EXCEL().excelx_to_csv(dirname, filename, True)  # true for xlsx not xls
                 filename = 'project.csv'  # default output of excel_to_csv
                 dirname = os.path.join(dirname, 'xls_temp')
                 self.projwd = dirname
@@ -96,7 +97,7 @@ class IOForm(GraphForm):
             project_files.append(row)
         for i in range(len(project_files)):
             if project_files[i][0][-3:]=='txt':  # the load files must be all at the end and are added as a list
-                self.profile_list.append(project_files[i][0])
+                self.profile_list.append(os.path.join(self.projwd, project_files[i][0]))
             else:
                 self.file_table.SetCellValue(i, 0, project_files[i][0])
         self.n_profiles = len(self.profile_list)  # have now confirmed the number of profiles to calculate
@@ -108,22 +109,14 @@ class IOForm(GraphForm):
         if name[-3:] == 'csv':
             self.load_values.SetValue(os.path.join(self.projwd, name))
             self.load_data.SetValue('')  # no raw txt file
-        # elif name[-3:] == 'txt':
-        #     self.load_values.SetValue(
-        #         os.path.join(self.projwd, '_load.csv'))  # raw txt will be processed into this
-        #     self.load_data.SetValue(os.path.join(self.projwd, name))  # raw txt file available
-        elif name[-1:]=="]":  # have now reached the list of load files, just go back to the list
-            if len(self.profile_list)==0:  #1:  # a list of one txt file the zero option just skips this non-list method
-                self.load_values.SetValue(
-                            os.path.join(self.projwd, '_load.csv'))  # raw txt will be processed into this
-                self.load_data.SetValue(os.path.join(self.projwd, self.profile_list[0]))  # raw txt file available
 
-            else:  # now have a list of profiles/loads to work through
-                loadcsvfiles = []
-                for prof in self.profile_list:  # create a matching list of csv loadcsvfiles
-                    loadcsvfiles.append('_' + prof[:-3] + 'csv')
-                self.load_values.SetValue(repr(loadcsvfiles))
-                self.load_data.SetValue(repr(self.profile_list))
+        elif name[-1:]=="]":  # have now reached the list of load files, just go back to the list
+            self.csv_profile = []
+            for prof in self.profile_list:  # create a matching list of csv loadcsvfiles
+                # self.csv_profile.append(os.path.join(self.projwd,'_' + prof[:-3] + 'csv'))
+                self.csv_profile.append(prof[:-3] + 'csv')
+            self.load_values.SetValue(repr(self.csv_profile))
+            self.load_data.SetValue(repr(self.profile_list))
         else:
             print('problem with load file!!', project_files)
 
@@ -136,7 +129,6 @@ class IOForm(GraphForm):
         is good house-keeping and avoids hiding bugs that prevent a new csv
         data file from being created.
         """
-        # folder = os.path.join(self.cwd, 'e_data')
         folder = self.projwd
         if folder != 'no path':
             for the_file in os.listdir(folder):

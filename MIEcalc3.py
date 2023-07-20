@@ -235,9 +235,10 @@ class MIECALC(REPORT):
         results and graphs is generated.
         """
         # assemble components and calculate the error
-        data1 = self.load_values.GetValue()
-        data2 = self.load_data.GetValue()
-        profile = comp.LOAD('default', data1, data2)  # data files as from load table
+        # data1 = self.load_values.GetValue()
+        # data2 = self.load_data.GetValue()
+        # profile = comp.LOAD('default', data1, data2)  # data files as from load table
+        profile = comp.LOAD('default', self.csv_profile, self.profile_list)  # data files from the lists
         model = functions.MODEL('model')  # pick up the standard model functions to pass into component objects
         meter = comp.METER('default', '1 element', model, self.e_data('_meter.csv'))
         ct = comp.TRAN('name', 'single', model, self.e_data('_CT.csv'))
@@ -246,43 +247,45 @@ class MIECALC(REPORT):
         error = site.site_error_terms()
         self.m_statusBar1.SetStatusText('Calculation finished', 2)
 
-        # Plot the error
-        r = error[2]  # installation's X as determined by the profile
-        no_of_points = len(r)
-        X = np.zeros(no_of_points)
-        Y = np.zeros(no_of_points)
-        Z = np.zeros(no_of_points)
-        Z1 = np.zeros(no_of_points)
-        Z2 = np.zeros(no_of_points)
-        for i in range(no_of_points):
-            X[i] = r[i][0]
-            Y[i] = r[i][1]
-            Z[i] = error[0][i].x
-            uZ = error[0][i].u
-            dfZ = error[0][i].df
-            kZ = t.ppf(0.975, dfZ)  # note scipy t
-            Z1[i] = Z[i] + uZ * kZ
-            Z2[i] = Z[i] - uZ * kZ
-        edge_no = np.sqrt(no_of_points)  # assuming an nxn grid
-        dummy = np.zeros((int(edge_no), int(edge_no)), dtype=float)  # assumes nxn
-        ZZ = np.reshape(Z, np.shape(dummy))
-        XX = np.reshape(X, np.shape(dummy))
-        YY = np.reshape(Y, np.shape(dummy))
-        ZZ1 = np.reshape(Z1, np.shape(dummy))
-        ZZ2 = np.reshape(Z2, np.shape(dummy))
-        with warnings.catch_warnings():  # get 'converting masked element to nan'
-            warnings.simplefilter("ignore")
-            np.seterr(invalid='ignore')
-            self.report_graph.ax.plot_surface(XX, YY, ZZ, rstride=1, cstride=1, cmap='jet')
-            self.report_graph.ax.plot_wireframe(XX, YY, ZZ1)
-            self.report_graph.ax.plot_wireframe(XX, YY, ZZ2)
-            np.seterr(invalid='print')
-        self.report_graph.ax.autoscale(enable=True, axis='both', tight=True)
-        self.report_graph.canvas.draw()
-        # create report
-        self.m_statusBar1.SetStatusText('Generating report', 0)
-        self.reporter(error[1])
-        self.wxreport()
+        for ii in range(len(error[0])):
+            print('load profile number ', ii)
+            # Plot the error
+            r = error[2][ii]  # installation's X as determined by the profile
+            no_of_points = len(r)
+            X = np.zeros(no_of_points)
+            Y = np.zeros(no_of_points)
+            Z = np.zeros(no_of_points)
+            Z1 = np.zeros(no_of_points)
+            Z2 = np.zeros(no_of_points)
+            for i in range(no_of_points):
+                X[i] = r[i][0]
+                Y[i] = r[i][1]
+                Z[i] = error[0][ii][i].x
+                uZ = error[0][ii][i].u
+                dfZ = error[0][ii][i].df
+                kZ = t.ppf(0.975, dfZ)  # note scipy t
+                Z1[i] = Z[i] + uZ * kZ
+                Z2[i] = Z[i] - uZ * kZ
+            edge_no = np.sqrt(no_of_points)  # assuming an nxn grid
+            dummy = np.zeros((int(edge_no), int(edge_no)), dtype=float)  # assumes nxn
+            ZZ = np.reshape(Z, np.shape(dummy))
+            XX = np.reshape(X, np.shape(dummy))
+            YY = np.reshape(Y, np.shape(dummy))
+            ZZ1 = np.reshape(Z1, np.shape(dummy))
+            ZZ2 = np.reshape(Z2, np.shape(dummy))
+            with warnings.catch_warnings():  # get 'converting masked element to nan'
+                warnings.simplefilter("ignore")
+                np.seterr(invalid='ignore')
+                self.report_graph.ax.plot_surface(XX, YY, ZZ, rstride=1, cstride=1, cmap='jet')
+                self.report_graph.ax.plot_wireframe(XX, YY, ZZ1)
+                self.report_graph.ax.plot_wireframe(XX, YY, ZZ2)
+                np.seterr(invalid='print')
+            self.report_graph.ax.autoscale(enable=True, axis='both', tight=True)
+            self.report_graph.canvas.draw()
+            # create report
+            self.m_statusBar1.SetStatusText('Generating report', 0)
+            self.reporter(error[1][ii])
+            self.wxreport()
     def OnAutoCalc(self, event):
         self.PushAutocalc()
 

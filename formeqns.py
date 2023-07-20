@@ -242,9 +242,13 @@ class EqnForm(IOForm):
         """
         Button to create load profile from half-hour data and store in csv file.
         """
-        print('calculating load profile', self.n_profiles, self.profile_list)
-        profile = comp.LOAD('half-hour', self.load_values.GetValue(), self.load_data.GetValue())
-        profile.hist_from_raw(self.load_data.GetValue(), self.e_data('_load.csv'))  # this creates the output file
+        # print('calculating load profile', self.n_profiles, self.profile_list)
+        # profile = comp.LOAD('half-hour', self.load_values.GetValue(), self.load_data.GetValue())
+        # profile.hist_from_raw(self.load_data.GetValue(), self.e_data('_load.csv'))  # this creates the output file
+        # print('**********formeqns length check', len(self.profile_list), len(self.csv_profile))
+        profile = comp.LOAD('half-hour', self.profile_list, self.csv_profile)
+        # print('profile LOAD instance created')
+        profile.hist_from_raw(self.profile_list, self.csv_profile)  # this creates the output file
         # it also returns graphing information, but this is not used here
         # suggests comp.LOAD should be rethought
 
@@ -259,41 +263,43 @@ class EqnForm(IOForm):
         """
         # this uses the .csv file to plot (either created by LOAD or provided independently)
         # self.LoadProfile(self.load_data.GetValue(), self.load_values.GetValue())
-        if self.load_data.GetValue()[-3:] == 'txt':
+        for i in range(len(self.profile_list)):
+            # if self.load_data.GetValue()[-3:] == 'txt':
+            #     self.PushCreateLoadProfile()
             self.PushCreateLoadProfile()
-        # print('looking for',self.load_values.GetValue())
-        reader = csv.reader(open(self.load_values.GetValue(), 'r'))
-        load = []
-        for row in reader:
-            load.append(row)  # everything including header line
-        # header line has x,y box size
-        x = float(load[0][0])
-        y = float(load[0][1])
-        z = float(load[0][2])
-        # remove first line
-        load = load[1:]
-        # confused by dz and zpos...suspicious something is transposed
-        # note that the x,y plot points are not the centre of the box
-        n = len(load)
-        xpos = np.zeros(n)
-        ypos = np.zeros(n)
-        zpos = np.zeros(n)
-        dx = np.zeros(n)
-        dy = np.zeros(n)
-        dz = np.zeros(n)
-        for i in range(n):
-            xpos[i] = float(load[i][3])
-            ypos[i] = float(load[i][4])
-            zpos[i] = z
-            dx[i] = x
-            dy[i] = y
-            dz[i] = float(load[i][2])
-        with warnings.catch_warnings():  # get 'converting masked element to nan'
-            warnings.simplefilter("ignore")
-            np.seterr(invalid='ignore')  # since numpy 1.5.1 this additional error handling is required
-            self.load_graph.ax.bar3d(xpos, ypos, zpos, dx, dy, dz, color='b', zsort='average')
-            np.seterr(invalid='print')
-            self.load_graph.ax.autoscale(enable=True, axis='both', tight=True)
+            # print('looking for',self.load_values.GetValue())
+            reader = csv.reader(open(self.csv_profile[i], 'r'))
+            load = []
+            for row in reader:
+                load.append(row)  # everything including header line
+            # header line has x,y box size
+            x = float(load[0][0])
+            y = float(load[0][1])
+            z = float(load[0][2])
+            # remove first line
+            load = load[1:]
+            # confused by dz and zpos...suspicious something is transposed
+            # note that the x,y plot points are not the centre of the box
+            n = len(load)
+            xpos = np.zeros(n)
+            ypos = np.zeros(n)
+            zpos = np.zeros(n)
+            dx = np.zeros(n)
+            dy = np.zeros(n)
+            dz = np.zeros(n)
+            for i in range(n):
+                xpos[i] = float(load[i][3])
+                ypos[i] = float(load[i][4])
+                zpos[i] = z
+                dx[i] = x
+                dy[i] = y
+                dz[i] = float(load[i][2])
+            with warnings.catch_warnings():  # get 'converting masked element to nan'
+                warnings.simplefilter("ignore")
+                np.seterr(invalid='ignore')  # since numpy 1.5.1 this additional error handling is required
+                self.load_graph.ax.bar3d(xpos, ypos, zpos, dx, dy, dz, color='b', zsort='average')
+                np.seterr(invalid='print')
+                self.load_graph.ax.autoscale(enable=True, axis='both', tight=True)
 
     def mean_fit1(self, datagrid, fitgrid, graph, axes):
         """
