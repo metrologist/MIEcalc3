@@ -34,6 +34,7 @@ class IOForm(GraphForm):
         self.report_images = []  # list of image buffers for pasting graphs in word report
         self.report_images_wx = []  # list of scaled wx images for placing in wx.richtext
         self.profile_list = []  # in anticipation of having more than one load profile as a txt file
+        self.error_list = []  # in anticipation of having more than one error profile selected region?
         self.n_profiles = 1  # assume a default of one load profile before a spreadsheet is loaded
         self.csv_profile = ['_load.csv']  # a matching set of csv files for the processed normalised load profiles
     def OnOpenFile(self, event):
@@ -86,6 +87,7 @@ class IOForm(GraphForm):
         """
         # assume a new calculation is wanted, so clear all old inputs/outputs stored in GUI and temp files
         self.profile_list = []  # reset for repeat loading, otherwise it continues to increment
+        self.error_list = []  # reset for repeat loading, otherwise it continues to increment?
         self.pushClearAllGraphs()
         self.PushClearText()
         self.report_text = []  # these 3 report lists need to be reset, otherwise get the old report with the new data!
@@ -102,6 +104,8 @@ class IOForm(GraphForm):
                 self.file_table.SetCellValue(i, 0, project_files[i][0])
         self.n_profiles = len(self.profile_list)  # have now confirmed the number of profiles to calculate
         self.file_table.SetCellValue(len(project_files) - len(self.profile_list), 0, repr(self.profile_list))
+        # can now create the multiple plot axes for the load
+        self.Create3DGraph(self.load_graph, self.n_profiles, 'load_axes_3D')
         # noting that the 'load' file calculation is different, set up for
         # choice of *.txt for plotting csv from e_data folder or directly from
         # the csv file.
@@ -110,15 +114,15 @@ class IOForm(GraphForm):
             self.load_values.SetValue(os.path.join(self.projwd, name))
             self.load_data.SetValue('')  # no raw txt file
 
-        elif name[-1:]=="]":  # have now reached the list of load files, just go back to the list
+        elif name[-1:] == "]":  # have now reached the list of load files, just go back to the list
             self.csv_profile = []
             for prof in self.profile_list:  # create a matching list of csv loadcsvfiles
-                # self.csv_profile.append(os.path.join(self.projwd,'_' + prof[:-3] + 'csv'))
                 self.csv_profile.append(prof[:-3] + 'csv')
             self.load_values.SetValue(repr(self.csv_profile))
             self.load_data.SetValue(repr(self.profile_list))
         else:
             print('problem with load file!!', project_files)
+
 
     def OnClearFiles(self, event):
         self.PushClearFiles()

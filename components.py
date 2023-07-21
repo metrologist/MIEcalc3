@@ -431,10 +431,7 @@ class LOAD(object):
         :param plotable_file: list of matching csv files
         :return: csv files created, no direct return
         """
-        # print('********* plottable', plotable_file)
-        # print('****** hist_from_raw length check', len(raw_file), len(plotable_file))
-        # print(raw_file)
-        # print(plotable_file)
+
         for i in range(len(raw_file)):
             load_data = np.loadtxt(raw_file[i])
             current = load_data[:, 0]
@@ -614,7 +611,6 @@ class INSTALLATION(object):
             self.budget(overall_error)
             total_error_list.append(total_error)
             overall_error_list.append(overall_error)
-        # print('total_error', total_error_list)
         print('overall_error', overall_error_list)
         return total_error_list, overall_error_list, XX
 

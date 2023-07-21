@@ -3,6 +3,7 @@ from formbooks import ProjectFrame
 from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigureCanvas
 from matplotlib.backends.backend_wxagg import NavigationToolbar2WxAgg
 from matplotlib.figure import Figure
+from math import ceil, sqrt
 
 
 class GraphForm(ProjectFrame):
@@ -13,11 +14,14 @@ class GraphForm(ProjectFrame):
         """
         ProjectFrame.__init__(self, parent)
         # add matplotlib graph that was not in wxFormBuilder
-        self.Create3DGraph(self.report_graph)  # report notebook
+        self.load_axes_3D = []  # a list of the axes for multiple 3D plots of load
+        self.error_axes_3D = []  # a list of the axes for multiple 3D plots of total error
+        self.meter_axes_3D = []  # a list of the axes for multiple 3D meter plots ... not used
+        self.Create3DGraph(self.report_graph, 1, 'error_axes_3D')  # report notebook
         self.Create2DGraph(self.CT_graph_1, "Current / %")  # CT notebook
         self.Create2DGraph(self.VT_graph_1, "Voltage/ %")  # VT notebook
-        self.Create3DGraph(self.meter_graph)  # Meter notebook
-        self.Create3DGraph(self.load_graph)  # Load notebook
+        self.Create3DGraph(self.meter_graph, 1, 'meter_axes_3D')  # Meter notebook
+        self.Create3DGraph(self.load_graph, 1, 'load_axes_3D')  # Load notebook
         self.load_graph.ax.set_zlabel('Energy')  # Load has energy for z axis
 
     def Create2DGraph(self, panel, xlabel):
@@ -55,19 +59,30 @@ class GraphForm(ProjectFrame):
         # update the axes menu on the toolbar
         panel.toolbar.update()
 
-    def Create3DGraph(self, panel):
+    def Create3DGraph(self, panel, n, target):
         """
-        A 3D graph is created on *panel*.
+
+        :param panel: wx panel that will display the graph, panel name used to identify axes
+        :param n: the number of 3D graphs to be displayed
+        :return:
         """
+        rows = ceil(n / ceil(sqrt(n)))  # choose rows, columns to fit the number of graphs required
+        cols = ceil(sqrt(n))
         panel.figure = Figure(None)
         panel.canvas = FigureCanvas(panel, -1, panel.figure)
-        panel.ax = panel.figure.add_subplot(111, projection='3d')
-        panel.figure.set_facecolor('white')
-        panel.figure.tight_layout()
-        # these labels should be selected later for specific components
-        panel.ax.set_xlabel('Current / %')
-        panel.ax.set_ylabel('Phase / degree')
-        panel.ax.set_zlabel('Error / %')
+        for i in range(1, n + 1):  # draw n sets of axes in the grid
+            panel.ax = panel.figure.add_subplot(rows, cols, i, projection='3d')
+            if target == 'error_axes_3D':
+                self.error_axes_3D.append(panel.ax)
+            elif target == 'load_axes_3D':
+                self.load_axes_3D.append(panel.ax)
+            # axes_list.append(panel.ax)  # not clear this list will give access to the plot
+            panel.figure.set_facecolor('white')
+            panel.figure.tight_layout()
+            # these labels should be selected later for specific components
+            panel.ax.set_xlabel('Current / %')
+            panel.ax.set_ylabel('Phase / degree')
+            panel.ax.set_zlabel('Error / %')
         panel.sizer = wx.BoxSizer(wx.VERTICAL)
         panel.sizer.Add(panel.canvas, 1, wx.LEFT | wx.TOP | wx.GROW)
         panel.SetSizer(panel.sizer)
@@ -107,6 +122,11 @@ class GraphForm(ProjectFrame):
             y.ax.set_ylabel(the_y)
             y.ax.set_zlabel(the_z)
             y.canvas.draw()
+        graphs_3D[2].figure.clf()  # this will be completely redrawn
+        graphs_3D[1].figure.clf()
+        self.load_axes_3D = []  # forget old axes
+        self.error_axes_3D = []  # forget old axes
+        self.meter_axes_3D = []  # forget old axes
 
     def OnQuit(self, event):
         """

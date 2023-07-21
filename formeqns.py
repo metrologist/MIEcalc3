@@ -134,16 +134,10 @@ class EqnForm(IOForm):
             for_plotting = function.fn(RS, ucoeffs)
             ZZ = np.zeros(len(RS))
             UU = np.zeros(len(RS))
-            ##             Zup = np.zeros(len(RS))
-            ##             Zlow = np.zeros(len(RS))
             for i in range(len(RS)):
                 ZZ[i] = for_plotting[i].x
                 temp_value = for_plotting[i] + temp_b0  # first add type B
                 UU[i] = temp_value.u * t.ppf(0.975, temp_value.df)  # *gtc.reporting.k_factor(temp_value.df) #expanded U
-            ##                 upper_lower = gtc.reporting.uncertainty_interval(for_plotting[i]+ temp_b0) #might be more efficient?
-            ##                 Zup[i] = upper_lower[1]
-            ##                 Zlow[i] = upper_lower[0]
-            ##                 UU[i] = for_plotting[i].u #note this is a 1 sigma plot
             Z1 = ZZ
             Z2 = np.reshape(Z1, np.shape(X))
             Z3 = Z1 + UU
@@ -242,15 +236,8 @@ class EqnForm(IOForm):
         """
         Button to create load profile from half-hour data and store in csv file.
         """
-        # print('calculating load profile', self.n_profiles, self.profile_list)
-        # profile = comp.LOAD('half-hour', self.load_values.GetValue(), self.load_data.GetValue())
-        # profile.hist_from_raw(self.load_data.GetValue(), self.e_data('_load.csv'))  # this creates the output file
-        # print('**********formeqns length check', len(self.profile_list), len(self.csv_profile))
         profile = comp.LOAD('half-hour', self.profile_list, self.csv_profile)
-        # print('profile LOAD instance created')
         profile.hist_from_raw(self.profile_list, self.csv_profile)  # this creates the output file
-        # it also returns graphing information, but this is not used here
-        # suggests comp.LOAD should be rethought
 
     def OnPlotLoadProfile(self, event):
         self.PushPlotLoadProfile()
@@ -262,13 +249,9 @@ class EqnForm(IOForm):
         than a csv file.
         """
         # this uses the .csv file to plot (either created by LOAD or provided independently)
-        # self.LoadProfile(self.load_data.GetValue(), self.load_values.GetValue())
-        for i in range(len(self.profile_list)):
-            # if self.load_data.GetValue()[-3:] == 'txt':
-            #     self.PushCreateLoadProfile()
+        for j in range(len(self.profile_list)):
             self.PushCreateLoadProfile()
-            # print('looking for',self.load_values.GetValue())
-            reader = csv.reader(open(self.csv_profile[i], 'r'))
+            reader = csv.reader(open(self.csv_profile[j], 'r'))
             load = []
             for row in reader:
                 load.append(row)  # everything including header line
@@ -287,6 +270,7 @@ class EqnForm(IOForm):
             dx = np.zeros(n)
             dy = np.zeros(n)
             dz = np.zeros(n)
+
             for i in range(n):
                 xpos[i] = float(load[i][3])
                 ypos[i] = float(load[i][4])
@@ -297,9 +281,12 @@ class EqnForm(IOForm):
             with warnings.catch_warnings():  # get 'converting masked element to nan'
                 warnings.simplefilter("ignore")
                 np.seterr(invalid='ignore')  # since numpy 1.5.1 this additional error handling is required
-                self.load_graph.ax.bar3d(xpos, ypos, zpos, dx, dy, dz, color='b', zsort='average')
+                self.load_axes_3D[j].bar3d(xpos, ypos, zpos, dx, dy, dz, color='b', zsort='average')
                 np.seterr(invalid='print')
-                self.load_graph.ax.autoscale(enable=True, axis='both', tight=True)
+                self.load_axes_3D[j].autoscale(enable=True, axis='both', tight=True)
+                self.load_axes_3D[j].set_xlim3d(left=0, right=120)
+                self.load_axes_3D[j].set_ylim3d(bottom=-30, top=90)
+                self.load_axes_3D[j].set_zlabel('Energy')  # Load has energy for z axis
 
     def mean_fit1(self, datagrid, fitgrid, graph, axes):
         """

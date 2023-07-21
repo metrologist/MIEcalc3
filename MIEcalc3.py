@@ -235,9 +235,6 @@ class MIECALC(REPORT):
         results and graphs is generated.
         """
         # assemble components and calculate the error
-        # data1 = self.load_values.GetValue()
-        # data2 = self.load_data.GetValue()
-        # profile = comp.LOAD('default', data1, data2)  # data files as from load table
         profile = comp.LOAD('default', self.csv_profile, self.profile_list)  # data files from the lists
         model = functions.MODEL('model')  # pick up the standard model functions to pass into component objects
         meter = comp.METER('default', '1 element', model, self.e_data('_meter.csv'))
@@ -246,9 +243,9 @@ class MIECALC(REPORT):
         site = comp.INSTALLATION('name', meter, ct, vt, profile, self.e_data('_site.csv'))
         error = site.site_error_terms()
         self.m_statusBar1.SetStatusText('Calculation finished', 2)
+        self.Create3DGraph(self.report_graph, self.n_profiles, 'error_axes_3D')
 
-        for ii in range(len(error[0])):
-            print('load profile number ', ii)
+        for ii in range(len(error[0])):  # iterates the full calculation through each load profile
             # Plot the error
             r = error[2][ii]  # installation's X as determined by the profile
             no_of_points = len(r)
@@ -276,11 +273,15 @@ class MIECALC(REPORT):
             with warnings.catch_warnings():  # get 'converting masked element to nan'
                 warnings.simplefilter("ignore")
                 np.seterr(invalid='ignore')
-                self.report_graph.ax.plot_surface(XX, YY, ZZ, rstride=1, cstride=1, cmap='jet')
-                self.report_graph.ax.plot_wireframe(XX, YY, ZZ1)
-                self.report_graph.ax.plot_wireframe(XX, YY, ZZ2)
+                # self.report_graph.ax.plot_surface(XX, YY, ZZ, rstride=1, cstride=1, cmap='jet')
+                # self.report_graph.ax.plot_wireframe(XX, YY, ZZ1)
+                # self.report_graph.ax.plot_wireframe(XX, YY, ZZ2)
+                self.error_axes_3D[ii].plot_surface(XX, YY, ZZ, rstride=1, cstride=1, cmap='jet')
+                self.error_axes_3D[ii].plot_wireframe(XX, YY, ZZ1)
+                self.error_axes_3D[ii].plot_wireframe(XX, YY, ZZ2)
                 np.seterr(invalid='print')
-            self.report_graph.ax.autoscale(enable=True, axis='both', tight=True)
+            # self.report_graph.ax.autoscale(enable=True, axis='both', tight=True)
+            self.error_axes_3D[ii].autoscale(enable=True, axis='both', tight=True)
             self.report_graph.canvas.draw()
             # create report
             self.m_statusBar1.SetStatusText('Generating report', 0)

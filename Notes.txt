@@ -102,3 +102,6 @@ Check how tricky it would be to put 3D plots in a grid. This would likely be bet
 profiles could be visualised together.
 Start with https://matplotlib.org/stable/gallery/mplot3d/subplot3d.html#sphx-glr-gallery-mplot3d-subplot3d-py
 Also a double y axis for the transformers might look less cluttered than separate error and phase plots.
+
+20/7/23
+Multiple load calculation working. Reporting and graphing needs to be updated to match.
