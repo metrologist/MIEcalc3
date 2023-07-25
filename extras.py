@@ -11,6 +11,7 @@ import csv
 import xlrd  # for xls and xlsm
 import openpyxl  # for xlsx and xlsxm
 from PIL import Image
+import warnings
 
 class RedirectText(object):
     """
@@ -165,8 +166,10 @@ class EXCEL(object):
         """
 
         if xlsx:  # using different modules for xlsx and xls
-            wb = openpyxl.load_workbook(os.path.join(directory, excel_input), data_only=True)
-            sheetxnames = wb.sheetnames
+            with warnings.catch_warnings():
+                warnings.filterwarnings("ignore", category=UserWarning)  # openpyxl does not like excel data filter
+                wb = openpyxl.load_workbook(os.path.join(directory, excel_input), data_only=True)
+                sheetxnames = wb.sheetnames
         else:
             wb = xlrd.open_workbook(os.path.join(directory, excel_input))
             sheetxnames = wb.sheet_names()
@@ -192,7 +195,6 @@ class EXCEL(object):
         # self.nmb_profiles is now set
 
         if nmb_profiles > 1:
-            print('adding load names')  # does not print, stdout not redirected yet?
             for i in range(1, nmb_profiles):
                 target_names.append('load' + str(i))
 
