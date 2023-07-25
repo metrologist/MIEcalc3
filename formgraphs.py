@@ -64,6 +64,7 @@ class GraphForm(ProjectFrame):
 
         :param panel: wx panel that will display the graph, panel name used to identify axes
         :param n: the number of 3D graphs to be displayed
+        :param target:  name of the specific graph either error_axes_3D or load_axes_3D which needs mutlitple axes
         :return:
         """
         rows = ceil(n / ceil(sqrt(n)))  # choose rows, columns to fit the number of graphs required
@@ -88,6 +89,7 @@ class GraphForm(ProjectFrame):
         panel.SetSizer(panel.sizer)
         panel.Fit()
         self.add_2Dtoolbar(panel)
+        panel.canvas.draw()  # not clear if this is necessary ... sometimes the first subplot was not rotating
 
     def OnClearAllGraphs(self, event):
         self.pushClearAllGraphs()
@@ -113,7 +115,7 @@ class GraphForm(ProjectFrame):
             y.canvas.draw()
 
         graphs_3D = [self.meter_graph, self.report_graph, self.load_graph]
-        for y in graphs_3D:
+        for y in graphs_3D:  # clears axes to be ready for re-using
             the_x = y.ax.get_xlabel()
             the_y = y.ax.get_ylabel()
             the_z = y.ax.get_zlabel()
@@ -122,11 +124,11 @@ class GraphForm(ProjectFrame):
             y.ax.set_ylabel(the_y)
             y.ax.set_zlabel(the_z)
             y.canvas.draw()
-        graphs_3D[2].figure.clf()  # this will be completely redrawn
-        graphs_3D[1].figure.clf()
-        self.load_axes_3D = []  # forget old axes
-        self.error_axes_3D = []  # forget old axes
-        self.meter_axes_3D = []  # forget old axes
+        graphs_3D[2].figure.clf()  # load_graph will be completely redrawn (in case number of subplots changes).
+        graphs_3D[1].figure.clf()  # report_graph will be completely redrawn (in case number of subplots changes).
+        self.load_axes_3D = []  # forget old axes list
+        self.error_axes_3D = []  # forget old axes list
+        self.meter_axes_3D = []  # forget old axes list
 
     def OnQuit(self, event):
         """

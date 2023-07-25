@@ -78,6 +78,9 @@ class IOForm(GraphForm):
         self.m_button26.Enable(True)  # 'Process project file' button available once file is loaded
         self.m_button26.SetBackgroundColour(colour='PALE GREEN')
         dlg.Destroy()
+        # shift focus to the processing page
+        self.BookSelect('Report notebook')  # defaults to the Main/Report notebook (was called Report Notebook)
+        self.m_notebook1.ChangeSelection(0)  # defaults to the 'Main' tab
 
     def LoadProjFiles(self, proj_file):
         """

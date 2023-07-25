@@ -20,11 +20,12 @@ class ProjectFrame(MyFrame1):
         icon1 = wx.Icon(iconFile, wx.BITMAP_TYPE_ICO)
         self.SetIcon(icon1)
         self.SetTitle(u"Metering Installation Error Calculator\
-        (June 2023, v1.1.1)")  # keep title and version up to date.
+        (August 2023, v1.2.0)")  # keep title and version up to date.
         self.notebooks = {'Report notebook': self.m_notebook1, 'Meter notebook': self.m_notebook11,
                           'CT notebook': self.CT_notebook, 'VT notebook': self.VT_notebook,
                           'Load notebook': self.m_notebook14, 'Site notebook': self.m_notebook15}
-        self.BookSelect('Report notebook')
+        self.BookSelect('Report notebook')  # defaults to the Main/Report notebook (was called Report Notebook)
+        self.m_notebook1.ChangeSelection(0)  # defaults to the 'Main' tab
 
     # Select which notebook to show from 'Select View' menu events
     def OnReportSelect(self, event):
