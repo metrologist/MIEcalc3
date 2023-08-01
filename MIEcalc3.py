@@ -241,7 +241,7 @@ class MIECALC(REPORT):
         ct = comp.TRAN('name', 'single', model, self.e_data('_CT.csv'))
         vt = comp.TRAN('name', 'single', model, self.e_data('_VT.csv'))
         site = comp.INSTALLATION('name', meter, ct, vt, profile, self.e_data('_site.csv'))
-        error = site.site_error_terms()
+        error = site.site_error_terms()  # total_error_list, overall_error_list, XX  (all are lists)
         self.m_statusBar1.SetStatusText('Calculation finished', 2)
         self.Create3DGraph(self.report_graph, self.n_profiles, 'error_axes_3D')
 
@@ -276,17 +276,22 @@ class MIECALC(REPORT):
                 # self.report_graph.ax.plot_surface(XX, YY, ZZ, rstride=1, cstride=1, cmap='jet')
                 # self.report_graph.ax.plot_wireframe(XX, YY, ZZ1)
                 # self.report_graph.ax.plot_wireframe(XX, YY, ZZ2)
+                # self.error_axes_3D[ii].set_title(ii + 1)
+                self.error_axes_3D[ii].text2D(0.05, 0.95, ii+1, transform=self.error_axes_3D[ii].transAxes)
+                self.error_axes_3D[ii].set_xlim3d(left=0, right=120)  # fix axes range
+                self.error_axes_3D[ii].set_ylim3d(bottom=-30, top=90)
                 self.error_axes_3D[ii].plot_surface(XX, YY, ZZ, rstride=1, cstride=1, cmap='jet')
                 self.error_axes_3D[ii].plot_wireframe(XX, YY, ZZ1)
                 self.error_axes_3D[ii].plot_wireframe(XX, YY, ZZ2)
                 np.seterr(invalid='print')
             # self.report_graph.ax.autoscale(enable=True, axis='both', tight=True)
-            self.error_axes_3D[ii].autoscale(enable=True, axis='both', tight=True)
+            # self.error_axes_3D[ii].autoscale(enable=True, axis='both', tight=True)  # do not autoscale
             self.report_graph.canvas.draw()
             # create report
             self.m_statusBar1.SetStatusText('Generating report', 0)
-            self.reporter(error[1][ii])
-            self.wxreport()
+        self.reporter(error[1], site.temp)  # note that the site temperature is needed for the report
+        self.wxreport()
+        self.m_statusBar1.SetStatusText('Report ready', 0)
     def OnAutoCalc(self, event):
         self.PushAutocalc()
 
@@ -295,6 +300,7 @@ class MIECALC(REPORT):
         Button push for "Process opened project files" button, proceeds to load all
         data files and then executes 'grand_finale'.
         """
+        self.m_button26.Enable(False)  # grey out immediately after first push
         self.m_statusBar1.SetStatusText('Autocalculation started', 2)
         self.m_statusBar1.SetStatusText('Meter calculation', 0)
         self.PushLoadMeterData()
@@ -330,6 +336,8 @@ class MIECALC(REPORT):
         self.PushSiteSummary()
         self.m_statusBar1.SetStatusText('Overall calculation', 0)
         self.grand_finale()
+        self.m_button26.Enable(True)  # restore once calculation finished
+        self.m_button26.SetBackgroundColour(colour='YELLOW')  # can run again, but colour is a reminder
     ##########End Manage Calculation & Report###########
 
 

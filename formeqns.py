@@ -284,9 +284,12 @@ class EqnForm(IOForm):
                 self.load_axes_3D[j].bar3d(xpos, ypos, zpos, dx, dy, dz, color='b', zsort='average')
                 np.seterr(invalid='print')
                 self.load_axes_3D[j].autoscale(enable=True, axis='both', tight=True)
+                # self.load_axes_3D[j].set_title(j + 1)  # labelling the plots
+                self.load_axes_3D[j].text2D(0.05, 0.95, j + 1, transform=self.load_axes_3D[j].transAxes)
                 self.load_axes_3D[j].set_xlim3d(left=0, right=120)
                 self.load_axes_3D[j].set_ylim3d(bottom=-30, top=90)
                 self.load_axes_3D[j].set_zlabel('Energy')  # Load has energy for z axis
+
 
     def mean_fit1(self, datagrid, fitgrid, graph, axes):
         """

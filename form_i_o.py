@@ -59,6 +59,7 @@ class IOForm(GraphForm):
             self.proj_file = os.path.join(dirname, filename)
             self.m_statusBar1.SetStatusText(filename, 1)
             self.projwd = dirname  # remember the project working directory
+            print('Reading data ... please wait.')
             if filename[-3:] == 'xls':
                 # extras.EXCEL().excel_to_csv(dirname, filename)
                 extras.EXCEL().excelx_to_csv(dirname, filename, False)  # false for xls not xlsx
@@ -76,7 +77,7 @@ class IOForm(GraphForm):
         self.m_staticText22.SetLabel('Project directory:  ' + self.projwd)
         self.m_textCtrl999.WriteText(self.projwd)
         self.m_button26.Enable(True)  # 'Process project file' button available once file is loaded
-        self.m_button26.SetBackgroundColour(colour='PALE GREEN')
+        self.m_button26.SetBackgroundColour(colour='GREEN')
         dlg.Destroy()
         # shift focus to the processing page
         self.BookSelect('Report notebook')  # defaults to the Main/Report notebook (was called Report Notebook)

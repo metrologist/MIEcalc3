@@ -71,7 +71,7 @@ class VIEW(object):
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-    The code is written in Python 3.10.11.  It uses open source modules GTC, wxPython,
+    The code is written in Python 3.11.4.  It uses open source modules GTC, wxPython,
     matplotlib, scipy, numpy, xlrd, openpyxl and python-docx.
     """
 

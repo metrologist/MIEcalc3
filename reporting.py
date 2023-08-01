@@ -48,6 +48,7 @@ class REPORT(EqnForm):
         record of the report.
         """
         rtp = richtext.RichTextPrinting("Print")
+        # rtp.PageSetup()  # should be able to change print margins without dialogue?
         localtime = time.asctime(time.localtime(time.time()))
         footer = self.m_statusBar1.GetStatusText(1) + ' printed on ' + localtime
         rtp.SetFooterText(footer)  # reads file name
@@ -63,19 +64,29 @@ class REPORT(EqnForm):
         rich.AppendText(', ')
         row.append(value)
 
-    def reporter(self, final_error):
+    def reporter(self, error, temperature):
         """
         Creates strings, including numerical values calculated from the GTC
-        ureal *final_error*, for feeding into reports. It also returns a list of
+        ureal final_error, for feeding into reports. It creates a list of
         png files for inclusion in reports.
+        :param error: is a list of the errors as calculated in grand_finale
+        :param temperature: is the ureal temperature value for the site
+        :return:
         """
+
         self.report_txt = []  # vital to clear these lists before writing a new report
         self.report_images = []
         self.report_images_wx = []
-        # overall_error = final_error
-        uncertainty = final_error.u * gtc.reporting.k_factor(final_error.df)
-        maximum = final_error.x + uncertainty
-        minimum = final_error.x - uncertainty
+        final_error = []
+        uncertainty = []
+        maximum = []
+        minimum = []
+        for e in error:  # create lists by load profile of the error
+            final_error.append(e.x)
+            uncert = e.u * gtc.reporting.k_factor(e.df)
+            uncertainty.append(uncert)
+            maximum.append(e.x + uncert)
+            minimum.append(e.x - uncert)
 
         # summarising uncertainty
         meterCal = ['a0 meter', 'a1 meter', 'a2 meter', 'a3 meter', 'b0 meter', 'Meter annual drift']
@@ -92,35 +103,69 @@ class REPORT(EqnForm):
         siteInf = ['Site EM field', 'Site temperature', 'Site voltage', 'Site frequency', 'Site harmonics',
                    'Site VT burden', 'Site CT burden']
         complist = [meterCal, meterInf, ctCal, ctInf, vtCal, vtInf, siteInf]
-        xx = self.model.budget_by_label(final_error, complist)
-        excluding_site = xx[0] + xx[1] + xx[2] + xx[3] + xx[4] + xx[5]
-        normalised_share = [xx[0] / excluding_site, xx[1] / excluding_site, xx[2] / excluding_site,
-                            xx[3] / excluding_site, xx[4] / excluding_site, xx[5] / excluding_site]
 
+        normalised_share = []
+        for i in range(self.n_profiles):
+            xx = self.model.budget_by_label(error[i], complist)
+            excluding_site = xx[0] + xx[1] + xx[2] + xx[3] + xx[4] + xx[5]
+            share = [xx[0] / excluding_site, xx[1] / excluding_site, xx[2] / excluding_site,
+                                xx[3] / excluding_site, xx[4] / excluding_site, xx[5] / excluding_site]
+            normalised_share.append(share)
         # prepare text/strings needed for any output version
-        self.report_txt.append('Metering Installation Error Report')  # 0
-        self.report_txt.append('The error calculated for the given load profile is ')  # 1
-        self.report_txt.append("%+ 0.2f %s" % (final_error.x, '%.'))  # 2
-        self.report_txt.append('The expanded uncertainty at an estimated 95% level of confidence is')  # 3
-        self.report_txt.append("%s %0.2f %s" % ('', uncertainty, '%.'))  # 4
-        self.report_txt.append('The uncertainty interval extends from ')  # 5
-        self.report_txt.append("%+ 0.2f %s to %+0.2f %s" % (minimum, '%', maximum, '%.'))  # 6
-        self.report_txt.append('Uncertainty contribution by component as a percentage of total variance,')  # 7
-        self.report_txt.append('Meter:')  # 8
-        self.report_txt.append("%s %0.2G %s" % (' ', (normalised_share[0] + normalised_share[1]) * 100, ' %'))  # 9
-        self.report_txt.append('CT:')  # 10
-        self.report_txt.append("%s %0.2G %s" % (' ', (normalised_share[2] + normalised_share[3]) * 100, ' %'))  # 11
-        self.report_txt.append('VT:')  # 12
-        self.report_txt.append("%s %0.2G %s" % (' ', (normalised_share[4] + normalised_share[5]) * 100, ' %'))  # 13
-        self.report_txt.append('A full list of components contributing to the total uncertainty can be found in the')  # 14
-        self.report_txt.append('report workbook tab, "Input file list and messages".')  # 15
-        self.report_txt.append('Installation error over the phase and current ranges that match the load profile.')  # 16
-        self.report_txt.append('Annual load profile used for this error calculation.')  # 17
-        self.report_txt.append(
-            'Component calibration data with calculated fits over the calibration ranges shown overleaf.')  # 18
-        self.report_txt.append('Current Transformer')  # 19
-        self.report_txt.append('Voltage Transformer')  # 20
-        self.report_txt.append('Meter')  # 21
+        self.report_txt.append('Metering Installation Error Report')
+        self.report_txt.append('Accuracy')
+        plural = ''  # no s if singular
+        if self.n_profiles > 1:
+            plural = 's'  # add s for plural
+        nxtln = 'The accuracy of the metering installation (combined meter and transformers) has been calculated for ' \
+                   + str(self.n_profiles) + ' annual load profile' + plural + '.'
+        self.report_txt.append(nxtln)  # 2
+        self.report_txt.append('Load Profile\t\tError\t\t\tUncertainty\t\tError-Uncertainty\tError+Uncertainty')
+        for load_no in range(self.n_profiles):
+            _err = f"{final_error[load_no]:.2f}"  # formatting float into a 2-decimal-place string
+            _unc = f"{uncertainty[load_no]:.2f}"
+            _min = f"{minimum[load_no]:.2f}"
+            _max = f"{maximum[load_no]:.2f}"
+            nxtln = '      ' + str(load_no + 1) + '\t\t\t' + _err +' %\t\t' + _unc + ' %\t\t' + _min + ' %\t\t'\
+                    + _max + ' %'
+            self.report_txt.append(nxtln)
+        iec = '0.5'  # this needs to be brought in from Excel or, maybe, the GUI
+        self.report_txt.append('The uncertainty is the expanded uncertainty calculated at a 95 % level of confidence. ')
+        self.report_txt.append('For each load profile the same variation in temperature and network conditions was '
+                               'assumed. The uncertainty of the meter measurements was calculated using sensitivity '
+                               'coefficients published for an IEC class ' + iec + ' meter.')
+        temp_max = f"{temperature.x + 2 * temperature.u:.1f}" + ' ' + u'\N{DEGREE SIGN}' + 'C'
+        temp_min = f"{temperature.x - 2 * temperature.u:.1f}" + ' ' + u'\N{DEGREE SIGN}' + 'C'
+        self.report_txt.append('The uncertainty includes a contribution due to the metering installation temperature '
+                               'varying over the range of ' + temp_min + ' to ' + temp_max + ' during the year.')
+        self.report_txt.append('Annual Load Profile' + plural)
+        self.report_txt.append('Annual load profile' + plural + ' used for this error calculation. The graph is '
+                                                                'normalised to give the relative amount of energy '
+                                                                'at each combination of current and phase angle.')
+
+        self.report_txt.append('Error Plot' + plural)
+        self.report_txt.append('Installation error over the phase and current values for the load profile' + plural)
+        self.report_txt.append('Uncertainty by Component')
+        self.report_txt.append('Uncertainty contribution given by component as a percentage of total variance. This is '
+                               'calculated for each load profile. This may help with any decisions on which '
+                               'components might be considered for an upgrade')
+        self.report_txt.append('Load Profile\t\tMeter\t\t\tCT\t\tVT\n')
+        for load_no in range(self.n_profiles):
+            _meter = f"{(normalised_share[load_no][0] + normalised_share[load_no][1]) * 100:.1f}"  # formatting float into a 2-decimal-place string
+            _ct = f"{(normalised_share[load_no][2] + normalised_share[load_no][3]) * 100:.1f}"
+            _vt = f"{(normalised_share[load_no][4] + normalised_share[load_no][5]) * 100:.1f}"
+            nxtln = '      ' + str(load_no + 1) + '\t\t\t' + _meter +' %\t\t' + _ct + ' %\t' + _vt + ' %'
+            self.report_txt.append(nxtln)
+        self.report_txt.append('Component Calibration')
+        self.report_txt.append('For each component the calibration points are plotted on a graph with uncertainty '
+                               'bars. Fitted curves are shown with an upper and lower curve indicating the uncertainty '
+                               ' of the fit. The coefficients of these curves are used to calculate the metering '
+                               'installation error.')
+
+        self.report_txt.append('Current Transformer')
+        self.report_txt.append('Voltage Transformer')
+        self.report_txt.append('Meter')
+        self.report_txt.append('Additional Information')
 
         # gather graphs for reporting
         image = self.buffer_image_wx(self.report_graph.canvas)
@@ -138,6 +183,7 @@ class REPORT(EqnForm):
         image = self.buffer_image_wx(self.meter_graph.canvas)
         self.report_images_wx.append(image[0])
         self.report_images.append(image[1])
+
 
     def buffer_image_wx(self, plot_canvas):
         """
@@ -157,6 +203,21 @@ class REPORT(EqnForm):
         image.SetData(img.convert("RGB").tobytes())
         return image, buffer
 
+    def heading(self, txt, font):
+        """
+        the txt string is written to self.report_richText in bold with the chosen font size
+        :param txt:
+        :param font:
+        :return:
+        """
+        report = self.report_richText
+        report.BeginFontSize(font)
+        report.BeginBold()
+        report.WriteText(txt)
+        report.Newline()
+        report.EndFontSize()
+        report.EndBold()
+
     def wxreport(self):
         """
         Takes the *t_strings* and *image_files* lists prepared in 'reporter'
@@ -165,81 +226,72 @@ class REPORT(EqnForm):
         t_strings = self.report_txt
         # write to the wxRichText panel
         report = self.report_richText
-        report.BeginFontSize(14)
-        report.BeginBold()
-        report.WriteText(t_strings[0])
-        report.Newline()
-        report.EndBold()
-        report.EndFontSize()
+        self.heading(t_strings[0],14)
+        self.heading(t_strings[1], 12)
         report.BeginFontSize(10)
-        report.WriteText(t_strings[1])
-        report.BeginBold()
         report.WriteText(t_strings[2])
-        report.EndBold()
         report.Newline()
+        report.BeginBold()
         report.WriteText(t_strings[3])
-        report.BeginBold()
-        report.WriteText(t_strings[4])
+        report.Newline()
         report.EndBold()
+        for i in range(self.n_profiles):
+            report.WriteText(t_strings[i + 4])
+            report.Newline()
+        index = i + 4  # assumes 4 lines before the variable table
+        report.WriteText(t_strings[index +1])
+        report.WriteText(t_strings[index + 2])
         report.Newline()
-        report.WriteText(t_strings[5])
-        report.WriteText(t_strings[6])
+        report.WriteText(t_strings[index + 3])
+        report.EndFontSize()
         report.Newline()
+        self.heading(t_strings[index + 4], 12)
+        report.BeginFontSize(10)  # Beginning of text for load profiles
+        report.WriteText(t_strings[index + 5])
         report.Newline()
-        report.WriteText(t_strings[7])
-        report.Newline()
-        report.WriteText(t_strings[8])
-        report.WriteText('\t')
-        report.WriteText(t_strings[9])
-        report.Newline()
-        report.WriteText(t_strings[10])
-        report.WriteText('\t\t')
-        report.WriteText(t_strings[11])
-        report.Newline()
-        report.WriteText(t_strings[12])
-        report.WriteText('\t\t')
-        report.WriteText(t_strings[13])
-        report.Newline()
-        report.WriteText(t_strings[14])
-        report.Newline()
-        report.WriteText(t_strings[15])
+        report.WriteImage(self.report_images_wx[1])  # the load profile
         report.Newline()
         report.Newline()
-
-        # add graph images to report, first rescaling them to fit a simple printout.
-        # image resolution is degraded by the scaling.
-        report.WriteText(t_strings[16])
+        report.EndFontSize()
+        self.heading(t_strings[index + 6], 12)
+        report.BeginFontSize(10)
+        report.WriteText(t_strings[index + 7])
         report.Newline()
-
-        report.WriteImage(self.report_images_wx[0])  # insert image buffer in wx rich text
-        report.Newline()
-        report.Newline()
-        report.WriteText(t_strings[17])
-        report.Newline()
-
-        report.WriteImage(self.report_images_wx[1])
-        report.Newline()
-        report.WriteText(t_strings[18])
+        report.WriteImage(self.report_images_wx[0])  # the error plots
         report.Newline()
         report.Newline()
-        report.BeginFontSize(8)
+        report.EndFontSize()
+        self.heading(t_strings[index + 8], 12)
+        report.BeginFontSize(10)
+        report.WriteText(t_strings[index + 9])
+        report.Newline()
         report.BeginBold()
-        report.WriteText(t_strings[19])
+        report.WriteText(t_strings[index + 10])
+        report.EndBold()
+        for i in range(self.n_profiles):
+            report.WriteText(t_strings[index + 11 + i])
+            report.Newline()
+        index = index + 11 + i  # account for variable number of load profile results
         report.Newline()
-
-        report.WriteImage(self.report_images_wx[2])
+        report.EndFontSize()
+        self.heading(t_strings[index + 1], 12)
+        report.BeginFontSize(10)
+        report.WriteText(t_strings[index + 2])
         report.Newline()
-        report.WriteText(t_strings[20])
+        report.BeginBold()
+        report.WriteText(t_strings[index + 3])
         report.Newline()
-
+        report.WriteImage(self.report_images_wx[2])  # CT graphs
+        report.Newline()
+        report.WriteText(t_strings[index + 4])
+        report.Newline()
         report.WriteImage(self.report_images_wx[3])
         report.Newline()
-        report.WriteText(t_strings[21])
+        report.WriteText(t_strings[index + 5])  # meter
         report.Newline()
-
         report.WriteImage(self.report_images_wx[4])
         report.Newline()
-        report.EndBold()
+        report.EndFontSize()
 
     def wordreport(self, docx_file):
         """

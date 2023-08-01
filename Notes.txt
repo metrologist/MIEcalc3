@@ -105,3 +105,7 @@ Also a double y axis for the transformers might look less cluttered than separat
 
 20/7/23
 Multiple load calculation working. Reporting and graphing needs to be updated to match.
+
+1/8/23
+The wx report is largely built.
+Consider upgrading the 'Expert' button to hide some of the notebook pages from a basic user.
