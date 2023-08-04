@@ -77,8 +77,8 @@ class VIEW(object):
 
         info = wx.adv.AboutDialogInfo()
     ##     info.SetIcon(wx.Icon('hunter.png', wx.BITMAP_TYPE_PNG))
-        info.SetName('MIEcalculator')
-        info.SetVersion('1.1.1')
+        info.SetName('MIEcalc3')
+        info.SetVersion('1.2.0')
         info.SetDescription(description)
         info.SetCopyright('(C) 2011-2023 Measurement Standards Laboratory of New Zealand')
         info.SetWebSite('https://measurement.govt.nz')
@@ -119,7 +119,7 @@ class VIEW(object):
         self.frame.CT_richText1.Clear()
         self.frame.VT_richText.Clear()
         self.frame.VT_richText1.Clear()
-        self.frame.load_richText.Clear()
+        # self.frame.load_richText.Clear()  # summary page removed for the load
         self.frame.site_richText.Clear()
         self.frame.load_data.Clear()
         self.frame.load_values.Clear()

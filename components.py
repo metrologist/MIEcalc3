@@ -607,22 +607,23 @@ class INSTALLATION(object):
             assert len(total_error) == len(z), 'error list and z list of equal length'
             assert abs(sum(z) - 1.0) < 1.0e-12, 'z normalised to unity'
             overall_error = sum(map(operator.mul, total_error, z))
-            print('\n','Budget for overall error by coefficients')
+            print('\nLoad Profile #', j + 1)
+            print('Budget for overall error by coefficients')
             self.budget(overall_error)
             total_error_list.append(total_error)
             overall_error_list.append(overall_error)
-        print('overall_error', overall_error_list)
+        # print('overall_error', overall_error_list)
         return total_error_list, overall_error_list, XX
 
     def budget(self, a):
         """
         A GTC utility for listing the uncertainty budget for *a*.
         """
-        print('\n\n')
+        # print('\n\n')
         print('error = {0:.3f}, standard uncertainty = {1:.3f}, degrees of freedom = {2:.1f}'.format(a.x, a.u, a.df))
         for l, u, id_thing in gtc.reporting.budget(a, trim=0.0):
             print('%s: %G' % (l, u))
-        print('\n')
+        # print('\n')
 
 
 if __name__ == "__main__":

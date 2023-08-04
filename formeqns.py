@@ -249,8 +249,8 @@ class EqnForm(IOForm):
         than a csv file.
         """
         # this uses the .csv file to plot (either created by LOAD or provided independently)
+        self.PushCreateLoadProfile()
         for j in range(len(self.profile_list)):
-            self.PushCreateLoadProfile()
             reader = csv.reader(open(self.csv_profile[j], 'r'))
             load = []
             for row in reader:

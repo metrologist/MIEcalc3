@@ -37,6 +37,7 @@ class IOForm(GraphForm):
         self.error_list = []  # in anticipation of having more than one error profile selected region?
         self.n_profiles = 1  # assume a default of one load profile before a spreadsheet is loaded
         self.csv_profile = ['_load.csv']  # a matching set of csv files for the processed normalised load profiles
+        self.iec = '-'  # iec class will be in the input file for newer projects (August 2023 onwards)
     def OnOpenFile(self, event):
         """
         Opens either a csv file with a list of component csv files, or opens
@@ -141,7 +142,6 @@ class IOForm(GraphForm):
         if folder != 'no path':
             for the_file in os.listdir(folder):
                 file_path = os.path.join(folder, the_file)
-                print("***HELLO***" , file_path)
                 try:
                     if os.path.isfile(file_path):
                         os.unlink(file_path)
@@ -455,7 +455,7 @@ class IOForm(GraphForm):
         """
         Loads a csv file, *file_name*, to a grid, *grid_name*.  The csv file
         starts with the number of rows and columns required in the grid.  There
-        is no checking whether or not the file is formatted correctly.
+        is no checking that the file is formatted correctly.
         """
         reader = csv.reader(open(file_name, 'r'))  # assumes file exists
         # need to read row, col, set size of grid, then load grid
@@ -463,6 +463,11 @@ class IOForm(GraphForm):
         for row in reader:
             if rownum == 0:
                 header = row  # extracts grid size info in header
+                if file_name[-9:] == 'meter.csv':  # looking for the IEC class in the meter.csv file
+                    if header[2]!= '':  # old projects should be blank
+                        self.iec = header[2]  # the meter file has the IEC class following the row/column count
+                    else:
+                        self.iec = '-'
                 no_rows = int(float(header[0]))  # int(float()) needed to cope with csv
                 no_columns = int(float(header[1]))
                 self.SetGridRows(grid_name, no_rows)

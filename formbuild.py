@@ -825,20 +825,21 @@ class MyFrame1 ( wx.Frame ):
 		self.m_notebook14 = wx.Notebook( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_notebook14.Hide()
 
-		self.Setup4 = wx.Panel( self.m_notebook14, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
-		bSizer64 = wx.BoxSizer( wx.VERTICAL )
+		# ************** removed summary page for load profile ********************************
+		# self.Setup4 = wx.Panel( self.m_notebook14, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		# bSizer64 = wx.BoxSizer( wx.VERTICAL )
 
-		self.m_button14 = wx.Button( self.Setup4, wx.ID_ANY, u"Summary", wx.DefaultPosition, wx.DefaultSize, 0 )
-		bSizer64.Add( self.m_button14, 0, wx.ALL, 5 )
-
-		self.load_richText = wx.richtext.RichTextCtrl( self.Setup4, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0|wx.VSCROLL|wx.HSCROLL|wx.WANTS_CHARS|wx.BORDER_NONE )
-		bSizer64.Add( self.load_richText, 1, wx.EXPAND |wx.ALL, 5 )
-
-
-		self.Setup4.SetSizer( bSizer64 )
-		self.Setup4.Layout()
-		bSizer64.Fit( self.Setup4 )
-		self.m_notebook14.AddPage( self.Setup4, u"Load Summary", True )
+		# self.m_button14 = wx.Button( self.Setup4, wx.ID_ANY, u"Summary", wx.DefaultPosition, wx.DefaultSize, 0 )
+		# bSizer64.Add( self.m_button14, 0, wx.ALL, 5 )
+		#
+		# self.load_richText = wx.richtext.RichTextCtrl( self.Setup4, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0|wx.VSCROLL|wx.HSCROLL|wx.WANTS_CHARS|wx.BORDER_NONE )
+		# bSizer64.Add( self.load_richText, 1, wx.EXPAND |wx.ALL, 5 )
+		#
+		#
+		# self.Setup4.SetSizer( bSizer64 )
+		# self.Setup4.Layout()
+		# bSizer64.Fit( self.Setup4 )
+		# self.m_notebook14.AddPage( self.Setup4, u"Load Summary", True )
 		self.m_scrolledWindow5 = wx.ScrolledWindow( self.m_notebook14, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.HSCROLL|wx.VSCROLL )
 		self.m_scrolledWindow5.SetScrollRate( 5, 5 )
 		fgSizer15 = wx.FlexGridSizer( 8, 2, 0, 0 )
@@ -1051,7 +1052,7 @@ class MyFrame1 ( wx.Frame ):
 		self.m_button1831.Bind( wx.EVT_BUTTON, self.Fit_VTratio )
 		self.m_button1931.Bind( wx.EVT_BUTTON, self.Fit_VTphase )
 		self.m_notebook14.Bind( wx.EVT_NOTEBOOK_PAGE_CHANGED, self.OnNbookPageChange )
-		self.m_button14.Bind( wx.EVT_BUTTON, self.OnLoadSummary )
+		# self.m_button14.Bind( wx.EVT_BUTTON, self.OnLoadSummary )
 		self.Create_load_profile.Bind( wx.EVT_BUTTON, self.OnCreateLoadProfile )
 		self.Plot_load_profile.Bind( wx.EVT_BUTTON, self.OnPlotLoadProfile )
 		self.m_notebook15.Bind( wx.EVT_NOTEBOOK_PAGE_CHANGED, self.OnNbookPageChange )
@@ -1170,8 +1171,8 @@ class MyFrame1 ( wx.Frame ):
 	def Fit_VTphase( self, event ):
 		event.Skip()
 
-	def OnLoadSummary( self, event ):
-		event.Skip()
+	# def OnLoadSummary( self, event ):
+	# 	event.Skip()
 
 	def OnCreateLoadProfile( self, event ):
 		event.Skip()

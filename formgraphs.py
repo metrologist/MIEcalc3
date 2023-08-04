@@ -77,7 +77,6 @@ class GraphForm(ProjectFrame):
                 self.error_axes_3D.append(panel.ax)
             elif target == 'load_axes_3D':
                 self.load_axes_3D.append(panel.ax)
-            # axes_list.append(panel.ax)  # not clear this list will give access to the plot
             panel.figure.set_facecolor('white')
             panel.figure.tight_layout()
             # these labels should be selected later for specific components
@@ -119,16 +118,17 @@ class GraphForm(ProjectFrame):
             the_x = y.ax.get_xlabel()
             the_y = y.ax.get_ylabel()
             the_z = y.ax.get_zlabel()
-            y.ax.clear()
-            y.ax.set_xlabel(the_x)
+            y.ax.clear()  # all axes are cleared
+            y.ax.set_xlabel(the_x)  # and now the labels are restored
             y.ax.set_ylabel(the_y)
             y.ax.set_zlabel(the_z)
             y.canvas.draw()
-        graphs_3D[2].figure.clf()  # load_graph will be completely redrawn (in case number of subplots changes).
+        # graphs_3D[2].figure.clf()  # load_graph will be completely redrawn (in case number of subplots changes).
         graphs_3D[1].figure.clf()  # report_graph will be completely redrawn (in case number of subplots changes).
+        # self.report_graph.Close()
         self.load_axes_3D = []  # forget old axes list
         self.error_axes_3D = []  # forget old axes list
-        self.meter_axes_3D = []  # forget old axes list
+        self.meter_axes_3D = []  # forget old axes list, but there is only 1 meter ?
 
     def OnQuit(self, event):
         """

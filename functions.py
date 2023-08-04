@@ -192,7 +192,8 @@ class MODEL(object):
 
         else:  # have a zero uncertainty so create separate ureals
             print(
-                'A fit has returned zero uncertainty for a function coefficient.  This should only occur if input data has been purposely set to a perfect fit.')
+                'A fit has returned zero uncertainty for a function coefficient. This should only occur if input '
+                'data has been purposely set to a perfect fit. Message repeats each time the coefficients are used')
             a = []
             for i in range(len(coeffs)):
                 a.append(gtc.ureal(coeffs[i], uncert[i], dof, label[i]))

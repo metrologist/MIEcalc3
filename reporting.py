@@ -4,6 +4,7 @@ from formeqns import EqnForm
 import os
 import GTC as gtc
 import docx
+from docx.shared import Pt
 import time
 from PIL import Image
 import io
@@ -129,11 +130,10 @@ class REPORT(EqnForm):
             nxtln = '      ' + str(load_no + 1) + '\t\t\t' + _err +' %\t\t' + _unc + ' %\t\t' + _min + ' %\t\t'\
                     + _max + ' %'
             self.report_txt.append(nxtln)
-        iec = '0.5'  # this needs to be brought in from Excel or, maybe, the GUI
         self.report_txt.append('The uncertainty is the expanded uncertainty calculated at a 95 % level of confidence. ')
         self.report_txt.append('For each load profile the same variation in temperature and network conditions was '
                                'assumed. The uncertainty of the meter measurements was calculated using sensitivity '
-                               'coefficients published for an IEC class ' + iec + ' meter.')
+                               'coefficients published for an IEC class ' + self.iec + ' meter. ')
         temp_max = f"{temperature.x + 2 * temperature.u:.1f}" + ' ' + u'\N{DEGREE SIGN}' + 'C'
         temp_min = f"{temperature.x - 2 * temperature.u:.1f}" + ' ' + u'\N{DEGREE SIGN}' + 'C'
         self.report_txt.append('The uncertainty includes a contribution due to the metering installation temperature '
@@ -147,9 +147,9 @@ class REPORT(EqnForm):
         self.report_txt.append('Installation error over the phase and current values for the load profile' + plural)
         self.report_txt.append('Uncertainty by Component')
         self.report_txt.append('Uncertainty contribution given by component as a percentage of total variance. This is '
-                               'calculated for each load profile. This may help with any decisions on which '
+                               'calculated for each load profile. This may help with any decisions about which '
                                'components might be considered for an upgrade')
-        self.report_txt.append('Load Profile\t\tMeter\t\t\tCT\t\tVT\n')
+        self.report_txt.append('Load Profile\t\tMeter\t\t\tCT\t\tVT')
         for load_no in range(self.n_profiles):
             _meter = f"{(normalised_share[load_no][0] + normalised_share[load_no][1]) * 100:.1f}"  # formatting float into a 2-decimal-place string
             _ct = f"{(normalised_share[load_no][2] + normalised_share[load_no][3]) * 100:.1f}"
@@ -206,8 +206,8 @@ class REPORT(EqnForm):
     def heading(self, txt, font):
         """
         the txt string is written to self.report_richText in bold with the chosen font size
-        :param txt:
-        :param font:
+        :param txt: string to be written
+        :param font: font point size as integer
         :return:
         """
         report = self.report_richText
@@ -268,6 +268,7 @@ class REPORT(EqnForm):
         report.BeginBold()
         report.WriteText(t_strings[index + 10])
         report.EndBold()
+        report.Newline()
         for i in range(self.n_profiles):
             report.WriteText(t_strings[index + 11 + i])
             report.Newline()
@@ -306,35 +307,61 @@ class REPORT(EqnForm):
         assert len(t_strings) > 0, "Nothing to report.  Run calculation before attempting to save"
         template = os.path.join(self.cwd, 'templates', 'default.docx')
         document = docx.Document(template)
-        document.add_heading(t_strings[0], level=0)
+        section = document.sections[0]
+        footer = section.footer
         localtime = time.asctime(time.localtime(time.time()))
         identifier = '(Data source: ' + self.m_statusBar1.GetStatusText(1) + '. Error calculated: ' + localtime + '.)'
-        document.add_heading(identifier, level=1)
-        document.add_paragraph(t_strings[1] + t_strings[2])
-        document.add_paragraph(t_strings[3] + t_strings[4])
-        document.add_paragraph(t_strings[5] + t_strings[6])
-        document.add_heading(t_strings[16], level=2)
+        paragraph = footer.paragraphs[0]
+        paragraph.text = identifier
+        document.add_heading(t_strings[0], level=0)
+        document.add_heading(t_strings[1], level=1)
+        document.add_paragraph(t_strings[2])
+        # document.add_paragraph(t_strings[3])  # force a differently tabbed header
+        nxtln = 'Load Profile\t\tError\t\t\tUncertainty\tError-Uncert\t\tError+Uncert'
+        document.add_paragraph(nxtln)
+        for i in range(self.n_profiles):
+            document.add_paragraph(t_strings[i + 4])
+        index = i + 4  # assumes 4 lines before the variable table
+        document.add_paragraph(t_strings[index + 1] + t_strings[index + 2])
+        document.add_paragraph (t_strings[index + 3])
+        document.add_heading(t_strings[index + 4], level=1)
+        document.add_paragraph(t_strings[index + 5])
         image_files = self.report_images
-        document.add_picture(image_files[0], width=docx.shared.Mm(100))
-        document.add_heading(t_strings[17], level=2)
         document.add_picture(image_files[1], width=docx.shared.Mm(100))
-        document.add_heading(t_strings[18][:-16] + '.', level=2)
-        document.add_heading(t_strings[19] + '.', level=3)
+        document.add_heading(t_strings[index + 6], level=1)
+        document.add_paragraph(t_strings[index + 7])
+        document.add_picture(image_files[0], width=docx.shared.Mm(100))
+        document.add_heading(t_strings[index + 8], level=1)
+        document.add_paragraph(t_strings[index + 9])
+        # document.add_paragraph(t_strings[index + 10])  # force a differently tabbed header
+        nxtln = 'Load Profile\t\tMeter\t\tCT\tVT'
+        document.add_paragraph(nxtln)
+        for i in range(self.n_profiles):
+            document.add_paragraph(t_strings[index + 11 + i])
+        index = i + index + 11
+        document.add_page_break()
+        document.add_heading(t_strings[index + 1])
+        document.add_paragraph(t_strings[index + 2])
+        document.add_heading(t_strings[index + 3], level=1)
         document.add_picture(image_files[2], width=docx.shared.Mm(100))
-        document.add_heading(t_strings[20] + '.', level=3)
+        document.add_heading(t_strings[index + 4], level=1)
         document.add_picture(image_files[3], width=docx.shared.Mm(100))
-        document.add_heading(t_strings[21] + '.', level=3)
+        document.add_heading(t_strings[index + 5], level=1)
         document.add_picture(image_files[4], width=docx.shared.Mm(100))
         document.add_page_break()
         document.add_heading('Additional Information', level=1)
-        document.add_heading('Uncertainty Contribution Summary', level=2)
-        document.add_paragraph(t_strings[7] + ' ' + t_strings[8] + t_strings[9] + ', '
-                               + t_strings[10] + t_strings[11] + ', ' + t_strings[12] + t_strings[13] + '.')
-        document.add_heading('Text Output From Calculation Process', level=2)
+        # document.add_heading('Uncertainty Contribution Summary', level=2)
+        # document.add_paragraph(t_strings[7] + ' ' + t_strings[8] + t_strings[9] + ', '
+        #                        + t_strings[10] + t_strings[11] + ', ' + t_strings[12] + t_strings[13] + '.')
+        document.add_heading('Text Output From the Calculation Process', level=2)
         no_lines = self.m_textCtrl3.GetNumberOfLines()
         for x in range(no_lines):
             output_notes = self.m_textCtrl3.GetLineText(x)
-            document.add_paragraph(output_notes)
+            paragraph = document.add_paragraph(output_notes)
+            paragraph_format = paragraph.paragraph_format
+            paragraph_format.space_before = Pt(2)
+            paragraph_format.space_after = Pt(2)
+            # document.add_paragraph(output_notes)
         document.save(docx_file)
 
 
