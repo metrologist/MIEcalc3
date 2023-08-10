@@ -1005,7 +1005,7 @@ class MyFrame1 ( wx.Frame ):
 
 		self.m_menu5.AppendSeparator()
 
-		self.m_menuItem16 = wx.MenuItem( self.m_menu5, wx.ID_ANY, u"About MIEcaclulator", wx.EmptyString, wx.ITEM_NORMAL )
+		self.m_menuItem16 = wx.MenuItem( self.m_menu5, wx.ID_ANY, u"About MIEcalc3", wx.EmptyString, wx.ITEM_NORMAL )
 		self.m_menu5.Append( self.m_menuItem16 )
 
 		self.m_menubar1.Append( self.m_menu5, u"Help" )

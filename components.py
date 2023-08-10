@@ -88,6 +88,10 @@ class COMPONENT(object):
         dictionaries.
         """
         # it anticipates that derived classes will define a 'fit_fn'
+        # count = 0
+        # for x in X:
+        #     count += 1
+        #     print(count, x, self.fit_fn[self.err_choice].fn([x], self.err_a))
         return self.fit_fn[self.err_choice].fn(X, self.err_a)
 
     def b_error(self, X):

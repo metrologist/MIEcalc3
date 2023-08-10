@@ -217,7 +217,7 @@ class MODEL(object):
         that the unexpected scatter is just an additional type A contribution.
 
         If the chi-square is seen as likely (1-*prob*), then the fit is
-        identified as a "good fit". Note that scaling of covaricance by
+        identified as a "good fit". Note that scaling of covariance by
         chi-square gives the correct confidence level.
         """
         prob = 0.1  # for now this is the trigger level determined to give acceptable long-run success

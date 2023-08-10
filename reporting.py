@@ -122,6 +122,7 @@ class REPORT(EqnForm):
                    + str(self.n_profiles) + ' annual load profile' + plural + '.'
         self.report_txt.append(nxtln)  # 2
         self.report_txt.append('Load Profile\t\tError\t\t\tUncertainty\t\tError-Uncertainty\tError+Uncertainty')
+        self.word_tabs = []  # differently tabbed version for word
         for load_no in range(self.n_profiles):
             _err = f"{final_error[load_no]:.2f}"  # formatting float into a 2-decimal-place string
             _unc = f"{uncertainty[load_no]:.2f}"
@@ -129,15 +130,33 @@ class REPORT(EqnForm):
             _max = f"{maximum[load_no]:.2f}"
             nxtln = '      ' + str(load_no + 1) + '\t\t\t' + _err +' %\t\t' + _unc + ' %\t\t' + _min + ' %\t\t'\
                     + _max + ' %'
+            word_ln = '      ' + str(load_no + 1) + '\t\t\t'
+            if _err[0] == '-':
+                word_ln = word_ln + _err + ' %\t'
+            else:
+                word_ln = word_ln + _err +' %\t\t'
+            word_ln = word_ln + _unc + ' %\t\t'
+            if _min[0] == '-':
+                word_ln = word_ln + _min + ' %\t' + _max + ' %'
+            else:
+                word_ln = word_ln + _min + ' %\t\t' + _max + ' %'
             self.report_txt.append(nxtln)
+            self.word_tabs.append(word_ln)
+            # self.report_txt.append(word_ln)
         self.report_txt.append('The uncertainty is the expanded uncertainty calculated at a 95 % level of confidence. ')
         self.report_txt.append('For each load profile the same variation in temperature and network conditions was '
-                               'assumed. The uncertainty of the meter measurements was calculated using sensitivity '
-                               'coefficients published for an IEC class ' + self.iec + ' meter. ')
-        temp_max = f"{temperature.x + 2 * temperature.u:.1f}" + ' ' + u'\N{DEGREE SIGN}' + 'C'
-        temp_min = f"{temperature.x - 2 * temperature.u:.1f}" + ' ' + u'\N{DEGREE SIGN}' + 'C'
-        self.report_txt.append('The uncertainty includes a contribution due to the metering installation temperature '
-                               'varying over the range of ' + temp_min + ' to ' + temp_max + ' during the year.')
+                               'assumed. Sensitivity coefficients published for an IEC class ' + self.iec +
+                               ' meter were incorporated in the uncertainty calculation.')
+        # temp_max = f"{temperature.x + 2 * temperature.u:.1f}" + ' ' + u'\N{DEGREE SIGN}' + 'C'
+        # temp_min = f"{temperature.x - 2 * temperature.u:.1f}" + ' ' + u'\N{DEGREE SIGN}' + 'C'
+        mean_temp = f"{temperature.x:.1f}" + ' ' + u'\N{DEGREE SIGN}' + 'C'
+        u_temp = f"{temperature.u * 2.0:.1f}" + ' ' + u'\N{DEGREE SIGN}' + 'C'
+        # self.report_txt.append('The uncertainty includes a contribution due to the metering installation temperature '
+        #                        'varying over the range of ' + temp_min + ' to ' + temp_max + ' during the year.')
+        self.report_txt.append('The uncertainty includes a contribution due to the temperature of the metering '
+                               'installation differing from the temperature at which the components were calibrated. An'
+                               ' average value of ' + mean_temp + ' with an expanded uncertainty of ' + u_temp + ' is '
+                               'assumed for a twelve-month period.')
         self.report_txt.append('Annual Load Profile' + plural)
         self.report_txt.append('Annual load profile' + plural + ' used for this error calculation. The graph is '
                                                                 'normalised to give the relative amount of energy '
@@ -149,11 +168,11 @@ class REPORT(EqnForm):
         self.report_txt.append('Uncertainty contribution given by component as a percentage of total variance. This is '
                                'calculated for each load profile. This may help with any decisions about which '
                                'components might be considered for an upgrade')
-        self.report_txt.append('Load Profile\t\tMeter\t\t\tCT\t\tVT')
+        self.report_txt.append('Load Profile\t\tMeter\t\tCT\tVT')
         for load_no in range(self.n_profiles):
-            _meter = f"{(normalised_share[load_no][0] + normalised_share[load_no][1]) * 100:.1f}"  # formatting float into a 2-decimal-place string
-            _ct = f"{(normalised_share[load_no][2] + normalised_share[load_no][3]) * 100:.1f}"
-            _vt = f"{(normalised_share[load_no][4] + normalised_share[load_no][5]) * 100:.1f}"
+            _meter = f"{(normalised_share[load_no][0] + normalised_share[load_no][1]) * 100:.0f}"  # formatting float into a 0-decimal-place string
+            _ct = f"{(normalised_share[load_no][2] + normalised_share[load_no][3]) * 100:.0f}"
+            _vt = f"{(normalised_share[load_no][4] + normalised_share[load_no][5]) * 100:.0f}"
             nxtln = '      ' + str(load_no + 1) + '\t\t\t' + _meter +' %\t\t' + _ct + ' %\t' + _vt + ' %'
             self.report_txt.append(nxtln)
         self.report_txt.append('Component Calibration')
@@ -317,10 +336,11 @@ class REPORT(EqnForm):
         document.add_heading(t_strings[1], level=1)
         document.add_paragraph(t_strings[2])
         # document.add_paragraph(t_strings[3])  # force a differently tabbed header
-        nxtln = 'Load Profile\t\tError\t\t\tUncertainty\tError-Uncert\t\tError+Uncert'
+        nxtln = 'Load Profile\t\tError\t\tUncertainty\tError-Uncert\tError+Uncert'
         document.add_paragraph(nxtln)
         for i in range(self.n_profiles):
-            document.add_paragraph(t_strings[i + 4])
+            # document.add_paragraph(t_strings[i + 4])
+            document.add_paragraph(self.word_tabs[i])  # use differently tabbed version
         index = i + 4  # assumes 4 lines before the variable table
         document.add_paragraph(t_strings[index + 1] + t_strings[index + 2])
         document.add_paragraph (t_strings[index + 3])
