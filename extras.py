@@ -200,7 +200,7 @@ class EXCEL(object):
 
         a = set(target_names)
         assert len(a.intersection(sheetxnames)) == len(target_names), 'missing worksheet(s)?'
-        dirname = os.path.join(directory, 'xls_temp')
+        dirname = os.path.join(directory, 'mie_temp')
 
         try:
             os.makedirs(dirname)

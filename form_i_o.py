@@ -65,12 +65,12 @@ class IOForm(GraphForm):
                 # extras.EXCEL().excel_to_csv(dirname, filename)
                 extras.EXCEL().excelx_to_csv(dirname, filename, False)  # false for xls not xlsx
                 filename = 'project.csv'  # default output of excel_to_csv
-                dirname = os.path.join(dirname, 'xls_temp')
+                dirname = os.path.join(dirname, 'mie_temp')
                 self.projwd = dirname
             elif filename[-4:] == 'xlsx' or filename[-4:] == 'xlsm':
                 extras.EXCEL().excelx_to_csv(dirname, filename, True)  # true for xlsx not xls
                 filename = 'project.csv'  # default output of excel_to_csv
-                dirname = os.path.join(dirname, 'xls_temp')
+                dirname = os.path.join(dirname, 'mie_temp')
                 self.projwd = dirname
 
         # now read information from the selected or created csv file and place in file table
@@ -134,7 +134,7 @@ class IOForm(GraphForm):
 
     def PushClearFiles(self):
         """
-        Files that have been created in the xls_temp directory are deleted.  This
+        Files that have been created in the mie_temp directory are deleted.  This
         is good house-keeping and avoids hiding bugs that prevent a new csv
         data file from being created.
         """

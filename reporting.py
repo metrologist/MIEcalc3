@@ -26,7 +26,7 @@ class REPORT(EqnForm):
         """
         wildcard = "Project report (*.docx)|*.docx|" \
                    "All files (*.*)|*.*"
-        dirname = self.projwd[:-9]  # the one above xls_temp (remove 9 characters)
+        dirname = self.projwd[:-9]  # the one above mie_temp (remove 9 characters)
         dlg = wx.FileDialog(self, "Choose folder to save report", defaultDir=dirname,
                             defaultFile=self.proj_file + '.docx',
                             wildcard=wildcard, style=wx.FD_SAVE)
