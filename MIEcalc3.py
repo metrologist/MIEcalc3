@@ -243,6 +243,7 @@ class MIECALC(REPORT):
         site = comp.INSTALLATION('name', meter, ct, vt, profile, self.e_data('_site.csv'))
         error = site.site_error_terms()  # total_error_list, overall_error_list, XX  (all are lists)
         self.m_statusBar1.SetStatusText('Calculation finished', 2)
+        self.report_graph.figure.clear(True)  # continuing challenge to correctly clear graph
         self.Create3DGraph(self.report_graph, self.n_profiles, 'error_axes_3D')
 
         for ii in range(len(error[0])):  # iterates the full calculation through each load profile
@@ -284,11 +285,12 @@ class MIECALC(REPORT):
                 self.error_axes_3D[ii].plot_wireframe(XX, YY, ZZ1)
                 self.error_axes_3D[ii].plot_wireframe(XX, YY, ZZ2)
                 np.seterr(invalid='print')
+                # self.report_graph.canvas.draw()
             # self.report_graph.ax.autoscale(enable=True, axis='both', tight=True)
             # self.error_axes_3D[ii].autoscale(enable=True, axis='both', tight=True)  # do not autoscale
-            self.report_graph.canvas.draw()
-            # create report
-            self.m_statusBar1.SetStatusText('Generating report', 0)
+            # self.report_graph.canvas.draw()
+        # create report
+        self.m_statusBar1.SetStatusText('Generating report', 0)
         self.reporter(error[1], site.temp)  # note that the site temperature is needed for the report
         self.wxreport()
         self.m_statusBar1.SetStatusText('Report ready', 0)

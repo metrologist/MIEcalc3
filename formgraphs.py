@@ -88,7 +88,7 @@ class GraphForm(ProjectFrame):
         panel.SetSizer(panel.sizer)
         panel.Fit()
         self.add_2Dtoolbar(panel)
-        panel.canvas.draw()  # not clear if this is necessary ... sometimes the first subplot was not rotating
+        # panel.canvas.draw()  # not clear if this is necessary ... sometimes the first subplot was not rotating
 
     def OnClearAllGraphs(self, event):
         self.pushClearAllGraphs()
@@ -114,18 +114,47 @@ class GraphForm(ProjectFrame):
             y.canvas.draw()
 
         graphs_3D = [self.meter_graph, self.report_graph, self.load_graph]
-        for y in graphs_3D:  # clears axes to be ready for re-using
-            the_x = y.ax.get_xlabel()
-            the_y = y.ax.get_ylabel()
-            the_z = y.ax.get_zlabel()
-            y.ax.clear()  # all axes are cleared
-            y.ax.set_xlabel(the_x)  # and now the labels are restored
-            y.ax.set_ylabel(the_y)
-            y.ax.set_zlabel(the_z)
-            y.canvas.draw()
-        # graphs_3D[2].figure.clf()  # load_graph will be completely redrawn (in case number of subplots changes).
-        graphs_3D[1].figure.clf()  # report_graph will be completely redrawn (in case number of subplots changes).
-        # self.report_graph.Close()
+
+        all_axes = [self.meter_axes_3D, self.error_axes_3D, self.load_axes_3D ]
+        for i in range(len(all_axes)):
+            if i ==0:  # the meter graph is different, why?
+                the_x = graphs_3D[i].ax.get_xlabel()
+                the_y = graphs_3D[i].ax.get_ylabel()
+                the_z = graphs_3D[i].ax.get_zlabel()
+                graphs_3D[i].ax.clear()
+                graphs_3D[i].ax.set_xlabel(the_x)  # and now the labels are restored
+                graphs_3D[i].ax.set_ylabel(the_y)
+                graphs_3D[i].ax.set_zlabel(the_z)
+                graphs_3D[i].canvas.draw()
+            else:
+                for j in range(len(all_axes[i])):
+                    the_x = all_axes[i][j].get_xlabel()
+                    the_y = all_axes[i][j].get_ylabel()
+                    the_z = all_axes[i][j].get_zlabel()
+                    all_axes[i][j].clear()
+                    all_axes[i][j].set_xlabel(the_x)  # and now the labels are restored
+                    all_axes[i][j].set_ylabel(the_y)
+                    all_axes[i][j].set_zlabel(the_z)
+                    graphs_3D[i].canvas.draw()
+            # graphs_3D[i].figure.clf()
+            # if i>=0:  # do not clear meter figure
+            #     graphs_3D[i].figure.clf()
+            # graphs_3D[i].Close()
+            # graphs_3D[i].canvas.draw()
+
+
+        # for y in graphs_3D:  # clears axes to be ready for re-using
+        #     the_x = y.ax.get_xlabel()
+        #     the_y = y.ax.get_ylabel()
+        #     the_z = y.ax.get_zlabel()
+        #     y.ax.clear()  # all axes are cleared
+        #     y.ax.set_xlabel(the_x)  # and now the labels are restored
+        #     y.ax.set_ylabel(the_y)
+        #     y.ax.set_zlabel(the_z)
+        #     y.canvas.draw()
+        # # graphs_3D[2].figure.clf()  # load_graph will be completely redrawn (in case number of subplots changes).
+        # graphs_3D[1].figure.clf()  # report_graph will be completely redrawn (in case number of subplots changes).
+        # # self.report_graph.Close()
         self.load_axes_3D = []  # forget old axes list
         self.error_axes_3D = []  # forget old axes list
         self.meter_axes_3D = []  # forget old axes list, but there is only 1 meter ?
