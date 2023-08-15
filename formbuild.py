@@ -1237,7 +1237,9 @@ class MyFrame2 ( wx.Frame ):
 	def __init__( self, parent ):
 		wx.Frame.__init__ ( self, parent, id = wx.ID_ANY, title = wx.EmptyString, pos = wx.DefaultPosition, size = wx.Size( 600,600 ), style = wx.DEFAULT_FRAME_STYLE|wx.TAB_TRAVERSAL )
 		self.cwd = os.getcwd()  # identifies working directory at startup.
-		iconFile = os.path.join(self.cwd, 'MSL2.ico')
+		# iconFile = os.path.join(self.cwd, 'MSL2.ico')
+		# iconFile = 'MSL2.ico'
+		iconFile = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'MSL2.ico')
 		icon1 = wx.Icon(iconFile, wx.BITMAP_TYPE_ICO)
 		self.SetIcon(icon1)
 		self.SetTitle(u"Help file")

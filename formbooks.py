@@ -16,7 +16,9 @@ class ProjectFrame(MyFrame1):
         """
         self.cwd = os.getcwd()  # identifies working directory at startup.
         MyFrame1.__init__(self, parent)
-        iconFile = os.path.join(self.cwd, 'MSL2.ico')
+        # iconFile = os.path.join(self.cwd, 'MSL2.ico')
+        iconFile = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'MSL2.ico')
+        # iconFile = 'MSL2.ico'
         icon1 = wx.Icon(iconFile, wx.BITMAP_TYPE_ICO)
         self.SetIcon(icon1)
         self.SetTitle(u"Metering Installation Error Calculator\

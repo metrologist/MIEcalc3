@@ -324,7 +324,8 @@ class REPORT(EqnForm):
         """
         t_strings = self.report_txt
         assert len(t_strings) > 0, "Nothing to report.  Run calculation before attempting to save"
-        template = os.path.join(self.cwd, 'templates', 'default.docx')
+        template = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'templates', 'default.docx')
+        # template = os.path.join(self.cwd, 'templates', 'default.docx')
         document = docx.Document(template)
         section = document.sections[0]
         footer = section.footer

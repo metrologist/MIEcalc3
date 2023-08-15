@@ -8,6 +8,7 @@ import warnings
 from scipy.stats import t
 import extras
 import sys
+from os import path
 
 
 class MIECALC(REPORT):
@@ -22,6 +23,12 @@ class MIECALC(REPORT):
         sys.stdout = redir
         sys.stderr = redir  # not sure this is desirable for normal users, but helps with debugging
         self.m_button26.Enable(False)  # 'Process project file' button initially greyed out
+        # assisting with Pyinstaller packaging,
+        if getattr(sys, 'frozen', False) and hasattr(sys, '_MEIPASS'):
+            print('running in a PyInstaller bundle')
+        else:
+            print('running in a normal Python process')
+        print(path.dirname(__file__))  # this is the root folder, temporary in the case of the bundled app
 
 
     #######################Creating Summary Files###########################
