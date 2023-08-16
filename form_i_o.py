@@ -72,17 +72,21 @@ class IOForm(GraphForm):
                 filename = 'project.csv'  # default output of excel_to_csv
                 dirname = os.path.join(dirname, 'mie_temp')
                 self.projwd = dirname
+            if dirname is None:  # this happens if no selection is made so an error arises from the next steps
+                dlg.Destroy()
+            else:
+                # now read information from the selected or created csv file and place in file table
+                self.LoadProjFiles(os.path.join(dirname, filename))
+                self.m_staticText22.SetLabel('Project directory:  ' + self.projwd)
+                self.m_textCtrl999.WriteText(self.projwd)
+                self.m_button26.Enable(True)  # 'Process project file' button available once file is loaded
+                self.m_button26.SetBackgroundColour(colour='GREEN')
+                dlg.Destroy()
+                # shift focus to the processing page
+                self.BookSelect('Report notebook')  # defaults to the Main/Report notebook (was called Report Notebook)
+                self.m_notebook1.ChangeSelection(0)  # defaults to the 'Main' tab
 
-        # now read information from the selected or created csv file and place in file table
-        self.LoadProjFiles(os.path.join(dirname, filename))
-        self.m_staticText22.SetLabel('Project directory:  ' + self.projwd)
-        self.m_textCtrl999.WriteText(self.projwd)
-        self.m_button26.Enable(True)  # 'Process project file' button available once file is loaded
-        self.m_button26.SetBackgroundColour(colour='GREEN')
-        dlg.Destroy()
-        # shift focus to the processing page
-        self.BookSelect('Report notebook')  # defaults to the Main/Report notebook (was called Report Notebook)
-        self.m_notebook1.ChangeSelection(0)  # defaults to the 'Main' tab
+
 
     def LoadProjFiles(self, proj_file):
         """
