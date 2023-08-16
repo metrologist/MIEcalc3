@@ -129,65 +129,12 @@ a = Analysis(
     ['MIEcalc3.py'],
     pathex=[],
     binaries=[],
-    datas=[],
+    datas=[('MSL2.ico', '.'),('templates/default.docx','./templates')],
     hiddenimports=['openpyxl.cell._writer'],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
     excludes=['PyQt5'],
-    win_no_prefer_redirects=False,
-    win_private_assemblies=False,
-    cipher=block_cipher,
-    noarchive=False,
-)
-pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
-
-exe = EXE(
-    pyz,
-    a.scripts,
-    [],
-    exclude_binaries=True,
-    name='MIEcalc3',
-    debug=False,
-    bootloader_ignore_signals=False,
-    strip=False,
-    upx=True,
-    console=False,
-    disable_windowed_traceback=False,
-    argv_emulation=False,
-    target_arch=None,
-    codesign_identity=None,
-    entitlements_file=None,
-)
-coll = COLLECT(
-    exe,
-    a.binaries,
-    a.zipfiles,
-    a.datas,
-    strip=False,
-    upx=True,
-    upx_exclude=[],
-    name='MIEcalc3',
-)
-
-or for single exe
-
-# -*- mode: python ; coding: utf-8 -*-
-
-
-block_cipher = None
-
-
-a = Analysis(
-    ['MIEcalc3.py'],
-    pathex=[],
-    binaries=[],
-    datas=[],
-    hiddenimports=['openpyxl.cell._writer'],
-    hookspath=[],
-    hooksconfig={},
-    runtime_hooks=[],
-    excludes=[],
     win_no_prefer_redirects=False,
     win_private_assemblies=False,
     cipher=block_cipher,
@@ -215,4 +162,9 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
+	icon='MSL2.ico'
 )
+
+15/8/23
+Note that the working directory (for icon and template) in the packaged version needs to be found with
+path.dirname(__file__). This will be in a temporary windows folder for the bundled exe.

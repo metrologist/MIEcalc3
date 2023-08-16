@@ -110,7 +110,6 @@ class IOForm(GraphForm):
         self.n_profiles = len(self.profile_list)  # have now confirmed the number of profiles to calculate
         self.file_table.SetCellValue(len(project_files) - len(self.profile_list), 0, repr(self.profile_list))
         # can now create the multiple plot axes for the load
-        self.load_graph.figure.clear(True)  # continuing challenge to correctly clear graph
         self.Create3DGraph(self.load_graph, self.n_profiles, 'load_axes_3D')
         # noting that the 'load' file calculation is different, set up for
         # choice of *.txt for plotting csv from e_data folder or directly from

@@ -250,7 +250,7 @@ class MIECALC(REPORT):
         site = comp.INSTALLATION('name', meter, ct, vt, profile, self.e_data('_site.csv'))
         error = site.site_error_terms()  # total_error_list, overall_error_list, XX  (all are lists)
         self.m_statusBar1.SetStatusText('Calculation finished', 2)
-        self.report_graph.figure.clear(True)  # continuing challenge to correctly clear graph
+        # self.report_graph.figure.clear(True)  # continuing challenge to correctly clear graph
         self.Create3DGraph(self.report_graph, self.n_profiles, 'error_axes_3D')
 
         for ii in range(len(error[0])):  # iterates the full calculation through each load profile
