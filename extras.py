@@ -94,7 +94,8 @@ class VIEW(object):
         dialog = MyFrame2(None)
     ##     html = dialog.m_htmlWin1
         html = dialog.m_htmlWin2
-        name = os.path.join(self.frame.cwd, 'Help', 'UserGuide.htm')
+        # name = os.path.join(self.frame.cwd, 'Help', 'UserGuide.htm')
+        name = os.path.join(self.frame.cwd, 'Help', 'UserGuide2023.htm')
         html.LoadPage(name)
         dialog.Show()
     ##     dialog.ShowModal()

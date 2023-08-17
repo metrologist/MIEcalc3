@@ -1235,7 +1235,7 @@ class MyFrame1 ( wx.Frame ):
 class MyFrame2 ( wx.Frame ):
 
 	def __init__( self, parent ):
-		wx.Frame.__init__ ( self, parent, id = wx.ID_ANY, title = wx.EmptyString, pos = wx.DefaultPosition, size = wx.Size( 600,600 ), style = wx.DEFAULT_FRAME_STYLE|wx.TAB_TRAVERSAL )
+		wx.Frame.__init__ ( self, parent, id = wx.ID_ANY, title = wx.EmptyString, pos = wx.DefaultPosition, size = wx.Size( 675,600 ), style = wx.DEFAULT_FRAME_STYLE|wx.TAB_TRAVERSAL )
 		self.cwd = os.getcwd()  # identifies working directory at startup.
 		# iconFile = os.path.join(self.cwd, 'MSL2.ico')
 		# iconFile = 'MSL2.ico'
@@ -1247,7 +1247,7 @@ class MyFrame2 ( wx.Frame ):
 		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 		bSizer10 = wx.BoxSizer( wx.VERTICAL )
 
-		self.m_htmlWin2 = wx.html.HtmlWindow( self, wx.ID_ANY, wx.DefaultPosition, wx.Size( 600, 600 ), wx.html.HW_SCROLLBAR_AUTO )
+		self.m_htmlWin2 = wx.html.HtmlWindow( self, wx.ID_ANY, wx.DefaultPosition, wx.Size( 650, 600 ), wx.html.HW_SCROLLBAR_AUTO )
 
 		bSizer10.Add( self.m_htmlWin2, 0, wx.ALL, 5 )
 
