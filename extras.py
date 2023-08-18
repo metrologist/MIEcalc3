@@ -60,14 +60,14 @@ class VIEW(object):
     def OnAboutBox(self):
         """
         Presents basic creator/copyright information when the 'About
-        MIEcalculator' option is slected from the 'Help' menu bar item.
+        MIEcalc3' option is selected from the 'Help' menu bar item.
         """
-        description = """MIEcalculator calculates the error and uncertainty for a metering installation.
+        description = """MIEcalc3 calculates the error and uncertainty for a metering installation.
     """
 
         licence = """This version is provided for teaching purposes in MSL's 'Traceable Electrical Energy Metering' workshop.
 
-    MIEcalculator is provided in the hope that it will be useful,
+    MIEcalc3 is provided in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 

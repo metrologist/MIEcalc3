@@ -168,3 +168,37 @@ exe = EXE(
 15/8/23
 Note that the working directory (for icon and template) in the packaged version needs to be found with
 path.dirname(__file__). This will be in a temporary windows folder for the bundled exe.
+
+17/8/23
+Checking to see if clients can work with a dist folder rather than a full windows install
+Review priorities from 18/6/23
+
+    1/ Modify to
+        a) easily include 3 load profiles in standard report with more help on forms of raw data DONE
+        b) make selection of temperature range clear in the report DONE
+        c) link meter sensitivity coefficients directly to a selected IEC class (this is my best-practice use for 'class
+           accuracy') DONE
+        d) explicitly manage the different % scales for current between the CT and meter --- TO DO
+        e) remove snapshot feature (unless there is clearly a trivial fix) DONE
+    2/ Improve documentation
+        a) Might be able to do everything with Sphinx, i.e. avoiding a separate pdf or word-based html
+        b) Consider a video guide (takes the pressure off TEEM)
+        c) Produce the technical guide for class A test houses
+    3/ Separately investigate alternative function fits including a simple avoidance of relative % errors (the ln fit
+       might change into a quadratic plus offset?)
+    4/ Extend to all quadrants and, perhaps, treat phases individually
+    5/ Continue to improve code/workflow including, maybe, a move away from Excel.
+
+    So priorities now are
+    1/ Modify to
+        d) explicitly manage the different % scales for current between the CT and meter
+    2/ Improve documentation
+        a) Might be able to do everything with Sphinx, i.e. avoiding a separate pdf or word-based html
+        b) Consider a video guide (takes the pressure off TEEM)
+        c) Produce the technical guide for class A test houses
+    3/ Separately investigate alternative function fits including a simple avoidance of relative % errors (the ln fit
+       might change into a quadratic plus offset?)
+    4/ Extend to all quadrants and, perhaps, treat phases individually
+    5/ Continue to improve code/workflow including, maybe, a move away from Excel.
+
+    None of these are required to assist with immediate industry requests..
