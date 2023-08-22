@@ -23,15 +23,18 @@ class ProjectFrame(MyFrame1):
         self.SetIcon(icon1)
         self.SetTitle(u"Metering Installation Error Calculator\
         (August 2023, v1.2.0)")  # keep title and version up to date.
-        self.notebooks = {'Report notebook': self.m_notebook1, 'Meter notebook': self.m_notebook11,
+        self.notebooks = {'Main/Report notebook': self.m_notebook1, 'Meter notebook': self.m_notebook11,
                           'CT notebook': self.CT_notebook, 'VT notebook': self.VT_notebook,
                           'Load notebook': self.m_notebook14, 'Site notebook': self.m_notebook15}
-        self.BookSelect('Report notebook')  # defaults to the Main/Report notebook (was called Report Notebook)
+        self.landing_page = {'Main/Report notebook': 0, 'Meter notebook': 2,  # chooses the default landing page
+                          'CT notebook': 2, 'VT notebook': 2,
+                          'Load notebook': 1, 'Site notebook': 0}
+        self.BookSelect('Main/Report notebook')  # defaults to the Main/Report notebook (was called Report Notebook)
         self.m_notebook1.ChangeSelection(0)  # defaults to the 'Main' tab
 
     # Select which notebook to show from 'Select View' menu events
     def OnReportSelect(self, event):
-        self.BookSelect('Report notebook')
+        self.BookSelect('Main/Report notebook')
 
     def OnMeterSelect(self, event):
         self.BookSelect('Meter notebook')
@@ -57,6 +60,8 @@ class ProjectFrame(MyFrame1):
             if x != book_name:
                 self.notebooks[x].Hide()
         self.notebooks[book_name].Show()
+        # landing-page fixed, without this it defaults to page 0 initially and after it goes back to as last set
+        self.notebooks[book_name].SetSelection(self.landing_page[book_name])
         self.m_statusBar1.SetStatusText(book_name, 0)
         self.SendSizeEvent()
 

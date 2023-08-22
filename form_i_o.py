@@ -83,7 +83,7 @@ class IOForm(GraphForm):
                 self.m_button26.SetBackgroundColour(colour='GREEN')
                 dlg.Destroy()
                 # shift focus to the processing page
-                self.BookSelect('Report notebook')  # defaults to the Main/Report notebook (was called Report Notebook)
+                self.BookSelect('Main/Report notebook')  # defaults to the Main/Report notebook (was called Report Notebook)
                 self.m_notebook1.ChangeSelection(0)  # defaults to the 'Main' tab
 
 
