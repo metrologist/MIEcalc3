@@ -49,7 +49,7 @@ class IOForm(GraphForm):
         # application. In theory, you could create one earlier, store it in
         # your frame object and change it when it was called to reflect
         # current parameters / values
-        wildcard = "Poject source (*.csv; *.xls; *.xlsx; *.xlsm)|*.csv;*.xls; *.xlsx; *.xlsm|" \
+        wildcard = "Project source (*.csv; *.xls; *.xlsx; *.xlsm)|*.csv;*.xls; *.xlsx; *.xlsm|" \
                    "All files (*.*)|*.*"
 
         dlg = wx.FileDialog(self, "Choose a project file", self.dirname, "", wildcard, wx.FD_OPEN | wx.FD_MULTIPLE)
