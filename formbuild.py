@@ -65,6 +65,9 @@ class MyFrame1 ( wx.Frame ):
 		self.report_graph = wx.Panel( self.m_notebook1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		self.m_notebook1.AddPage( self.report_graph, u"Total error graph", False )
 
+		self.report_contour = wx.Panel( self.m_notebook1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		self.m_notebook1.AddPage(self.report_contour, u"Error contours", False)
+
 		self.report_files = wx.Panel( self.m_notebook1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer8 = wx.BoxSizer( wx.VERTICAL )
 		self.m_staticText22 = wx.StaticText(self.report_files, wx.ID_ANY, u"Project directory", wx.DefaultPosition,

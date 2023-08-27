@@ -5,6 +5,7 @@ from matplotlib.backends.backend_wxagg import NavigationToolbar2WxAgg
 from matplotlib.figure import Figure
 from math import ceil, sqrt
 import numpy as np
+import matplotlib.pyplot as plt  # see if I can avoid pyplot
 
 
 class EXAMPLE(wx.Frame):
@@ -23,12 +24,16 @@ class EXAMPLE(wx.Frame):
         self.m_menuItem3 = wx.MenuItem(self.m_menu1, wx.ID_ANY, u"Clear graphs", wx.EmptyString, wx.ITEM_NORMAL)
         self.m_menu1.Append(self.m_menuItem3)
         self.m_menuItem3.Enable(True)
+        self.m_menuItem4 = wx.MenuItem(self.m_menu1, wx.ID_ANY, u"Contour graph", wx.EmptyString, wx.ITEM_NORMAL)
+        self.m_menu1.Append(self.m_menuItem4)
+        self.m_menuItem4.Enable(True)
         self.m_menu1.AppendSeparator()
         self.m_menubar1.Append(self.m_menu1, u"Actions")
         self.SetMenuBar(self.m_menubar1)
         self.Bind(wx.EVT_MENU, self.OnDraw1, id=self.m_menuItem1.GetId())
         self.Bind(wx.EVT_MENU, self.OnDraw4, id=self.m_menuItem2.GetId())
         self.Bind(wx.EVT_MENU, self.OnClear, id=self.m_menuItem3.GetId())
+        self.Bind(wx.EVT_MENU, self.OnContour, id=self.m_menuItem4.GetId())
         self.pnl = wx.Panel(self)
         self.pnl.sizer = wx.BoxSizer(wx.VERTICAL)
         # self.n_profiles = 4
@@ -56,6 +61,52 @@ class EXAMPLE(wx.Frame):
         pnl.SendSizeEventToParent()
         # return pnl
 
+    def setup_cont(self):
+        self.axes_list = []
+        xlist = np.linspace(1, 100, 20)
+        ylist = np.linspace(-30, 60, 20)
+        X, Y = np.meshgrid(xlist, ylist)
+        Z = np.sqrt(X ** 2 + Y ** 2)
+
+        print('Z =', Z)
+        pnl = self.pnl
+        pnl.figure, pnl.ax = plt.subplots(1, 1)  # using pyplot leaves plt thread running after closing app.
+        pnl.canvas = FigureCanvas(pnl, -1, pnl.figure)
+        cp = pnl.ax.contourf(X, Y, Z)
+        pnl.figure.colorbar(cp)
+        self.axes_list.append(pnl.ax)
+        # pnl.sizer = wx.BoxSizer(wx.VERTICAL)
+        pnl.sizer.Add(pnl.canvas, 1, wx.LEFT | wx.TOP | wx.GROW)
+        pnl.SetSizer(pnl.sizer)
+        pnl.Fit()
+        # self.add_2Dtoolbar(self.pnl)
+        pnl.Enable(enable=True)
+        pnl.SendSizeEventToParent()
+        return pnl
+    def setup_cont2(self):
+        self.axes_list = []
+        xlist = np.linspace(1, 100, 20)
+        ylist = np.linspace(-30, 60, 20)
+        X, Y = np.meshgrid(xlist, ylist)
+        Z = np.sqrt(X ** 2 + Y ** 2)
+
+        print('Z =', Z)
+        pnl = self.pnl
+        pnl.figure = Figure(None)
+        pnl.figure.set_facecolor('white')
+        pnl.canvas = FigureCanvas(pnl, -1, pnl.figure)
+        pnl.axes = pnl.figure.add_subplot(1, 1, 1)
+        cp = pnl.axes.contourf(X, Y, Z)
+        pnl.figure.colorbar(cp)
+        self.axes_list.append(pnl.axes)
+        # pnl.sizer = wx.BoxSizer(wx.VERTICAL)
+        pnl.sizer.Add(pnl.canvas, 1, wx.LEFT | wx.TOP | wx.GROW)
+        pnl.SetSizer(pnl.sizer)
+        pnl.Fit()
+        self.add_2Dtoolbar(self.pnl)
+        pnl.Enable(enable=True)
+        pnl.SendSizeEventToParent()
+        return pnl
     def add_2Dtoolbar(self, panel):
         """
         Adds the standard matplotlib toolbar that provides extra viewing
@@ -106,6 +157,10 @@ class EXAMPLE(wx.Frame):
         self.setup(self.n_profiles)
         self.draw_graph()
         self.pnl.SendSizeEventToParent()
+
+    def OnContour(self, event):
+        self.setup_cont2()
+
 
         # self.report_richText = rtc.RichTextCtrl(self.pnl, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition,
         #                                                 wx.DefaultSize,

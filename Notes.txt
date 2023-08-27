@@ -202,3 +202,5 @@ Review priorities from 18/6/23
     5/ Continue to improve code/workflow including, maybe, a move away from Excel.
 
     None of these are required to assist with immediate industry requests..
+
+    Contour plot of error would be helpful, but need to access the full error calculation point by point.

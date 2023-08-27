@@ -9,6 +9,7 @@ from scipy.stats import t
 import extras
 import sys
 from os import path
+from matplotlib import ticker, cm
 
 
 class MIECALC(REPORT):
@@ -252,6 +253,9 @@ class MIECALC(REPORT):
         self.m_statusBar1.SetStatusText('Calculation finished', 2)
         # self.report_graph.figure.clear(True)  # continuing challenge to correctly clear graph
         self.Create3DGraph(self.report_graph, self.n_profiles, 'error_axes_3D')
+        # site-cat dictionary as tuples of allowable % error and % uncertainty
+        # site_cat = {'1': (2.5, 0.6), '2': (2.5,0.6), '3': (1.25, 0.3), '4': (1.25, 0.3), '5': (0.75, 0.2) }
+        # category = site_cat['4'][0]  # not yet clear where the metering installation category would be entered
 
         for ii in range(len(error[0])):  # iterates the full calculation through each load profile
             # Plot the error
@@ -262,6 +266,8 @@ class MIECALC(REPORT):
             Z = np.zeros(no_of_points)
             Z1 = np.zeros(no_of_points)
             Z2 = np.zeros(no_of_points)
+            # Z3 = np.zeros(no_of_points)  # for + site limit
+            # Z4 = np.zeros(no_of_points)  # for - site limit
             for i in range(no_of_points):
                 X[i] = r[i][0]
                 Y[i] = r[i][1]
@@ -271,6 +277,8 @@ class MIECALC(REPORT):
                 kZ = t.ppf(0.975, dfZ)  # note scipy t
                 Z1[i] = Z[i] + uZ * kZ
                 Z2[i] = Z[i] - uZ * kZ
+                # Z3[i] = category  # for site cat limits
+                # Z4[i] = - category  # for site cat limits
             edge_no = np.sqrt(no_of_points)  # assuming an nxn grid
             dummy = np.zeros((int(edge_no), int(edge_no)), dtype=float)  # assumes nxn
             ZZ = np.reshape(Z, np.shape(dummy))
@@ -278,6 +286,8 @@ class MIECALC(REPORT):
             YY = np.reshape(Y, np.shape(dummy))
             ZZ1 = np.reshape(Z1, np.shape(dummy))
             ZZ2 = np.reshape(Z2, np.shape(dummy))
+            # ZZ3 = np.reshape(Z3, np.shape(dummy))  # for site cat limits
+            # ZZ4 = np.reshape(Z4, np.shape(dummy))  # for site cat limits
             with warnings.catch_warnings():  # get 'converting masked element to nan'
                 warnings.simplefilter("ignore")
                 np.seterr(invalid='ignore')
@@ -291,11 +301,27 @@ class MIECALC(REPORT):
                 self.error_axes_3D[ii].plot_surface(XX, YY, ZZ, rstride=1, cstride=1, cmap='jet')
                 self.error_axes_3D[ii].plot_wireframe(XX, YY, ZZ1)
                 self.error_axes_3D[ii].plot_wireframe(XX, YY, ZZ2)
+                # self.error_axes_3D[ii].plot_wireframe(XX, YY, ZZ3, color='red')  # for site cat limits
+                # self.error_axes_3D[ii].plot_wireframe(XX, YY, ZZ4, color='red')  # for site cat limits
                 np.seterr(invalid='print')
-                # self.report_graph.canvas.draw()
-            # self.report_graph.ax.autoscale(enable=True, axis='both', tight=True)
-            # self.error_axes_3D[ii].autoscale(enable=True, axis='both', tight=True)  # do not autoscale
-            # self.report_graph.canvas.draw()
+                self.error_axes_3D[ii].view_init(elev=5, azim=-45, roll=0)  # for site cat limits
+                self.report_graph.canvas.draw()
+            self.report_graph.ax.autoscale(enable=True, axis='both', tight=True)
+            self.error_axes_3D[ii].autoscale(enable=True, axis='both', tight=True)  # do not autoscale
+            self.report_graph.canvas.draw()
+        # create contour plot
+        grid_size = 20
+        error_cap = 1.5  # maximum value allowed in contour plot
+        Z, X, Y = site.site_error_bypoint(1, 120,-30, 60, error_cap, grid_size )
+        self.CreateContour(self.report_contour)
+        # cp = self.report_contour.ax.contourf(X, Y, Z, locator=ticker.LogLocator(),cmap=cm.PuBu_r)
+        cp = self.report_contour.axes.contourf(X, Y, Z, cmap=cm.rainbow)
+        self.report_contour.figure.colorbar(cp, ticks=[0, 0.1, 0.25, 0.5, 0.75, 1.0, 1.25,2.0, 2.5])
+        self.add_2Dtoolbar(self.report_contour)
+        self.report_contour.Fit()
+        self.report_contour.Enable(enable=True)
+        self.report_contour.SendSizeEventToParent()
+
         # create report
         self.m_statusBar1.SetStatusText('Generating report', 0)
         self.reporter(error[1], site.temp)  # note that the site temperature is needed for the report

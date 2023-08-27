@@ -184,6 +184,7 @@ class REPORT(EqnForm):
         self.report_txt.append('Current Transformer')
         self.report_txt.append('Voltage Transformer')
         self.report_txt.append('Meter')
+        self.report_txt.append('Installation Error Contour')
         self.report_txt.append('Additional Information')
 
         # gather graphs for reporting
@@ -200,6 +201,9 @@ class REPORT(EqnForm):
         self.report_images_wx.append(image[0])
         self.report_images.append(image[1])
         image = self.buffer_image_wx(self.meter_graph.canvas)
+        self.report_images_wx.append(image[0])
+        self.report_images.append(image[1])
+        image = self.buffer_image_wx(self.report_contour.canvas)
         self.report_images_wx.append(image[0])
         self.report_images.append(image[1])
 
@@ -311,6 +315,9 @@ class REPORT(EqnForm):
         report.Newline()
         report.WriteImage(self.report_images_wx[4])
         report.Newline()
+        report.WriteText(t_strings[index + 6])  # contour
+        report.Newline()
+        report.WriteImage(self.report_images_wx[5])
         report.EndFontSize()
 
     def wordreport(self, docx_file):
@@ -325,7 +332,6 @@ class REPORT(EqnForm):
         t_strings = self.report_txt
         assert len(t_strings) > 0, "Nothing to report.  Run calculation before attempting to save"
         template = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'templates', 'default.docx')
-        # template = os.path.join(self.cwd, 'templates', 'default.docx')
         document = docx.Document(template)
         section = document.sections[0]
         footer = section.footer
@@ -369,11 +375,10 @@ class REPORT(EqnForm):
         document.add_picture(image_files[3], width=docx.shared.Mm(100))
         document.add_heading(t_strings[index + 5], level=1)
         document.add_picture(image_files[4], width=docx.shared.Mm(100))
+        document.add_heading(t_strings[index + 6], level=1)
+        document.add_picture(image_files[5], width=docx.shared.Mm(100))
         document.add_page_break()
         document.add_heading('Additional Information', level=1)
-        # document.add_heading('Uncertainty Contribution Summary', level=2)
-        # document.add_paragraph(t_strings[7] + ' ' + t_strings[8] + t_strings[9] + ', '
-        #                        + t_strings[10] + t_strings[11] + ', ' + t_strings[12] + t_strings[13] + '.')
         document.add_heading('Text Output From the Calculation Process', level=2)
         no_lines = self.m_textCtrl3.GetNumberOfLines()
         for x in range(no_lines):

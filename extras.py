@@ -78,7 +78,7 @@ class VIEW(object):
         info = wx.adv.AboutDialogInfo()
     ##     info.SetIcon(wx.Icon('hunter.png', wx.BITMAP_TYPE_PNG))
         info.SetName('MIEcalc3')
-        info.SetVersion('1.2.0')
+        info.SetVersion('1.2.1')
         info.SetDescription(description)
         info.SetCopyright('(C) 2011-2023 Measurement Standards Laboratory of New Zealand')
         info.SetWebSite('https://measurement.govt.nz')

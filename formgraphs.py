@@ -23,6 +23,7 @@ class GraphForm(ProjectFrame):
         self.Create3DGraph(self.meter_graph, 1, 'meter_axes_3D')  # Meter notebook
         self.Create3DGraph(self.load_graph, 1, 'load_axes_3D')  # Load notebook
         self.load_graph.ax.set_zlabel('Energy')  # Load has energy for z axis
+        self.CreateContour(self.report_contour)
 
     def Create2DGraph(self, panel, xlabel):
         """
@@ -35,7 +36,7 @@ class GraphForm(ProjectFrame):
         panel.axes2 = panel.figure.add_subplot(2, 1, 2)
         # these labels should be plot specific
         panel.axes1.set_xlabel(xlabel)
-        panel.axes1.set_ylabel('Error / %')
+        panel.axes1.set_ylabel('Relative Error / %')
         panel.axes2.set_xlabel(xlabel)
         panel.axes2.set_ylabel('Phase / crad')
         ##         panel.figure.tight_layout() # leads to cropping of y-axis legend in report
@@ -84,13 +85,30 @@ class GraphForm(ProjectFrame):
             # these labels should be selected later for specific components
             panel.ax.set_xlabel('Current / %')
             panel.ax.set_ylabel('Phase / degree')
-            panel.ax.set_zlabel('Error / %')
+            panel.ax.set_zlabel('Relative Error / %')
         panel.sizer = wx.BoxSizer(wx.VERTICAL)
         panel.sizer.Add(panel.canvas, 1, wx.LEFT | wx.TOP | wx.GROW)
         panel.SetSizer(panel.sizer)
         panel.Fit()
         self.add_2Dtoolbar(panel)
         panel.SendSizeEventToParent()
+
+    def CreateContour(self, panel):
+        pnl = panel
+        pnl.sizer = wx.BoxSizer(wx.VERTICAL)
+        pnl.figure = Figure(None)
+        pnl.figure.set_facecolor('white')
+        pnl.canvas = FigureCanvas(pnl, -1, pnl.figure)
+        pnl.axes = pnl.figure.add_subplot(1, 1, 1)
+        pnl.axes.set_xlabel('Current / %')
+        pnl.axes.set_ylabel('Phase / degree')
+        pnl.axes.set_title('Maximum Absolute Relative Error / %')
+        pnl.sizer.Add(pnl.canvas, 1, wx.LEFT | wx.TOP | wx.GROW)
+        pnl.SetSizer(pnl.sizer)
+        pnl.Fit()
+        # self.add_2Dtoolbar(pnl)
+        pnl.Enable(enable=True)
+        pnl.SendSizeEventToParent()
 
     def OnClearAllGraphs(self, event):
         self.pushClearAllGraphs()
@@ -114,6 +132,10 @@ class GraphForm(ProjectFrame):
             y.axes2.set_xlabel(the_xlabel)
             y.axes2.set_ylabel(the_ylabel)
             y.canvas.draw()
+
+        # clearing the contour plot
+        sizer = self.report_contour.GetSizer()
+        sizer.Clear(True)
 
         # graphs_3D = [self.meter_graph, self.report_graph, self.load_graph]
         graphs_3D = [self.report_graph, self.load_graph]
@@ -143,6 +165,7 @@ class GraphForm(ProjectFrame):
         menu.  No 'are you sure?' dialogue.
         """
         self.Destroy()
+        wx.Exit()  # added since contour plot seems to leave a process running
 
 if __name__ == '__main__':
     app = wx.App()

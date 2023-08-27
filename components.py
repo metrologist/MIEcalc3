@@ -619,6 +619,67 @@ class INSTALLATION(object):
         # print('overall_error', overall_error_list)
         return total_error_list, overall_error_list, XX
 
+    def site_error_bypoint(self, mincur, maxcur, minph, maxph, cap,n):
+        """
+
+        Installation error across a range of current/phase values without any load integration. For plotting error
+        contours to identify over which range the installation passes without needing integration over the load.
+        :param mincur: minimum % current
+        :param maxcur: maximum % current
+        :param minph: minimum phase degrees
+        :param maxph: maximum phase degrees
+        :paraam cap: if greater than cap, return cap
+        :param n: grid size nxn
+        :return: list of error at each point as ureal
+        """
+        points = []  # will be list of tuples to match XX format
+        cur_list = np.linspace(mincur, maxcur, n)  # current
+        ph_list = np.linspace(minph, maxph, n)  # phase
+        cur_list1 = []
+        ph_list1 = []
+        for i in range(n):
+            cur_list1.append(mincur + i * (maxcur - mincur)/(n - 1))
+            ph_list1.append(minph + i * (maxph - minph)/(n - 1))
+        cur, ph =  np.meshgrid(cur_list, ph_list)
+        for k in range(len(cur_list1)):
+            for j in range(len(ph_list1)):
+                points.append((cur_list1[k], ph_list1[j]))
+        current = []
+        angle = []
+        X = points  # temporary for selecting the calculation of the first profile
+        voltage = []  # a list of common value uncertain voltages
+        for i in range(len(X)):
+            current.append(X[i][0] * (1 - self.freq / 100.0))  # frequency changes flux, higher frequency, lower flux
+            angle.append(X[i][1])
+            voltage.append(self.volt + 100.0 - self.freq)  # volt is entered (as uncertain zero) and added to 100%
+        meter_part = self.meter.m_total_error(X, self.temp, self.year, self.volt,
+                                              self.freq, self.field, self.harm)
+        ct_error_part = self.ct.total_error(current, self.temp, self.ct_bd)
+        ct_phase_part = self.ct.total_phase(current, self.temp, self.ct_bd)
+        vt_error_part = self.vt.total_error(voltage, self.temp, self.vt_bd)
+        vt_phase_part = self.vt.total_phase(voltage, self.temp, self.vt_bd)
+        total_error = []
+        for i in range(len(X)):
+            err = (meter_part[i] + ct_error_part[i] + vt_error_part[i] + np.tan(angle[i] * np.pi / 180.0) *
+                   (ct_phase_part[i] - vt_phase_part[i]))
+            k = gtc.reporting.k_to_dof(err.df)
+            maximum = err.x + err.u * k
+            minimum = err.x - err.u * k
+            err_max = max(abs(maximum), abs(minimum))
+            if err_max > cap:
+                err_max = cap
+            total_error.append(err_max)
+        X, Y = cur, ph  # going back to numpy style
+        tot_error = []  # will be a numpy style list of lists for each grid row
+        for i in range(n):
+            arow = []
+            for j in range(n):
+                arow.append(total_error[j * n + i])
+            tot_error.append(arow)
+        return(tot_error, X, Y)
+
+
+
     def budget(self, a):
         """
         A GTC utility for listing the uncertainty budget for *a*.
