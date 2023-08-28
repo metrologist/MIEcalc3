@@ -193,7 +193,7 @@ class MODEL(object):
         else:  # have a zero uncertainty so create separate ureals
             print(
                 'A fit has returned zero uncertainty for a function coefficient. This should only occur if input '
-                'data has been purposely set to a perfect fit. Message repeats each time the coefficients are used')
+                'data has been purposely set to a perfect fit. Message repeats each time the coefficients are used.')
             a = []
             for i in range(len(coeffs)):
                 a.append(gtc.ureal(coeffs[i], uncert[i], dof, label[i]))
@@ -229,7 +229,7 @@ class MODEL(object):
         elif fit_check < prob:  # a bad fit to data!
             # cov = cov*red_chisq
             var_b0 = 0.0  # i.e. no offset uncertainty
-            comment = 'Data scatter greater than expected, a poor fit'
+            comment = 'Data scatter greater than expected, a poor fit.'
         else:
             comment = 'Good fit.'
             var_b0 = 0.0  # i.e. no offset uncertainty

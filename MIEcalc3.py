@@ -9,7 +9,7 @@ from scipy.stats import t
 import extras
 import sys
 from os import path
-from matplotlib import ticker, cm
+from matplotlib import cm
 
 
 class MIECALC(REPORT):

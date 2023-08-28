@@ -1,7 +1,6 @@
 import wx
 import os
 from formbuild import MyFrame1
-import extras
 
 
 class ProjectFrame(MyFrame1):

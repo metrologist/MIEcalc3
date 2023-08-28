@@ -448,20 +448,20 @@ class LOAD(object):
             # do not allow negative or zero values for current
             min_cur = 0.1  # 0.1%
             if c_max < min_cur:
-                print('Load error, low or negative current')
+                print('Load error, low or negative current.')
                 c_max = min_cur
             if c_min < min_cur:
-                print('Load error, low or negative current')
+                print('Load error, low or negative current.')
                 c_min = min_cur
             if p_max > 89.9:
-                print('Load phase limited to 89.9 degrees maximum')
+                print('Load phase limited to 89.9 degrees maximum.')
                 p_max = 89.9
             if p_min < -89.9:
-                print('Load phase limited to -89.9 degrees minimum')
+                print('Load phase limited to -89.9 degrees minimum.')
                 p_min = -89.9
             print('For profile in ', raw_file[i])
             print('Max current = %2.2f %s, Min current = %2.2f %s, Max phase = %2.2f %s, Min phase = %2.2f %s' % (
-            c_max, '%', c_min, '%', p_max, ' degrees', p_min, ' degrees'))
+            c_max, '%', c_min, '%', p_max, 'degrees', p_min, 'degrees'))
             print()
             hist, xedges, yedges = np.histogram2d(current, phase, bins=(20, 20), range=[[c_min, c_max], [p_min, p_max]],
                                                   weights=energy)  # note that bins must be nxn to be compatible with grand_finale
