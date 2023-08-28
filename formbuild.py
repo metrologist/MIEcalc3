@@ -1252,7 +1252,7 @@ class MyFrame2 ( wx.Frame ):
 
 		self.m_htmlWin2 = wx.html.HtmlWindow( self, wx.ID_ANY, wx.DefaultPosition, wx.Size( 650, 600 ), wx.html.HW_SCROLLBAR_AUTO )
 
-		bSizer10.Add( self.m_htmlWin2, 0, wx.ALL, 5 )
+		bSizer10.Add( self.m_htmlWin2, 1, wx.EXPAND|wx.ALL, 5 )
 
 		self.SetSizer( bSizer10 )
 		self.Layout()
