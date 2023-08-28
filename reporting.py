@@ -184,7 +184,7 @@ class REPORT(EqnForm):
         self.report_txt.append('Current Transformer')
         self.report_txt.append('Voltage Transformer')
         self.report_txt.append('Meter')
-        self.report_txt.append('Installation Error Contour')
+        self.report_txt.append('Installation Maximum Error Contour')
         self.report_txt.append('Additional Information')
 
         # gather graphs for reporting
