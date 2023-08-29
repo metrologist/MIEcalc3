@@ -1265,35 +1265,6 @@ class MyFrame2 ( wx.Frame ):
 	def __del__( self ):
 		pass
 
-
 	# Virtual event handlers, overide them in your derived class
 	def OnCloseH( self, event ):
-		event.Skip()
-
-
-class MyDialog1 ( wx.Dialog ):
-
-	def __init__( self, parent ):
-		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Help", pos = wx.DefaultPosition, size = wx.Size( 617,415 ), style = wx.DEFAULT_DIALOG_STYLE )
-		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
-
-		bSizer9 = wx.BoxSizer( wx.VERTICAL )
-
-		self.m_htmlWin1 = wx.html.HtmlWindow( self, wx.ID_ANY, wx.DefaultPosition, wx.Size( 600,380 ), wx.html.HW_SCROLLBAR_AUTO )
-
-		bSizer9.Add( self.m_htmlWin1, 0, wx.ALL, 5 )
-
-		self.SetSizer( bSizer9 )
-		self.Layout()
-
-		self.Centre( wx.BOTH )
-
-		# Connect Events
-		self.Bind( wx.EVT_CLOSE, self.OnCloseHelp )
-
-	def __del__( self ):
-		pass
-
-	# Virtual event handlers, overide them in your derived class
-	def OnCloseHelp( self, event ):
 		event.Skip()
