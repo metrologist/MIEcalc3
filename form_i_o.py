@@ -6,6 +6,7 @@ import sys
 import csv
 import extras
 from numpy import zeros, sqrt
+from utility import UTILITY
 
 
 class IOForm(GraphForm):
@@ -543,6 +544,11 @@ class IOForm(GraphForm):
         self.PushClearText()
     def PushClearText(self):
         extras.VIEW(self).ClearText()
+
+    def OnLoadUtility(self, event):
+        print('Load utility')
+        dialog = UTILITY(None)
+        dialog.Show()
 
 if __name__ == '__main__':
     app = wx.App()

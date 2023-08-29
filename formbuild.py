@@ -828,21 +828,6 @@ class MyFrame1 ( wx.Frame ):
 		self.m_notebook14 = wx.Notebook( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_notebook14.Hide()
 
-		# ************** removed summary page for load profile ********************************
-		# self.Setup4 = wx.Panel( self.m_notebook14, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
-		# bSizer64 = wx.BoxSizer( wx.VERTICAL )
-
-		# self.m_button14 = wx.Button( self.Setup4, wx.ID_ANY, u"Summary", wx.DefaultPosition, wx.DefaultSize, 0 )
-		# bSizer64.Add( self.m_button14, 0, wx.ALL, 5 )
-		#
-		# self.load_richText = wx.richtext.RichTextCtrl( self.Setup4, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0|wx.VSCROLL|wx.HSCROLL|wx.WANTS_CHARS|wx.BORDER_NONE )
-		# bSizer64.Add( self.load_richText, 1, wx.EXPAND |wx.ALL, 5 )
-		#
-		#
-		# self.Setup4.SetSizer( bSizer64 )
-		# self.Setup4.Layout()
-		# bSizer64.Fit( self.Setup4 )
-		# self.m_notebook14.AddPage( self.Setup4, u"Load Summary", True )
 		self.m_scrolledWindow5 = wx.ScrolledWindow( self.m_notebook14, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.HSCROLL|wx.VSCROLL )
 		self.m_scrolledWindow5.SetScrollRate( 5, 5 )
 		fgSizer15 = wx.FlexGridSizer( 8, 2, 0, 0 )
@@ -1006,6 +991,9 @@ class MyFrame1 ( wx.Frame ):
 		self.m_menuItem15 = wx.MenuItem( self.m_menu5, wx.ID_ANY, u"Help Topics", wx.EmptyString, wx.ITEM_NORMAL )
 		self.m_menu5.Append( self.m_menuItem15 )
 
+		self.m_menuItem115 = wx.MenuItem(self.m_menu5, wx.ID_ANY, u"Load utility", wx.EmptyString, wx.ITEM_NORMAL)
+		self.m_menu5.Append(self.m_menuItem115)
+
 		self.m_menu5.AppendSeparator()
 
 		self.m_menuItem16 = wx.MenuItem( self.m_menu5, wx.ID_ANY, u"About MIEcalc3", wx.EmptyString, wx.ITEM_NORMAL )
@@ -1078,6 +1066,7 @@ class MyFrame1 ( wx.Frame ):
 		self.Bind( wx.EVT_MENU, self.OnClearText, id = self.m_menuItem17.GetId() )
 		self.Bind( wx.EVT_MENU, self.OnClearFiles, id = self.m_menuItem18.GetId() )
 		self.Bind( wx.EVT_MENU, self.OnHelpTopic, id = self.m_menuItem15.GetId() )
+		self.Bind(wx.EVT_MENU, self.OnLoadUtility, id=self.m_menuItem115.GetId())
 		self.Bind( wx.EVT_MENU, self.OnAbout, id = self.m_menuItem16.GetId() )
 
 	def __del__( self ):
@@ -1229,6 +1218,9 @@ class MyFrame1 ( wx.Frame ):
 		event.Skip()
 
 	def OnHelpTopic( self, event ):
+		event.Skip()
+
+	def OnLoadUtility(self, event):
 		event.Skip()
 
 	def OnAbout( self, event ):
