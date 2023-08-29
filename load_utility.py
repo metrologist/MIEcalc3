@@ -32,7 +32,7 @@ class Load_Utility(object):
             print('Load_Utility dictionary problem', source, output)
 
     def uniform(self):
-        n = 10  # the number of points to be calculated
+        n = 4000  # the number of points to be calculated
         data = []
         for i in range(n):
             row = []
