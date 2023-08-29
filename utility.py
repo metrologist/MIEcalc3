@@ -74,10 +74,24 @@ class UTILITY(wx.Frame):
         self.Create_real.Bind(wx.EVT_BUTTON, self.OnReal)
 
     def OnNormal(self, event):
-        print('Normal calculation')
+        output_file = self.textCtrl1.GetValue()
+        mean_current = float(self.textCtrl2.GetValue())
+        current_sd = float(self.textCtrl3.GetValue())
+        mean_phase = float(self.textCtrl4.GetValue())
+        phase_sd = float(self.textCtrl5.GetValue())
+        inputs ={'type': 'normal', 'centre_angle': (mean_phase, phase_sd), 'centre_current': (mean_current, current_sd) }
+        load = Load_Utility(inputs, output_file)
+        load.normal()
+
 
     def OnUniform(self, event):
         print('Uniform calculation')
+        output_file = self.textCtrl1.GetValue()
+        min_current = self.textCtrl6.GetValue()
+        max_current = self.textCtrl7.GetValue()
+        min_phase = self.textCtrl8.GetValue()
+        max_phase = self.textCtrl9.GetValue()
+
 
     def OnReal(self, event):
         print('Real calculation')
