@@ -1,8 +1,9 @@
-## Python code originally generated with wxFormBuilder (version Oct 26 2018)
-## http://www.wxformbuilder.org/
-## Subsequent modifications made to work with wx Phoenix and to update the layout
-## This code no longer has a matching wxformbuilder filre
-
+"""
+Python code originally generated with wxFormBuilder (version Oct 26 2018)
+http://www.wxformbuilder.org/
+Subsequent modifications made to work with wx Phoenix and to update the layout.
+This code no longer has a matching wxformbuilder file.
+"""
 import wx
 import wx.xrc
 import wx.richtext
