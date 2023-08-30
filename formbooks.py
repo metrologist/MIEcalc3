@@ -1,7 +1,6 @@
 import wx
 import os
 from formbuild import MyFrame1
-import extras
 
 
 class ProjectFrame(MyFrame1):
@@ -16,19 +15,25 @@ class ProjectFrame(MyFrame1):
         """
         self.cwd = os.getcwd()  # identifies working directory at startup.
         MyFrame1.__init__(self, parent)
-        iconFile = os.path.join(self.cwd, 'MSL2.ico')
+        # iconFile = os.path.join(self.cwd, 'MSL2.ico')
+        iconFile = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'MSL2.ico')
+        # iconFile = 'MSL2.ico'
         icon1 = wx.Icon(iconFile, wx.BITMAP_TYPE_ICO)
         self.SetIcon(icon1)
         self.SetTitle(u"Metering Installation Error Calculator\
-        (June 2021, v1.1)")  # keep title and version up to date.
-        self.notebooks = {'Report notebook': self.m_notebook1, 'Meter notebook': self.m_notebook11,
+        (August 2023, v1.2.1)")  # keep title and version up to date.
+        self.notebooks = {'Main/Report notebook': self.m_notebook1, 'Meter notebook': self.m_notebook11,
                           'CT notebook': self.CT_notebook, 'VT notebook': self.VT_notebook,
                           'Load notebook': self.m_notebook14, 'Site notebook': self.m_notebook15}
-        self.BookSelect('Report notebook')
+        self.landing_page = {'Main/Report notebook': 0, 'Meter notebook': 2,  # chooses the default landing page
+                          'CT notebook': 2, 'VT notebook': 2,
+                          'Load notebook': 1, 'Site notebook': 0}
+        self.BookSelect('Main/Report notebook')  # defaults to the Main/Report notebook (was called Report Notebook)
+        self.m_notebook1.ChangeSelection(0)  # defaults to the 'Main' tab
 
     # Select which notebook to show from 'Select View' menu events
     def OnReportSelect(self, event):
-        self.BookSelect('Report notebook')
+        self.BookSelect('Main/Report notebook')
 
     def OnMeterSelect(self, event):
         self.BookSelect('Meter notebook')
@@ -54,6 +59,8 @@ class ProjectFrame(MyFrame1):
             if x != book_name:
                 self.notebooks[x].Hide()
         self.notebooks[book_name].Show()
+        # landing-page fixed, without this it defaults to page 0 initially and after it goes back to as last set
+        self.notebooks[book_name].SetSelection(self.landing_page[book_name])
         self.m_statusBar1.SetStatusText(book_name, 0)
         self.SendSizeEvent()
 
@@ -104,18 +111,6 @@ class ProjectFrame(MyFrame1):
             grid_name.AppendCols(change_cols)  # always to end
         elif change_cols < 0:
             grid_name.DeleteRows(0, -change_cols)  # from posn 0
-
-    def OnSnapshot(self, event):
-        """
-        Experimental screenshot option. Directly driven by the mouse *event*.
-        """
-        extras.VIEW(self).TakeScreenShot(os.path.join(self.cwd, 'e_data'))
-
-    def OnPrintSnap(self, event):
-        """
-        Experimental printing of screenshot.
-        """
-        extras.VIEW(self).onPrint(os.path.join(self.cwd, 'e_data'))
 
 
 if __name__ == '__main__':

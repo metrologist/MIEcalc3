@@ -149,8 +149,8 @@ class MODEL(object):
         Levenberg-Marquardt optimisation routine that returns  statistics
         of the least-squares fit and the fitted values of the coefficients.
         Input is in the form of a list of *data* values for independent
-        varialble *x* and a list of their uncertainties (for weighting) *u*.
-        The 'coefficents' are of PARAMETER class.
+        variable *x* and a list of their uncertainties (for weighting) *u*.
+        The 'coefficients' are of PARAMETER class.
         """
 
         def fitfun(params):
@@ -175,6 +175,7 @@ class MODEL(object):
         errors set to zero (e.g. no VT) or the input data has been fabricated to
         be a perfect fit.
         """
+        # print('MODEL fit_ureals ', cov)  # for checking correct covariance being used
         uncert = []
         for i in range(len(coeffs)):
             uncert.append(np.sqrt(cov[i, i]))
@@ -191,7 +192,8 @@ class MODEL(object):
 
         else:  # have a zero uncertainty so create separate ureals
             print(
-                'A fit has returned zero uncertainty for a function coefficient.  This should only occur if input data has been purposely set to a perfect fit.')
+                'A fit has returned zero uncertainty for a function coefficient. This should only occur if input '
+                'data has been purposely set to a perfect fit. Message repeats each time the coefficients are used.')
             a = []
             for i in range(len(coeffs)):
                 a.append(gtc.ureal(coeffs[i], uncert[i], dof, label[i]))
@@ -215,7 +217,7 @@ class MODEL(object):
         that the unexpected scatter is just an additional type A contribution.
 
         If the chi-square is seen as likely (1-*prob*), then the fit is
-        identified as a "good fit". Note that scaling of covaricance by
+        identified as a "good fit". Note that scaling of covariance by
         chi-square gives the correct confidence level.
         """
         prob = 0.1  # for now this is the trigger level determined to give acceptable long-run success
@@ -227,7 +229,7 @@ class MODEL(object):
         elif fit_check < prob:  # a bad fit to data!
             # cov = cov*red_chisq
             var_b0 = 0.0  # i.e. no offset uncertainty
-            comment = 'Data scatter greater than expected, a poor fit'
+            comment = 'Data scatter greater than expected, a poor fit.'
         else:
             comment = 'Good fit.'
             var_b0 = 0.0  # i.e. no offset uncertainty
@@ -258,7 +260,7 @@ class MODEL(object):
         total = []
         for i in range(n):
             total.append(0.0)  # the uncertainty for each list will be summed
-        for l, u in gtc.reporting.budget(target, trim=0.0):
+        for l, u, id_thing in gtc.reporting.budget(target, trim=0.0):
             for i in range(n):
                 if l in labels[i]:
                     total[i] = total[i] + u ** 2

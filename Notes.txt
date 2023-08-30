@@ -8,13 +8,13 @@ MIEcalculator.py is still revealing problems.
 
 As of 31 May 2021 MIEcalculator is functioning. I have removed the print preview feature as it continues to
 to have some unreliable behaviours while not offering any real benefit. The snapshot feature has been updated
-and retained but offers marginal given that PrtScr does the same sort of thing in windows.
+and retained but offers marginal utility given that PrtScr does the same sort of thing in windows.
 
 Pyinstaller has successfully created a dist folder using the GTC_py39 environment. Note that
- pyinstaller -w MIEcalculator.py probably avoids the console coming up, although this will obscure windows
- error messages.
+pyinstaller -w MIEcalculator.py probably avoids the console coming up, although this will obscure windows
+error messages.
 
- -w, --windowed, --noconsole Windows and Mac OS X: do not provide a console window for standard
+-w, --windowed, --noconsole Windows and Mac OS X: do not provide a console window for standard
 i/o. On Mac OS X this also triggers building an OS X .app bundle. On Windows
 this option will be set if the first script is a ‘.pyw’ file. This option is ignored in
 *NIX systems.
@@ -33,3 +33,174 @@ Projects directory that might have the report saved and its xls_temp directory f
 rights this can be sorted. It will be useful to consider os.chdir(path) to shift the working directory, remembering
 that os.getcwd() is used to find the icon file. Just need to identify a safe spot for a temporary folder that is
 universally available in windows.
+
+Have successfully shifted all graph images into io buffers so no file folder (e_data) is required for them. The
+_meter.csv type files (output summaries) are still going to e_data and so will instead put them in the xls_temp
+directory. While these intermediate csv files may be dispensed with, it is probably best to retain them until we do a
+proper structural change to the calculation. Another option is to shift the _meter.csv etc. files into io buffers. The
+reasoning is that the meter.csv etc. input files provide a convenient alternative input path for testing while the
+_meter.csv set really are just an internal processing convenience. This will also remove the need to 'clear temporary
+files'.
+
+The 'Projects' folder should be installed somewhere like 'Documents' or 'Desktop' to avoid any permission problems
+when running them.
+
+Remember to use the 'no window' option for the python exe.
+
+Snapshot now shifted to using project working directory and so it doesn't function until after a project is opened.
+This is an unintended consequence of not having a fixed working directory location.
+
+Having some success running MIEcalculator on Centos 7, but GTK does not allow some pythonwx commands.
+
+18 June 2023
+------------
+Tidied up some matplotlib (clearing graphs) and GTC (budget) issues relating to the latest versions under python 3.10.11
+I now see the priorities as
+    1/ Modify to
+        a) easily include 3 load profiles in standard report with more help on forms of raw data
+        b) make selection of temperature range clear in the report
+        c) link meter sensitivity coefficients directly to a selected IEC class (this is my best-practice use for 'class
+           accuracy')
+        d) explicitly manage the different % scales for current between the CT and meter
+        e) remove snapshot feature (unless there is clearly a trivial fix)
+    2/ Improve documentation
+        a) Might be able to do everything with Sphinx, i.e. avoiding a separate pdf or word-based html
+        b) Consider a video guide (takes the pressure off TEEM)
+        c) Produce the technical guide for class A test houses
+    3/ Separately investigate alternative function fits including a simple avoidance of relative % errors (the ln fit
+       might change into a quadratic plus offset?)
+    4/ Extend to all quadrants and, perhaps, treat phases individually
+    5/ Continue to improve code/workflow including, maybe, a move away from Excel.
+
+Completing item 1 and 2 will make MIEcalculator more relevant to current industry practice.
+
+21/6/23
+Separate MIEcalulator.py into MIEcalc3.py and reporting.py. This puts the tedious report writing into the REPORT class,
+which is the basis for the MIECALC class. A crude split, but it makes it easier to find relevant pieces of code.
+
+26/6/23
+As part of this rework consider having a GUI free option, starting by ensuring that wxgrids are not being relied on as
+temporary storage of equation coefficients and similar. The notebook was originally built so that each component could
+be investigated by manually modifying/entering data and recalculating the result for the component, with the wxgrid
+being the primary source. This should simplify running tests and also batch processing of sites.
+
+1/7/23
+An error was found in components.py where the transformer covariance matrix for phase was not correctly indexed. Loading
+failed when the fitting function was changed to a straight line for error and the covariance matrix tried to load a
+string. This means that the phase uncertainties were, in fact, the error uncertainties. This would likely lead to a
+modest underestimate of the total site uncertainty in conditions of poor power factor.
+
+Removed snapshot.
+
+5/7/23
+The covariances used for the final error calculation were not scaled by the reduced chi-square. The plots did use the
+reduced chi-square, essentially showing the correct uncertainties. Note that the correctly scaled covariances are now
+shown in the grids so that the square root of the diagonals match to the standard deviation.
+
+6/7/23
+Check how tricky it would be to put 3D plots in a grid. This would likely be better than adding tabs as all load
+profiles could be visualised together.
+Start with https://matplotlib.org/stable/gallery/mplot3d/subplot3d.html#sphx-glr-gallery-mplot3d-subplot3d-py
+Also a double y axis for the transformers might look less cluttered than separate error and phase plots.
+
+20/7/23
+Multiple load calculation working. Reporting and graphing needs to be updated to match.
+
+1/8/23
+The wx report is largely built.
+Consider upgrading the 'Expert' button to hide some of the notebook pages from a basic user.
+
+2/8/23
+PyInstaller
+note that -windowed pops up error messages in a window
+pyinstaller --windowed formbooks.py --hidden-import openpyxl.cell._writer
+This works all the way up to
+pyinstaller --windowed MIEcalc3.py --hidden-import openpyxl.cell._writer
+
+or pyinstaller MIEcalc3.spec
+
+# -*- mode: python ; coding: utf-8 -*-
+
+
+block_cipher = None
+
+
+a = Analysis(
+    ['MIEcalc3.py'],
+    pathex=[],
+    binaries=[],
+    datas=[('MSL2.ico', '.'),('templates/default.docx','./templates')],
+    hiddenimports=['openpyxl.cell._writer'],
+    hookspath=[],
+    hooksconfig={},
+    runtime_hooks=[],
+    excludes=['PyQt5'],
+    win_no_prefer_redirects=False,
+    win_private_assemblies=False,
+    cipher=block_cipher,
+    noarchive=False,
+)
+pyz = PYZ(a.pure, a.zipped_data, cipher=block_cipher)
+
+exe = EXE(
+    pyz,
+    a.scripts,
+    a.binaries,
+    a.zipfiles,
+    a.datas,
+    [],
+    name='MIEcalc3',
+    debug=False,
+    bootloader_ignore_signals=False,
+    strip=False,
+    upx=True,
+    upx_exclude=[],
+    runtime_tmpdir=None,
+    console=False,
+    disable_windowed_traceback=False,
+    argv_emulation=False,
+    target_arch=None,
+    codesign_identity=None,
+    entitlements_file=None,
+	icon='MSL2.ico'
+)
+
+15/8/23
+Note that the working directory (for icon and template) in the packaged version needs to be found with
+path.dirname(__file__). This will be in a temporary windows folder for the bundled exe.
+
+17/8/23
+Checking to see if clients can work with a dist folder rather than a full windows install
+Review priorities from 18/6/23
+
+    1/ Modify to
+        a) easily include 3 load profiles in standard report with more help on forms of raw data DONE
+        b) make selection of temperature range clear in the report DONE
+        c) link meter sensitivity coefficients directly to a selected IEC class (this is my best-practice use for 'class
+           accuracy') DONE
+        d) explicitly manage the different % scales for current between the CT and meter --- TO DO
+        e) remove snapshot feature (unless there is clearly a trivial fix) DONE
+    2/ Improve documentation
+        a) Might be able to do everything with Sphinx, i.e. avoiding a separate pdf or word-based html
+        b) Consider a video guide (takes the pressure off TEEM)
+        c) Produce the technical guide for class A test houses
+    3/ Separately investigate alternative function fits including a simple avoidance of relative % errors (the ln fit
+       might change into a quadratic plus offset?)
+    4/ Extend to all quadrants and, perhaps, treat phases individually
+    5/ Continue to improve code/workflow including, maybe, a move away from Excel.
+
+    So priorities now are
+    1/ Modify to
+        d) explicitly manage the different % scales for current between the CT and meter
+    2/ Improve documentation
+        a) Might be able to do everything with Sphinx, i.e. avoiding a separate pdf or word-based html
+        b) Consider a video guide (takes the pressure off TEEM)
+        c) Produce the technical guide for class A test houses
+    3/ Separately investigate alternative function fits including a simple avoidance of relative % errors (the ln fit
+       might change into a quadratic plus offset?)
+    4/ Extend to all quadrants and, perhaps, treat phases individually
+    5/ Continue to improve code/workflow including, maybe, a move away from Excel.
+
+    None of these are required to assist with immediate industry requests..
+
+    Contour plot of error would be helpful, but need to access the full error calculation point by point.

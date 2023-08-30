@@ -6,6 +6,7 @@ import sys
 import csv
 import extras
 from numpy import zeros, sqrt
+from utility import UTILITY
 
 
 class IOForm(GraphForm):
@@ -17,7 +18,7 @@ class IOForm(GraphForm):
         GraphForm.__init__(self, parent)
         self.proj_file = 'bbb'
         self.dirname = 'ccc'
-        self.projwd = 'aaa'
+        self.projwd = r'no path'  # must avoid accidental deletion with clearing temporary files
         # forcing default equation choice for properly filled in grid
         self.model = functions.MODEL('for_labels')
         self.eqn_choice_CTratio.SetSelection(2)
@@ -30,7 +31,14 @@ class IOForm(GraphForm):
         self.straight_line(self.VTphase_staticText, self.VTphase_fit_grid)
         self.eqn_choice_Meter.SetSelection(3)
         self.tan_surface2(self.Meter_staticText, self.Meter_fit_grid)
-
+        self.report_txt = []  # list of strings for writing to the reports
+        self.report_images = []  # list of image buffers for pasting graphs in word report
+        self.report_images_wx = []  # list of scaled wx images for placing in wx.richtext
+        self.profile_list = []  # in anticipation of having more than one load profile as a txt file
+        self.error_list = []  # in anticipation of having more than one error profile selected region?
+        self.n_profiles = 1  # assume a default of one load profile before a spreadsheet is loaded
+        self.csv_profile = ['_load.csv']  # a matching set of csv files for the processed normalised load profiles
+        self.iec = '-'  # iec class will be in the input file for newer projects (August 2023 onwards)
     def OnOpenFile(self, event):
         """
         Opens either a csv file with a list of component csv files, or opens
@@ -42,7 +50,7 @@ class IOForm(GraphForm):
         # application. In theory, you could create one earlier, store it in
         # your frame object and change it when it was called to reflect
         # current parameters / values
-        wildcard = "Poject source (*.csv; *.xls; *.xlsx; *.xlsm)|*.csv;*.xls; *.xlsx; *.xlsm|" \
+        wildcard = "Project source (*.csv; *.xls; *.xlsx; *.xlsm)|*.csv;*.xls; *.xlsx; *.xlsm|" \
                    "All files (*.*)|*.*"
 
         dlg = wx.FileDialog(self, "Choose a project file", self.dirname, "", wildcard, wx.FD_OPEN | wx.FD_MULTIPLE)
@@ -53,21 +61,33 @@ class IOForm(GraphForm):
             self.proj_file = os.path.join(dirname, filename)
             self.m_statusBar1.SetStatusText(filename, 1)
             self.projwd = dirname  # remember the project working directory
+            print('Reading data ... please wait.')
             if filename[-3:] == 'xls':
-                extras.EXCEL().excel_to_csv(dirname, filename)
+                # extras.EXCEL().excel_to_csv(dirname, filename)
+                extras.EXCEL().excelx_to_csv(dirname, filename, False)  # false for xls not xlsx
                 filename = 'project.csv'  # default output of excel_to_csv
-                dirname = os.path.join(dirname, 'xls_temp')
+                dirname = os.path.join(dirname, 'mie_temp')
                 self.projwd = dirname
             elif filename[-4:] == 'xlsx' or filename[-4:] == 'xlsm':
-                extras.EXCEL().excelx_to_csv(dirname, filename)
+                extras.EXCEL().excelx_to_csv(dirname, filename, True)  # true for xlsx not xls
                 filename = 'project.csv'  # default output of excel_to_csv
-                dirname = os.path.join(dirname, 'xls_temp')
+                dirname = os.path.join(dirname, 'mie_temp')
                 self.projwd = dirname
+            if dirname is None:  # this happens if no selection is made so an error arises from the next steps
+                dlg.Destroy()
+            else:
+                # now read information from the selected or created csv file and place in file table
+                self.LoadProjFiles(os.path.join(dirname, filename))
+                self.m_staticText22.SetLabel('Project directory:  ' + self.projwd)
+                self.m_textCtrl999.WriteText(self.projwd)
+                self.m_button26.Enable(True)  # 'Process project file' button available once file is loaded
+                self.m_button26.SetBackgroundColour(colour='GREEN')
+                dlg.Destroy()
+                # shift focus to the processing page
+                self.BookSelect('Main/Report notebook')  # defaults to the Main/Report notebook (was called Report Notebook)
+                self.m_notebook1.ChangeSelection(0)  # defaults to the 'Main' tab
 
-            # now read information from the selected or created csv file and place in file table
-            self.LoadProjFiles(os.path.join(dirname, filename))
-            self.m_staticText22.SetLabel('Project directory:  ' + self.projwd)
-        dlg.Destroy()
+
 
     def LoadProjFiles(self, proj_file):
         """
@@ -76,18 +96,26 @@ class IOForm(GraphForm):
         table.  There is no error checking!!!
         """
         # assume a new calculation is wanted, so clear all old inputs/outputs stored in GUI and temp files
-        extras.VIEW(self).ClearText()
+        self.profile_list = []  # reset for repeat loading, otherwise it continues to increment
+        self.error_list = []  # reset for repeat loading, otherwise it continues to increment?
         self.pushClearAllGraphs()
-        self.PushClearFiles()
-        self.report_text = []
+        self.PushClearText()
+        self.report_text = []  # these 3 report lists need to be reset, otherwise get the old report with the new data!
         self.report_images = []
-
+        self.report_images_wx = []
         reader = csv.reader(open(proj_file, 'r'))
         project_files = []
         for row in reader:
             project_files.append(row)
         for i in range(len(project_files)):
-            self.file_table.SetCellValue(i, 0, project_files[i][0])
+            if project_files[i][0][-3:]=='txt':  # the load files must be all at the end and are added as a list
+                self.profile_list.append(os.path.join(self.projwd, project_files[i][0]))
+            else:
+                self.file_table.SetCellValue(i, 0, project_files[i][0])
+        self.n_profiles = len(self.profile_list)  # have now confirmed the number of profiles to calculate
+        self.file_table.SetCellValue(len(project_files) - len(self.profile_list), 0, repr(self.profile_list))
+        # can now create the multiple plot axes for the load
+        self.Create3DGraph(self.load_graph, self.n_profiles, 'load_axes_3D')
         # noting that the 'load' file calculation is different, set up for
         # choice of *.txt for plotting csv from e_data folder or directly from
         # the csv file.
@@ -95,30 +123,37 @@ class IOForm(GraphForm):
         if name[-3:] == 'csv':
             self.load_values.SetValue(os.path.join(self.projwd, name))
             self.load_data.SetValue('')  # no raw txt file
-        elif name[-3:] == 'txt':
-            self.load_values.SetValue(
-                os.path.join(self.cwd, 'e_data', '_load.csv'))  # raw txt will be processed into this
-            self.load_data.SetValue(os.path.join(self.projwd, name))  # raw txt file available
+
+        elif name[-1:] == "]":  # have now reached the list of load files, just go back to the list
+            self.csv_profile = []
+            for prof in self.profile_list:  # create a matching list of csv loadcsvfiles
+                self.csv_profile.append(prof[:-3] + 'csv')
+            self.load_values.SetValue(repr(self.csv_profile))
+            self.load_data.SetValue(repr(self.profile_list))
         else:
-            print('problem with load file!!')
+            print('problem with load file!!', project_files)
+
 
     def OnClearFiles(self, event):
         self.PushClearFiles()
 
     def PushClearFiles(self):
         """
-        Files that have been created in the e_data directory are deleted.  This
+        Files that have been created in the mie_temp directory are deleted.  This
         is good house-keeping and avoids hiding bugs that prevent a new csv
         data file from being created.
         """
-        folder = os.path.join(self.cwd, 'e_data')
-        for the_file in os.listdir(folder):
-            file_path = os.path.join(folder, the_file)
-            try:
-                if os.path.isfile(file_path):
-                    os.unlink(file_path)
-            except OSError:
-                print("OS error:", sys.exc_info()[0])
+        folder = self.projwd
+        if folder != 'no path':
+            for the_file in os.listdir(folder):
+                file_path = os.path.join(folder, the_file)
+                try:
+                    if os.path.isfile(file_path):
+                        os.unlink(file_path)
+                except OSError:
+                    print("OS error:", sys.exc_info()[0])
+        else:
+            print("No working folder, files not cleared")
 
     def OnMeterModel(self, event):
         self.onMeterModel()
@@ -425,7 +460,7 @@ class IOForm(GraphForm):
         """
         Loads a csv file, *file_name*, to a grid, *grid_name*.  The csv file
         starts with the number of rows and columns required in the grid.  There
-        is no checking whether or not the file is formatted correctly.
+        is no checking that the file is formatted correctly.
         """
         reader = csv.reader(open(file_name, 'r'))  # assumes file exists
         # need to read row, col, set size of grid, then load grid
@@ -433,6 +468,11 @@ class IOForm(GraphForm):
         for row in reader:
             if rownum == 0:
                 header = row  # extracts grid size info in header
+                if file_name[-9:] == 'meter.csv':  # looking for the IEC class in the meter.csv file
+                    if header[2]!= '':  # old projects should be blank
+                        self.iec = header[2]  # the meter file has the IEC class following the row/column count
+                    else:
+                        self.iec = '-'
                 no_rows = int(float(header[0]))  # int(float()) needed to cope with csv
                 no_columns = int(float(header[1]))
                 self.SetGridRows(grid_name, no_rows)
@@ -501,8 +541,14 @@ class IOForm(GraphForm):
         """
         Clear text *event*.
         """
+        self.PushClearText()
+    def PushClearText(self):
         extras.VIEW(self).ClearText()
 
+    def OnLoadUtility(self, event):
+        print('Load utility')
+        dialog = UTILITY(None)
+        dialog.Show()
 
 if __name__ == '__main__':
     app = wx.App()

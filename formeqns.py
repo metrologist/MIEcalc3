@@ -22,7 +22,10 @@ class EqnForm(IOForm):
         Convenient way to add current working directory file path to *name* for
         temporary files placed in the e_data folder.
         """
-        return os.path.join(self.cwd, 'e_data', name)
+        # os_path = os.path.join(self.cwd, 'e_data', name)
+        os_path = os.path.join(self.projwd, name)
+        # print('os_path', os_path)
+        return os_path
 
     #############Calculating and plotting fits############################
     def fit_2D(self, function, input_grid, output_grid, graph, axes):
@@ -45,6 +48,7 @@ class EqnForm(IOForm):
             dof = len(X) - len(p)
             chisq = sum(info["fvec"] * info["fvec"])
             red_chisq = chisq / dof
+            cov = cov * red_chisq  # this is a July 2023 change
             fit_check = self.model.fit_qual(b_var, red_chisq, dof)
             ub0 = fit_check[0]
             temp_b0 = gtc.ureal(0, ub0)
@@ -58,7 +62,8 @@ class EqnForm(IOForm):
             label = []  # labels are required for fit_ureals
             for coefficient in p:
                 label.append(coefficient.name)
-            ucoeffs = self.model.fit_ureals(p2, cov * red_chisq, dof, label)  # note use of red_chisq
+            # ucoeffs = self.model.fit_ureals(p2, cov * red_chisq, dof, label)  # note use of red_chisq
+            ucoeffs = self.model.fit_ureals(p2, cov, dof, label)  # note red_chisq now done above, July 2023
             for_plotting = function.fn(XX, ucoeffs)
             Y = np.zeros(len(for_plotting))
             U = np.zeros(len(for_plotting))
@@ -97,6 +102,7 @@ class EqnForm(IOForm):
             dof = len(XY) - len(p)
             chisq = sum(info["fvec"] * info["fvec"])
             red_chisq = chisq / dof
+            cov = cov * red_chisq  # July 2023 modification
             fit_check = self.model.fit_qual(b_var, red_chisq, dof)
             ub0 = fit_check[0]
             temp_b0 = gtc.ureal(0, ub0)
@@ -123,20 +129,15 @@ class EqnForm(IOForm):
             label = []  # labels are required for fit_ureals
             for coefficient in p:
                 label.append(coefficient.name)
-            ucoeffs = self.model.fit_ureals(p2, cov * red_chisq, dof, label)  # note use of red_chisq
+            # ucoeffs = self.model.fit_ureals(p2, cov * red_chisq, dof, label)  # note use of red_chisq
+            ucoeffs = self.model.fit_ureals(p2, cov, dof, label)  # note red_chisq done above July 2023
             for_plotting = function.fn(RS, ucoeffs)
             ZZ = np.zeros(len(RS))
             UU = np.zeros(len(RS))
-            ##             Zup = np.zeros(len(RS))
-            ##             Zlow = np.zeros(len(RS))
             for i in range(len(RS)):
                 ZZ[i] = for_plotting[i].x
                 temp_value = for_plotting[i] + temp_b0  # first add type B
                 UU[i] = temp_value.u * t.ppf(0.975, temp_value.df)  # *gtc.reporting.k_factor(temp_value.df) #expanded U
-            ##                 upper_lower = gtc.reporting.uncertainty_interval(for_plotting[i]+ temp_b0) #might be more efficient?
-            ##                 Zup[i] = upper_lower[1]
-            ##                 Zlow[i] = upper_lower[0]
-            ##                 UU[i] = for_plotting[i].u #note this is a 1 sigma plot
             Z1 = ZZ
             Z2 = np.reshape(Z1, np.shape(X))
             Z3 = Z1 + UU
@@ -235,10 +236,8 @@ class EqnForm(IOForm):
         """
         Button to create load profile from half-hour data and store in csv file.
         """
-        profile = comp.LOAD('half-hour', self.load_values.GetValue(), self.load_data.GetValue())
-        profile.hist_from_raw(self.load_data.GetValue(), self.e_data('_load.csv'))  # this creates the output file
-        # it also returns graphing information, but this is not used here
-        # suggests comp.LOAD should be rethought
+        profile = comp.LOAD('half-hour', self.profile_list, self.csv_profile)
+        profile.hist_from_raw(self.profile_list, self.csv_profile)  # this creates the output file
 
     def OnPlotLoadProfile(self, event):
         self.PushPlotLoadProfile()
@@ -250,41 +249,47 @@ class EqnForm(IOForm):
         than a csv file.
         """
         # this uses the .csv file to plot (either created by LOAD or provided independently)
-        # self.LoadProfile(self.load_data.GetValue(), self.load_values.GetValue())
-        if self.load_data.GetValue()[-3:] == 'txt':
-            self.PushCreateLoadProfile()
-        reader = csv.reader(open(self.load_values.GetValue(), 'r'))
-        load = []
-        for row in reader:
-            load.append(row)  # everything including header line
-        # header line has x,y box size
-        x = float(load[0][0])
-        y = float(load[0][1])
-        z = float(load[0][2])
-        # remove first line
-        load = load[1:]
-        # confused by dz and zpos...suspicious something is transposed
-        # note that the x,y plot points are not the centre of the box
-        n = len(load)
-        xpos = np.zeros(n)
-        ypos = np.zeros(n)
-        zpos = np.zeros(n)
-        dx = np.zeros(n)
-        dy = np.zeros(n)
-        dz = np.zeros(n)
-        for i in range(n):
-            xpos[i] = float(load[i][3])
-            ypos[i] = float(load[i][4])
-            zpos[i] = z
-            dx[i] = x
-            dy[i] = y
-            dz[i] = float(load[i][2])
-        with warnings.catch_warnings():  # get 'converting masked element to nan'
-            warnings.simplefilter("ignore")
-            np.seterr(invalid='ignore')  # since numpy 1.5.1 this additional error handling is required
-            self.load_graph.ax.bar3d(xpos, ypos, zpos, dx, dy, dz, color='b', zsort='average')
-            np.seterr(invalid='print')
-            self.load_graph.ax.autoscale(enable=True, axis='both', tight=True)
+        self.PushCreateLoadProfile()
+        for j in range(len(self.profile_list)):
+            reader = csv.reader(open(self.csv_profile[j], 'r'))
+            load = []
+            for row in reader:
+                load.append(row)  # everything including header line
+            # header line has x,y box size
+            x = float(load[0][0])
+            y = float(load[0][1])
+            z = float(load[0][2])
+            # remove first line
+            load = load[1:]
+            # confused by dz and zpos...suspicious something is transposed
+            # note that the x,y plot points are not the centre of the box
+            n = len(load)
+            xpos = np.zeros(n)
+            ypos = np.zeros(n)
+            zpos = np.zeros(n)
+            dx = np.zeros(n)
+            dy = np.zeros(n)
+            dz = np.zeros(n)
+
+            for i in range(n):
+                xpos[i] = float(load[i][3])
+                ypos[i] = float(load[i][4])
+                zpos[i] = z
+                dx[i] = x
+                dy[i] = y
+                dz[i] = float(load[i][2])
+            with warnings.catch_warnings():  # get 'converting masked element to nan'
+                warnings.simplefilter("ignore")
+                np.seterr(invalid='ignore')  # since numpy 1.5.1 this additional error handling is required
+                self.load_axes_3D[j].bar3d(xpos, ypos, zpos, dx, dy, dz, color='b', zsort='average')
+                np.seterr(invalid='print')
+                self.load_axes_3D[j].autoscale(enable=True, axis='both', tight=True)
+                # self.load_axes_3D[j].set_title(j + 1)  # labelling the plots
+                self.load_axes_3D[j].text2D(0.05, 0.95, j + 1, transform=self.load_axes_3D[j].transAxes)
+                self.load_axes_3D[j].set_xlim3d(left=0, right=120)
+                self.load_axes_3D[j].set_ylim3d(bottom=-30, top=90)
+                self.load_axes_3D[j].set_zlabel('Energy')  # Load has energy for z axis
+
 
     def mean_fit1(self, datagrid, fitgrid, graph, axes):
         """
@@ -407,7 +412,7 @@ class EqnForm(IOForm):
             axes = panel.axes1
         else:
             axes = panel.axes2
-        axes.errorbar(x, y, u, fmt='ro')
+        axes.errorbar(x, y, u, fmt='ro', capsize=5)
         axes.relim()  # this and line below are needed if graph was previously cleared
         axes.autoscale_view(True, True, False)
         panel.canvas.draw()

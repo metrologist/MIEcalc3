@@ -21,16 +21,6 @@ class COMPONENT(object):
     of file and data formats is subject to change.
     """
 
-    ##     def __init__(self):
-    ##         # these values will be set by the methods that read them from csv files.
-    ##         self.summary = []
-    ##         self.err_choice = 0.0
-    ##         self.err_no = 0.0
-    ##         self.err_a = 0.0
-    ##         self.err_b = 0.0
-    ##         self.err_alpha = 0.0
-    ##         self.t0 = 0.0
-
     def LoadCoeffs(self):
         """
         'LoadCoeffs()' opens a csv file formatted by line as
@@ -40,7 +30,7 @@ class COMPONENT(object):
         * 'value', 'uncertainty', 'dof', 'label' of first coefficient
         * 'value', 'uncertainty', 'dof', 'label' of second coefficient
         * ...
-        * 'correlation coefficient','correllation coefficient'...
+        * 'correlation coefficient','correlation coefficient'...
         * 'value', 'uncertainty', 'dof', 'label' of b0 coefficient
         * 'value', 'uncertainty', 'dof', 'label' of temperature coefficient
         * 'value', 'uncertainty', 'dof', 'label' of calibration temperature
@@ -98,6 +88,10 @@ class COMPONENT(object):
         dictionaries.
         """
         # it anticipates that derived classes will define a 'fit_fn'
+        # count = 0
+        # for x in X:
+        #     count += 1
+        #     print(count, x, self.fit_fn[self.err_choice].fn([x], self.err_a))
         return self.fit_fn[self.err_choice].fn(X, self.err_a)
 
     def b_error(self, X):
@@ -194,8 +188,7 @@ class TRAN(COMPONENT):
         dof = float(self.summary[2][2])  # all fit parameters have same dof
         for i in range(self.ph_no):
             for j in range(self.ph_no):
-                cov_matrix[i, j] = float(self.summary[2 + self.ph_no][i * self.ph_no + j])
-
+                cov_matrix[i, j] = float(self.summary[1 + phase_start + self.ph_no][i * self.ph_no + j])
         self.ph_a = self.model.fit_ureals(coeffs, cov_matrix, dof, label)
         ref_row = phase_start + 1 + self.ph_no
         self.ph_b = self.ureal_from_list(self.summary[ref_row + 1])
@@ -396,6 +389,12 @@ class LOAD(object):
     """
 
     def __init__(self, name, csv_file, txt_file):
+        """
+        LOAD instantiates with a pair of file lists
+        :param name: arbitrary name ... not used?
+        :param csv_file: list of full paths of plottable csv files
+        :param txt_file: list of full paths of profile data by time
+        """
         self.name = name
         self.csvfile = csv_file
         self.txtfile = txt_file
@@ -406,92 +405,100 @@ class LOAD(object):
         list of energies.  This is suitable for error calculation and is
         compatible with the csv file produced by 'hist_from_raw'.
         """
-        reader = csv.reader(open(self.csvfile, 'r'))
-        load = []
-        for row in reader:
-            load.append(row)
-        load = load[1:]  # remove header line with dx, dy, dz
-        r = []
-        z = []
-        sum = 0
-        for i in range(len(load)):
-            r.append((float(load[i][0]), float(load[i][1])))
-            z.append(float(load[i][2]))
-            sum = sum + float(load[i][2])
-        for i in range(len(z)):
-            z[i] = z[i] / sum
-        return r, z
+        rr = []  # list of r coordinates
+        zz = []  # list of z values
+        for i in range(len(self.csvfile)):
+            reader = csv.reader(open(self.csvfile[i], 'r'))
+            load = []
+            for row in reader:
+                load.append(row)
+            load = load[1:]  # remove header line with dx, dy, dz
+            r = []
+            z = []
+            sum = 0
+            for i in range(len(load)):
+                r.append((float(load[i][0]), float(load[i][1])))
+                z.append(float(load[i][2]))
+                sum = sum + float(load[i][2])
+            for i in range(len(z)):
+                z[i] = z[i] / sum
+            rr.append(r)
+            zz.append(z)
+        return rr, zz
 
     def hist_from_raw(self, raw_file, plotable_file):
         """
-        Takes a text file, *raw_file*, of current, phase and watt hours assumed
-        to be for equal time intervals (e.g. half hour).  This is processed into
-        an energy histogram as a load profile in the form of a csv file,
-        *plotable_file*.
+        Takes a  list of load profile text files, each with columns of current, phase and watt hours assumed
+        to be for equal time intervals (e.g. half hour).  These are each processed into
+        energy histograms and stored in the list of plottable csv files.
+        :param raw_file: list of .txt load profiles
+        :param plotable_file: list of matching csv files
+        :return: csv files created, no direct return
         """
-        load_data = np.loadtxt(raw_file)
-        current = load_data[:, 0]
-        phase = load_data[:, 1]
-        energy = load_data[:, 2] / 1.0e6  # data assumed kWh, converting to GWh : not necessary??
-        c_max = max(current)  # find maximum/minimum values
-        c_min = min(current)
-        p_max = max(phase)
-        p_min = min(phase)
-        # do not allow negative or zero values for current
-        min_cur = 0.1  # 0.1%
-        if c_max < min_cur:
-            print('Load error, low or negative current')
-            c_max = min_cur
-        if c_min < min_cur:
-            print('Load error, low or negative current')
-            c_min = min_cur
-        if p_max > 89.9:
-            print('Load phase limited to 89.9 degrees maximum')
-            p_max = 89.9
-        if p_min < -89.9:
-            print('Load phase limited to -89.9 degrees minimum')
-            p_min = -89.9
 
-        print('Max current = %2.2f %s, Min current = %2.2f %s, Max phase = %2.2f %s, Min phase = %2.2f %s' % (
-        c_max, '%', c_min, '%', p_max, ' degrees', p_min, ' degrees'))
-        print()
-        hist, xedges, yedges = np.histogram2d(current, phase, bins=(20, 20), range=[[c_min, c_max], [p_min, p_max]],
-                                              weights=energy)  # note that bins must be nxn to be compatible with grand_finale
-        hist = np.transpose(hist)  # new in version beta 0.3.1
-        # get data for plotting
-        elements = (len(xedges) - 1) * (len(yedges) - 1)
-        # this is some hand crafting of box size, moving 0.25 from the edge
-        xpos, ypos = np.meshgrid(xedges[:-1] + 0.25, yedges[:-1] + 0.25)
-        xpos = xpos.flatten()
-        ypos = ypos.flatten()
-        zpos = np.zeros(elements)
-        # drawing a box of side length '8' starting at the corner 'edge + 0.25'
-        ##         dx = 8 * np.ones_like(zpos)
-        dx = 2 * np.ones_like(zpos)  # length 2 instead
-        dy = dx.copy()
-        dz = hist.flatten()
+        for i in range(len(raw_file)):
+            load_data = np.loadtxt(raw_file[i])
+            current = load_data[:, 0]
+            phase = load_data[:, 1]
+            energy = load_data[:, 2] / 1.0e6  # data assumed kWh, converting to GWh : not necessary??
+            c_max = max(current)  # find maximum/minimum values
+            c_min = min(current)
+            p_max = max(phase)
+            p_min = min(phase)
+            # do not allow negative or zero values for current
+            min_cur = 0.1  # 0.1%
+            if c_max < min_cur:
+                print('Load error, low or negative current.')
+                c_max = min_cur
+            if c_min < min_cur:
+                print('Load error, low or negative current.')
+                c_min = min_cur
+            if p_max > 89.9:
+                print('Load phase limited to 89.9 degrees maximum.')
+                p_max = 89.9
+            if p_min < -89.9:
+                print('Load phase limited to -89.9 degrees minimum.')
+                p_min = -89.9
+            print('For profile in ', raw_file[i])
+            print('Max current = %2.2f %s, Min current = %2.2f %s, Max phase = %2.2f %s, Min phase = %2.2f %s' % (
+            c_max, '%', c_min, '%', p_max, 'degrees', p_min, 'degrees'))
+            print()
+            hist, xedges, yedges = np.histogram2d(current, phase, bins=(20, 20), range=[[c_min, c_max], [p_min, p_max]],
+                                                  weights=energy)  # note that bins must be nxn to be compatible with grand_finale
+            hist = np.transpose(hist)  # new in version beta 0.3.1
+            # get data for plotting
+            elements = (len(xedges) - 1) * (len(yedges) - 1)
+            # this is some hand crafting of box size, moving 0.25 from the edge
+            xpos, ypos = np.meshgrid(xedges[:-1] + 0.25, yedges[:-1] + 0.25)
+            xpos = xpos.flatten()
+            ypos = ypos.flatten()
+            zpos = np.zeros(elements)
+            # drawing a box of side length '8' starting at the corner 'edge + 0.25'
+            ##         dx = 8 * np.ones_like(zpos)
+            dx = 2 * np.ones_like(zpos)  # length 2 instead
+            dy = dx.copy()
+            dz = hist.flatten()
 
-        # Simplest to assign the current/phase point a the centre of the histogram box
-        # to the z value.
-        x = np.zeros(len(xedges) - 1)
-        for i in range(len(xedges) - 1):
-            x[i] = (xedges[i] + xedges[i + 1]) / 2  # centre x
-        y = np.zeros(len(yedges) - 1)
-        for i in range(len(yedges) - 1):
-            y[i] = (yedges[i] + yedges[i + 1]) / 2  # centre y
-        x_current, y_phase = np.meshgrid(x, y)
-        xlist = x_current.flatten()
-        ylist = y_phase.flatten()
-        r = []  # list of current, phase, Gwh tuples,
-        # first line is box size
-        r.append((dx[0], dy[0], zpos[0]))
-        for i in range(len(xlist)):
-            r.append((xlist[i], ylist[i], dz[i], xpos[i], ypos[i]))
-            # note the file has the both the calculation and plotting points
-        writer = csv.writer(open(plotable_file, 'w', newline=''))
-        writer.writerows(r)
-        return xpos, ypos, zpos, dx, dy, dz
-
+            # Simplest to assign the current/phase point a the centre of the histogram box
+            # to the z value.
+            x = np.zeros(len(xedges) - 1)
+            for j in range(len(xedges) - 1):  # do not use i as we are already looping on i!
+                x[j] = (xedges[j] + xedges[j + 1]) / 2  # centre x
+            y = np.zeros(len(yedges) - 1)
+            for j in range(len(yedges) - 1):
+                y[j] = (yedges[j] + yedges[j + 1]) / 2  # centre y
+            x_current, y_phase = np.meshgrid(x, y)
+            xlist = x_current.flatten()
+            ylist = y_phase.flatten()
+            r = []  # list of current, phase, Gwh tuples,
+            # first line is box size
+            r.append((dx[0], dy[0], zpos[0]))
+            for j in range(len(xlist)):
+                r.append((xlist[j], ylist[j], dz[j], xpos[j], ypos[j]))
+                # note the file has the both the calculation and plotting points
+            writer = csv.writer(open(plotable_file[i], 'w', newline=''))
+            writer.writerows(r)
+        # return xpos, ypos, zpos, dx, dy, dz
 
 class INSTALLATION(object):
     """
@@ -509,7 +516,7 @@ class INSTALLATION(object):
         self.meter = meter
         self.ct = ct
         self.vt = vt
-        self.load = load
+        self.load = load  # could make this a list of n loads
         self.conditions = conditions
         self.make_inst_ureals()
         self.comp = COMPONENT()  # provides access to component methods
@@ -570,17 +577,81 @@ class INSTALLATION(object):
         at which the errors are calculated.
         """
         # the load profile defines the points at which the error is calculated
-        X, z = self.load.normalise_hist()
+        XX, zz = self.load.normalise_hist()  # list of one or more profiles
+        total_error_list = []
+        overall_error_list = []
         # break out the current and phase angle part of X
+        for j in range(len(XX)):
+            current = []
+            angle = []
+            X = XX[j]  # temporary for selecting the calculation of the first profile
+            z = zz[j]
+            voltage = []  # a list of common value uncertain voltages
+            for i in range(len(X)):
+                current.append(X[i][0] * (1 - self.freq / 100.0))  # frequency changes flux, higher frequency, lower flux
+                angle.append(X[i][1])
+                voltage.append(self.volt + 100.0 - self.freq)  # volt is entered (as uncertain zero) and added to 100%
+            # similarly frequency is added because varying the frequency (in %) is the same as varying the voltage (but opposite sign)
+
+            meter_part = self.meter.m_total_error(X, self.temp, self.year, self.volt,
+                                                  self.freq, self.field, self.harm)
+            ct_error_part = self.ct.total_error(current, self.temp, self.ct_bd)
+            ct_phase_part = self.ct.total_phase(current, self.temp, self.ct_bd)
+            vt_error_part = self.vt.total_error(voltage, self.temp, self.vt_bd)
+            vt_phase_part = self.vt.total_phase(voltage, self.temp, self.vt_bd)
+            total_error = []
+            for i in range(len(X)):
+                total_error.append(meter_part[i] + ct_error_part[i] + vt_error_part[i]
+                                   + np.tan(angle[i] * np.pi / 180.0) * (ct_phase_part[i] - vt_phase_part[i]))
+
+            """
+            Calculating the 'overall error' requires a multiplication of error with
+            a normalised load profile.
+            """
+            assert len(total_error) == len(z), 'error list and z list of equal length'
+            assert abs(sum(z) - 1.0) < 1.0e-12, 'z normalised to unity'
+            overall_error = sum(map(operator.mul, total_error, z))
+            print('\nLoad Profile #', j + 1)
+            print('Budget for overall error by coefficients')
+            self.budget(overall_error)
+            total_error_list.append(total_error)
+            overall_error_list.append(overall_error)
+        # print('overall_error', overall_error_list)
+        return total_error_list, overall_error_list, XX
+
+    def site_error_bypoint(self, mincur, maxcur, minph, maxph, cap,n):
+        """
+
+        Installation error across a range of current/phase values without any load integration. For plotting error
+        contours to identify over which range the installation passes without needing integration over the load.
+        :param mincur: minimum % current
+        :param maxcur: maximum % current
+        :param minph: minimum phase degrees
+        :param maxph: maximum phase degrees
+        :paraam cap: if greater than cap, return cap
+        :param n: grid size nxn
+        :return: list of error at each point as ureal
+        """
+        points = []  # will be list of tuples to match XX format
+        cur_list = np.linspace(mincur, maxcur, n)  # current
+        ph_list = np.linspace(minph, maxph, n)  # phase
+        cur_list1 = []
+        ph_list1 = []
+        for i in range(n):
+            cur_list1.append(mincur + i * (maxcur - mincur)/(n - 1))
+            ph_list1.append(minph + i * (maxph - minph)/(n - 1))
+        cur, ph =  np.meshgrid(cur_list, ph_list)
+        for k in range(len(cur_list1)):
+            for j in range(len(ph_list1)):
+                points.append((cur_list1[k], ph_list1[j]))
         current = []
         angle = []
+        X = points  # temporary for selecting the calculation of the first profile
         voltage = []  # a list of common value uncertain voltages
         for i in range(len(X)):
             current.append(X[i][0] * (1 - self.freq / 100.0))  # frequency changes flux, higher frequency, lower flux
             angle.append(X[i][1])
             voltage.append(self.volt + 100.0 - self.freq)  # volt is entered (as uncertain zero) and added to 100%
-        # similarly frequency is added because varying the frequency (in %) is the same as varying the voltage (but opposite sign)
-
         meter_part = self.meter.m_total_error(X, self.temp, self.year, self.volt,
                                               self.freq, self.field, self.harm)
         ct_error_part = self.ct.total_error(current, self.temp, self.ct_bd)
@@ -589,30 +660,35 @@ class INSTALLATION(object):
         vt_phase_part = self.vt.total_phase(voltage, self.temp, self.vt_bd)
         total_error = []
         for i in range(len(X)):
-            total_error.append(meter_part[i] + ct_error_part[i] + vt_error_part[i]
-                               + np.tan(angle[i] * np.pi / 180.0) * (ct_phase_part[i] - vt_phase_part[i]))
+            err = (meter_part[i] + ct_error_part[i] + vt_error_part[i] + np.tan(angle[i] * np.pi / 180.0) *
+                   (ct_phase_part[i] - vt_phase_part[i]))
+            k = gtc.reporting.k_to_dof(err.df)
+            maximum = err.x + err.u * k
+            minimum = err.x - err.u * k
+            err_max = max(abs(maximum), abs(minimum))
+            if err_max > cap:
+                err_max = cap
+            total_error.append(err_max)
+        X, Y = cur, ph  # going back to numpy style
+        tot_error = []  # will be a numpy style list of lists for each grid row
+        for i in range(n):
+            arow = []
+            for j in range(n):
+                arow.append(total_error[j * n + i])
+            tot_error.append(arow)
+        return(tot_error, X, Y)
 
-        """
-        Calculating the 'overall error' requires a multiplication of error with
-        a normalised load profile.
-        """
-        assert len(total_error) == len(z), 'error list and z list of equal length'
-        assert abs(sum(z) - 1.0) < 1.0e-12, 'z normalised to unity'
-        overall_error = sum(map(operator.mul, total_error, z))
-        print('\n','Budget for overall error by coefficients')
-        self.budget(overall_error)
 
-        return total_error, overall_error, X
 
     def budget(self, a):
         """
         A GTC utility for listing the uncertainty budget for *a*.
         """
-        print('\n\n')
+        # print('\n\n')
         print('error = {0:.3f}, standard uncertainty = {1:.3f}, degrees of freedom = {2:.1f}'.format(a.x, a.u, a.df))
-        for l, u in gtc.reporting.budget(a, trim=0.0):
+        for l, u, id_thing in gtc.reporting.budget(a, trim=0.0):
             print('%s: %G' % (l, u))
-        print('\n')
+        # print('\n')
 
 
 if __name__ == "__main__":
@@ -641,4 +717,3 @@ if __name__ == "__main__":
     ax.set_ylabel('Phase/degrees')
     ax.set_zlabel('Energy')
     plt.show()
-

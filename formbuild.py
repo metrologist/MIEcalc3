@@ -1,22 +1,15 @@
-# -*- coding: utf-8 -*-
-
-###########################################################################
-## Python code originally generated with wxFormBuilder (version Oct 26 2018)
-## http://www.wxformbuilder.org/
-##
-## PLEASE DO *NOT* EDIT THIS FILE! Minor modifications by hand to work with wx Phoenix
-###########################################################################
-
+"""
+Python code originally generated with wxFormBuilder (version Oct 26 2018)
+http://www.wxformbuilder.org/
+Subsequent modifications made to work with wx Phoenix and to update the layout.
+This code no longer has a matching wxformbuilder file.
+"""
 import wx
 import wx.xrc
 import wx.richtext
 import wx.grid
 import wx.html
 import os
-
-###########################################################################
-## Class MyFrame1
-###########################################################################
 
 class MyFrame1 ( wx.Frame ):
 
@@ -28,65 +21,75 @@ class MyFrame1 ( wx.Frame ):
 		bSizer1 = wx.BoxSizer( wx.VERTICAL )
 
 		self.m_notebook1 = wx.Notebook( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
+
 		self.Setup = wx.Panel( self.m_notebook1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
-		self.Setup.Hide()
-
+		# self.Setup.Hide()
 		bSizer6 = wx.BoxSizer( wx.VERTICAL )
-
-		self.m_staticText100 = wx.StaticText( self.Setup, wx.ID_ANY, u"Open workbook project file", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText100 = wx.StaticText( self.Setup, wx.ID_ANY, u"Open workbook from file menu. Wait for 'Process workbook file' to turn green.", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText100.Wrap( -1 )
-
 		bSizer6.Add( self.m_staticText100, 0, wx.ALL, 5 )
-
-		self.m_button26 = wx.Button( self.Setup, wx.ID_ANY, u"Process project file", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_button26 = wx.Button( self.Setup, wx.ID_ANY, u"Process workbook file", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_button26.SetFont( wx.Font( wx.NORMAL_FONT.GetPointSize(), wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD, False, wx.EmptyString ) )
-
+		self.m_button26.SetBackgroundColour(colour='MAGENTA')
 		bSizer6.Add( self.m_button26, 0, wx.ALL, 5 )
-
-		self.m_button1 = wx.Button( self.Setup, wx.ID_ANY, u"Process data", wx.DefaultPosition, wx.DefaultSize, 0 )
-
+		self.m_button1 = wx.Button( self.Setup, wx.ID_ANY, u"Expert/Manual", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_button1.SetBackgroundColour(colour='STEEL BLUE')
 		self.m_button1.SetFont( wx.Font( wx.NORMAL_FONT.GetPointSize(), wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_LIGHT, False, wx.EmptyString ) )
-		self.m_staticText101 = wx.StaticText( self.Setup, wx.ID_ANY, u"or manually enter data before processing", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText101 = wx.StaticText( self.Setup, wx.ID_ANY, u"Expert Only - manually load and process csv files.", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText101.Wrap( -1 )
-
+		self.m_staticText999 = wx.StaticText( self.Setup, wx.ID_ANY, u"First check/update directory for the csv files", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText999.Wrap( -1 )
+		self.m_textCtrl999 = wx.TextCtrl( self.Setup,size=(400,20))
+		self.m_textCtrl999.SetMaxLength( 0 )
 		bSizer6.Add( self.m_staticText101, 0, wx.ALL, 5 )
+		bSizer6.Add(self.m_staticText999, 0, wx.ALL, 5)
+		bSizer6.Add(self.m_textCtrl999, 0, wx.ALL, 5)
 		bSizer6.Add( self.m_button1, 0, wx.ALL, 5 )
-
-		self.report_richText = wx.richtext.RichTextCtrl( self.Setup, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0|wx.VSCROLL|wx.HSCROLL|wx.WANTS_CHARS|wx.BORDER_NONE )
-		bSizer6.Add( self.report_richText, 1, wx.EXPAND |wx.ALL, 5 )
-
-
+		self.m_textCtrl3 = wx.TextCtrl( self.Setup, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 600, 300 ), wx.TE_MULTILINE )
+		self.m_textCtrl3.SetMaxLength( 0 )
+		bSizer6.Add( self.m_textCtrl3, 0, wx.ALL, 5 )
 		self.Setup.SetSizer( bSizer6 )
 		self.Setup.Layout()
 		bSizer6.Fit( self.Setup )
-		self.m_notebook1.AddPage( self.Setup, u"Certificate Report", True )
+		self.m_notebook1.AddPage( self.Setup, u"Main", True )
+
+		self.cert = wx.Panel(self.m_notebook1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL)
+		# self.cert.Hide()  # no real effect?
+		bSizer999 = wx.BoxSizer(wx.VERTICAL)
+		self.cert.SetSizer( bSizer999 )
+		self.cert.Layout()
+		bSizer999.Fit( self.cert )
+		self.report_richText = wx.richtext.RichTextCtrl( self.cert, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0|wx.VSCROLL|wx.HSCROLL|wx.WANTS_CHARS|wx.BORDER_NONE )
+		bSizer999.Add( self.report_richText, 1, wx.EXPAND |wx.ALL, 5 )
+		self.m_notebook1.AddPage(self.cert, "Report", True)
+
 		self.report_graph = wx.Panel( self.m_notebook1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		self.m_notebook1.AddPage( self.report_graph, u"Total error graph", False )
+
+		self.report_contour = wx.Panel( self.m_notebook1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
+		self.m_notebook1.AddPage(self.report_contour, u"Error contours", False)
+
 		self.report_files = wx.Panel( self.m_notebook1, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer8 = wx.BoxSizer( wx.VERTICAL )
-
-		self.m_staticText22 = wx.StaticText( self.report_files, wx.ID_ANY, u"Project directory", wx.DefaultPosition, wx.DefaultSize, 0 )
+		self.m_staticText22 = wx.StaticText(self.report_files, wx.ID_ANY, u"Project directory", wx.DefaultPosition,
+											wx.Size(500,20), 0)
 		self.m_staticText22.Wrap( -1 )
-
 		bSizer8.Add( self.m_staticText22, 0, wx.ALL, 5 )
-
-		self.file_table = wx.grid.Grid( self.report_files, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
-
+		self.file_table = wx.grid.Grid( self.report_files, wx.ID_ANY, wx.DefaultPosition, wx.Size(500, 225), 0 )
 		# Grid
 		self.file_table.CreateGrid( 10, 1 )
 		self.file_table.EnableEditing( True )
 		self.file_table.EnableGridLines( True )
-		self.file_table.EnableDragGridSize( False )
+		self.file_table.EnableDragGridSize( True )
 		self.file_table.SetMargins( 0, 0 )
-
 		# Columns
-		self.file_table.SetColSize( 0, 131 )
+		# self.file_table.SetColSize( 0, 131)
+		self.file_table.SetColSize( 0, 350 )
 		self.file_table.EnableDragColMove( False )
 		self.file_table.EnableDragColSize( True )
 		self.file_table.SetColLabelSize( 30 )
 		self.file_table.SetColLabelValue( 0, u"File name" )
 		self.file_table.SetColLabelAlignment( wx.ALIGN_CENTER, wx.ALIGN_CENTER )
-
 		# Rows
 		self.file_table.EnableDragRowSize( True )
 		self.file_table.SetRowLabelSize( 150 )
@@ -101,46 +104,29 @@ class MyFrame1 ( wx.Frame ):
 		self.file_table.SetRowLabelValue( 8, u"Site influences" )
 		self.file_table.SetRowLabelValue( 9, u"Load" )
 		self.file_table.SetRowLabelAlignment( wx.ALIGN_LEFT, wx.ALIGN_CENTER )
-
 		# Label Appearance
-
 		# Cell Defaults
 		self.file_table.SetDefaultCellAlignment( wx.ALIGN_LEFT, wx.ALIGN_TOP )
 		bSizer8.Add( self.file_table, 0, wx.ALL, 5 )
-
-		self.m_textCtrl3 = wx.TextCtrl( self.report_files, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.Size( 600,200 ), wx.TE_MULTILINE )
-		self.m_textCtrl3.SetMaxLength( 0 )
-		bSizer8.Add( self.m_textCtrl3, 0, wx.ALL, 5 )
-
-
 		self.report_files.SetSizer( bSizer8 )
 		self.report_files.Layout()
 		bSizer8.Fit( self.report_files )
-		self.m_notebook1.AddPage( self.report_files, u"Input file list and messages", False )
+		self.m_notebook1.AddPage( self.report_files, u"Input file list", False )
 
 		bSizer1.Add( self.m_notebook1, 1, wx.EXPAND |wx.ALL, 5 )
-
-		# self.m_button27 = wx.Button( self, wx.ID_ANY, u"MyButton", wx.DefaultPosition, wx.DefaultSize, 0 )
-		# bSizer1.Add( self.m_button27, 0, wx.ALL, 5 )
-
 		self.m_notebook11 = wx.Notebook( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_notebook11.Hide()
-
 		self.Meter = wx.Panel( self.m_notebook11, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		bSizer61 = wx.BoxSizer( wx.VERTICAL )
-
 		self.m_button42 = wx.Button( self.Meter, wx.ID_ANY, u"Load influence data", wx.DefaultPosition, wx.DefaultSize, 0 )
 		bSizer61.Add( self.m_button42, 0, wx.ALL, 5 )
-
 		self.meter_table = wx.grid.Grid( self.Meter, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
-
 		# Grid
 		self.meter_table.CreateGrid( 7, 6 )
 		self.meter_table.EnableEditing( True )
 		self.meter_table.EnableGridLines( True )
 		self.meter_table.EnableDragGridSize( False )
 		self.meter_table.SetMargins( 0, 0 )
-
 		# Columns
 		self.meter_table.SetColSize( 0, 129 )
 		self.meter_table.SetColSize( 1, 80 )
@@ -157,25 +143,18 @@ class MyFrame1 ( wx.Frame ):
 		self.meter_table.SetColLabelValue( 4, u"distrib" )
 		self.meter_table.SetColLabelValue( 5, u"dof" )
 		self.meter_table.SetColLabelAlignment( wx.ALIGN_CENTER, wx.ALIGN_CENTER )
-
 		# Rows
 		self.meter_table.EnableDragRowSize( True )
 		self.meter_table.SetRowLabelSize( 0 )
 		self.meter_table.SetRowLabelAlignment( wx.ALIGN_CENTER, wx.ALIGN_CENTER )
-
 		# Label Appearance
-
 		# Cell Defaults
 		self.meter_table.SetDefaultCellAlignment( wx.ALIGN_LEFT, wx.ALIGN_TOP )
 		bSizer61.Add( self.meter_table, 0, wx.ALL, 5 )
-
 		self.m_button11 = wx.Button( self.Meter, wx.ID_ANY, u"Generate summary file", wx.DefaultPosition, wx.DefaultSize, 0 )
 		bSizer61.Add( self.m_button11, 0, wx.ALL, 5 )
-
 		self.meter_richText = wx.richtext.RichTextCtrl( self.Meter, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0|wx.VSCROLL|wx.HSCROLL|wx.WANTS_CHARS|wx.BORDER_NONE )
 		bSizer61.Add( self.meter_richText, 1, wx.EXPAND |wx.ALL, 5 )
-
-
 		self.Meter.SetSizer( bSizer61 )
 		self.Meter.Layout()
 		bSizer61.Fit( self.Meter )
@@ -185,48 +164,34 @@ class MyFrame1 ( wx.Frame ):
 		fgSizer111 = wx.FlexGridSizer( 8, 2, 0, 0 )
 		fgSizer111.SetFlexibleDirection( wx.BOTH )
 		fgSizer111.SetNonFlexibleGrowMode( wx.FLEX_GROWMODE_SPECIFIED )
-
 		self.m_staticText111 = wx.StaticText( self.m_scrolledWindow11, wx.ID_ANY, u"Select number of rows for manual entry", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText111.Wrap( -1 )
-
 		fgSizer111.Add( self.m_staticText111, 0, wx.ALL, 5 )
-
 		self.m_staticText211 = wx.StaticText( self.m_scrolledWindow11, wx.ID_ANY, u"Select model for curve fit", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_staticText211.Wrap( -1 )
-
 		fgSizer111.Add( self.m_staticText211, 0, wx.ALL, 5 )
-
 		self.row_spin11 = wx.SpinCtrl( self.m_scrolledWindow11, wx.ID_ANY, u"5", wx.DefaultPosition, wx.DefaultSize, wx.SP_ARROW_KEYS, 1, 1000, 5 )
 		fgSizer111.Add( self.row_spin11, 0, wx.ALL, 5 )
-
 		eqn_choice_MeterChoices = [ u"0: mean", u"1: plane", u"2: tan", u"3: tan-ln" ]
 		self.eqn_choice_Meter = wx.Choice( self.m_scrolledWindow11, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, eqn_choice_MeterChoices, 0 )
 		self.eqn_choice_Meter.SetSelection( 0 )
 		fgSizer111.Add( self.eqn_choice_Meter, 0, wx.ALL, 5 )
-
 		self.m_button1011 = wx.Button( self.m_scrolledWindow11, wx.ID_ANY, u"Load Meter Data", wx.DefaultPosition, wx.DefaultSize, 0 )
 		fgSizer111.Add( self.m_button1011, 0, wx.ALL, 5 )
-
 		self.Meter_staticText = wx.StaticText( self.m_scrolledWindow11, wx.ID_ANY, u"y = a0", wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.Meter_staticText.Wrap( -1 )
-
 		fgSizer111.Add( self.Meter_staticText, 0, wx.ALL, 5 )
-
 		self.m_button211 = wx.Button( self.m_scrolledWindow11, wx.ID_ANY, u"Plot Data", wx.DefaultPosition, wx.DefaultSize, 0 )
 		fgSizer111.Add( self.m_button211, 0, wx.ALL, 5 )
-
 		self.m_button1811 = wx.Button( self.m_scrolledWindow11, wx.ID_ANY, u"Generate Fit", wx.DefaultPosition, wx.DefaultSize, 0 )
 		fgSizer111.Add( self.m_button1811, 0, wx.ALL, 5 )
-
 		self.meter_data = wx.grid.Grid( self.m_scrolledWindow11, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
-
 		# Grid
 		self.meter_data.CreateGrid( 5, 5 )
 		self.meter_data.EnableEditing( True )
 		self.meter_data.EnableGridLines( True )
 		self.meter_data.EnableDragGridSize( True )
 		self.meter_data.SetMargins( 0, 0 )
-
 		# Columns
 		self.meter_data.EnableDragColMove( False )
 		self.meter_data.EnableDragColSize( True )
@@ -237,49 +202,39 @@ class MyFrame1 ( wx.Frame ):
 		self.meter_data.SetColLabelValue( 3, u"U" )
 		self.meter_data.SetColLabelValue( 4, u"k" )
 		self.meter_data.SetColLabelAlignment( wx.ALIGN_CENTER, wx.ALIGN_CENTER )
-
 		# Rows
 		self.meter_data.EnableDragRowSize( True )
 		self.meter_data.SetRowLabelSize( 80 )
 		self.meter_data.SetRowLabelAlignment( wx.ALIGN_CENTER, wx.ALIGN_CENTER )
-
 		# Label Appearance
-
 		# Cell Defaults
 		self.meter_data.SetDefaultCellAlignment( wx.ALIGN_LEFT, wx.ALIGN_TOP )
 		fgSizer111.Add( self.meter_data, 0, wx.ALL, 5 )
-
 		self.Meter_fit_grid = wx.grid.Grid( self.m_scrolledWindow11, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
-
 		# Grid
 		self.Meter_fit_grid.CreateGrid( 7, 4 )
 		self.Meter_fit_grid.EnableEditing( True )
 		self.Meter_fit_grid.EnableGridLines( True )
 		self.Meter_fit_grid.EnableDragGridSize( False )
 		self.Meter_fit_grid.SetMargins( 0, 0 )
-
 		# Columns
 		self.Meter_fit_grid.EnableDragColMove( False )
 		self.Meter_fit_grid.EnableDragColSize( True )
 		self.Meter_fit_grid.SetColLabelSize( 0 )
 		self.Meter_fit_grid.SetColLabelAlignment( wx.ALIGN_CENTER, wx.ALIGN_CENTER )
-
 		# Rows
 		self.Meter_fit_grid.EnableDragRowSize( True )
 		self.Meter_fit_grid.SetRowLabelSize( 0 )
 		self.Meter_fit_grid.SetRowLabelAlignment( wx.ALIGN_CENTER, wx.ALIGN_CENTER )
-
 		# Label Appearance
-
 		# Cell Defaults
 		self.Meter_fit_grid.SetDefaultCellAlignment( wx.ALIGN_LEFT, wx.ALIGN_TOP )
 		fgSizer111.Add( self.Meter_fit_grid, 0, wx.ALL, 5 )
-
-
 		self.m_scrolledWindow11.SetSizer( fgSizer111 )
 		self.m_scrolledWindow11.Layout()
 		fgSizer111.Fit( self.m_scrolledWindow11 )
 		self.m_notebook11.AddPage( self.m_scrolledWindow11, u"Meter Data", False )
+
 		self.meter_graph = wx.Panel( self.m_notebook11, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
 		self.m_notebook11.AddPage( self.meter_graph, u"Meter Plot", False )
 
@@ -874,20 +829,6 @@ class MyFrame1 ( wx.Frame ):
 		self.m_notebook14 = wx.Notebook( self, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, 0 )
 		self.m_notebook14.Hide()
 
-		self.Setup4 = wx.Panel( self.m_notebook14, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.TAB_TRAVERSAL )
-		bSizer64 = wx.BoxSizer( wx.VERTICAL )
-
-		self.m_button14 = wx.Button( self.Setup4, wx.ID_ANY, u"Summary", wx.DefaultPosition, wx.DefaultSize, 0 )
-		bSizer64.Add( self.m_button14, 0, wx.ALL, 5 )
-
-		self.load_richText = wx.richtext.RichTextCtrl( self.Setup4, wx.ID_ANY, wx.EmptyString, wx.DefaultPosition, wx.DefaultSize, 0|wx.VSCROLL|wx.HSCROLL|wx.WANTS_CHARS|wx.BORDER_NONE )
-		bSizer64.Add( self.load_richText, 1, wx.EXPAND |wx.ALL, 5 )
-
-
-		self.Setup4.SetSizer( bSizer64 )
-		self.Setup4.Layout()
-		bSizer64.Fit( self.Setup4 )
-		self.m_notebook14.AddPage( self.Setup4, u"Load Summary", True )
 		self.m_scrolledWindow5 = wx.ScrolledWindow( self.m_notebook14, wx.ID_ANY, wx.DefaultPosition, wx.DefaultSize, wx.HSCROLL|wx.VSCROLL )
 		self.m_scrolledWindow5.SetScrollRate( 5, 5 )
 		fgSizer15 = wx.FlexGridSizer( 8, 2, 0, 0 )
@@ -997,7 +938,7 @@ class MyFrame1 ( wx.Frame ):
 		self.m_menuItem1 = wx.MenuItem( self.m_menu1, wx.ID_ANY, u"Open workbook", wx.EmptyString, wx.ITEM_NORMAL )
 		self.m_menu1.Append( self.m_menuItem1 )
 
-		self.m_menuItem2 = wx.MenuItem( self.m_menu1, wx.ID_ANY, u"Save report", wx.EmptyString, wx.ITEM_NORMAL )
+		self.m_menuItem2 = wx.MenuItem( self.m_menu1, wx.ID_ANY, u"Save word report", wx.EmptyString, wx.ITEM_NORMAL )
 		self.m_menu1.Append( self.m_menuItem2 )
 		self.m_menuItem2.Enable( True )
 
@@ -1015,7 +956,7 @@ class MyFrame1 ( wx.Frame ):
 		self.m_menubar1.Append( self.m_menu1, u"File" )
 
 		self.m_menu2 = wx.Menu()
-		self.m_menuItem4 = wx.MenuItem( self.m_menu2, wx.ID_ANY, u"Overall Report", wx.EmptyString, wx.ITEM_NORMAL )
+		self.m_menuItem4 = wx.MenuItem( self.m_menu2, wx.ID_ANY, u"Main/Report", wx.EmptyString, wx.ITEM_NORMAL )
 		self.m_menu2.Append( self.m_menuItem4 )
 
 		self.m_menuItem5 = wx.MenuItem( self.m_menu2, wx.ID_ANY, u"Meter", wx.EmptyString, wx.ITEM_NORMAL )
@@ -1035,15 +976,6 @@ class MyFrame1 ( wx.Frame ):
 
 		self.m_menubar1.Append( self.m_menu2, u"Select Notebook" )
 
-		self.m_menu3 = wx.Menu()
-		self.m_menuItem12 = wx.MenuItem( self.m_menu3, wx.ID_ANY, u"Take snapshot", wx.EmptyString, wx.ITEM_NORMAL )
-		self.m_menu3.Append( self.m_menuItem12 )
-
-		self.m_menuItem13 = wx.MenuItem( self.m_menu3, wx.ID_ANY, u"Print snaphsot", wx.EmptyString, wx.ITEM_NORMAL )
-		self.m_menu3.Append( self.m_menuItem13 )
-
-		self.m_menubar1.Append( self.m_menu3, u"Snapshot" )
-
 		self.m_menu4 = wx.Menu()
 		self.m_menuItem14 = wx.MenuItem( self.m_menu4, wx.ID_ANY, u"Clear all graphs", wx.EmptyString, wx.ITEM_NORMAL )
 		self.m_menu4.Append( self.m_menuItem14 )
@@ -1060,15 +992,17 @@ class MyFrame1 ( wx.Frame ):
 		self.m_menuItem15 = wx.MenuItem( self.m_menu5, wx.ID_ANY, u"Help Topics", wx.EmptyString, wx.ITEM_NORMAL )
 		self.m_menu5.Append( self.m_menuItem15 )
 
+		self.m_menuItem115 = wx.MenuItem(self.m_menu5, wx.ID_ANY, u"Load utility", wx.EmptyString, wx.ITEM_NORMAL)
+		self.m_menu5.Append(self.m_menuItem115)
+
 		self.m_menu5.AppendSeparator()
 
-		self.m_menuItem16 = wx.MenuItem( self.m_menu5, wx.ID_ANY, u"About MIEcaclulator", wx.EmptyString, wx.ITEM_NORMAL )
+		self.m_menuItem16 = wx.MenuItem( self.m_menu5, wx.ID_ANY, u"About MIEcalc3", wx.EmptyString, wx.ITEM_NORMAL )
 		self.m_menu5.Append( self.m_menuItem16 )
 
 		self.m_menubar1.Append( self.m_menu5, u"Help" )
 
 		self.SetMenuBar( self.m_menubar1 )
-
 
 		self.Centre( wx.BOTH )
 
@@ -1110,7 +1044,7 @@ class MyFrame1 ( wx.Frame ):
 		self.m_button1831.Bind( wx.EVT_BUTTON, self.Fit_VTratio )
 		self.m_button1931.Bind( wx.EVT_BUTTON, self.Fit_VTphase )
 		self.m_notebook14.Bind( wx.EVT_NOTEBOOK_PAGE_CHANGED, self.OnNbookPageChange )
-		self.m_button14.Bind( wx.EVT_BUTTON, self.OnLoadSummary )
+		# self.m_button14.Bind( wx.EVT_BUTTON, self.OnLoadSummary )
 		self.Create_load_profile.Bind( wx.EVT_BUTTON, self.OnCreateLoadProfile )
 		self.Plot_load_profile.Bind( wx.EVT_BUTTON, self.OnPlotLoadProfile )
 		self.m_notebook15.Bind( wx.EVT_NOTEBOOK_PAGE_CHANGED, self.OnNbookPageChange )
@@ -1127,17 +1061,17 @@ class MyFrame1 ( wx.Frame ):
 		self.Bind( wx.EVT_MENU, self.OnVTSelect, id = self.m_menuItem7.GetId() )
 		self.Bind( wx.EVT_MENU, self.OnLoadSelect, id = self.m_menuItem8.GetId() )
 		self.Bind( wx.EVT_MENU, self.OnSiteSelect, id = self.m_menuItem9.GetId() )
-		self.Bind( wx.EVT_MENU, self.OnSnapshot, id = self.m_menuItem12.GetId() )
-		self.Bind( wx.EVT_MENU, self.OnPrintSnap, id = self.m_menuItem13.GetId() )
+		# self.Bind( wx.EVT_MENU, self.OnSnapshot, id = self.m_menuItem12.GetId() )
+		# self.Bind( wx.EVT_MENU, self.OnPrintSnap, id = self.m_menuItem13.GetId() )
 		self.Bind( wx.EVT_MENU, self.OnClearAllGraphs, id = self.m_menuItem14.GetId() )
 		self.Bind( wx.EVT_MENU, self.OnClearText, id = self.m_menuItem17.GetId() )
 		self.Bind( wx.EVT_MENU, self.OnClearFiles, id = self.m_menuItem18.GetId() )
 		self.Bind( wx.EVT_MENU, self.OnHelpTopic, id = self.m_menuItem15.GetId() )
+		self.Bind(wx.EVT_MENU, self.OnLoadUtility, id=self.m_menuItem115.GetId())
 		self.Bind( wx.EVT_MENU, self.OnAbout, id = self.m_menuItem16.GetId() )
 
 	def __del__( self ):
 		pass
-
 
 	# Virtual event handlers, overide them in your derived class
 	def OnNbookPageChange( self, event ):
@@ -1149,7 +1083,6 @@ class MyFrame1 ( wx.Frame ):
 	def OnGUMcalc( self, event ):
 		event.Skip()
 
-
 	def OnLoadMeterInf( self, event ):
 		event.Skip()
 
@@ -1158,7 +1091,6 @@ class MyFrame1 ( wx.Frame ):
 
 	def OnSetMeterRows( self, event ):
 		event.Skip()
-
 
 	def OnMeterModel( self, event ):
 		event.Skip()
@@ -1171,7 +1103,6 @@ class MyFrame1 ( wx.Frame ):
 
 	def Fit_Meter( self, event ):
 		event.Skip()
-
 
 	def OnLoadCTInf( self, event ):
 		event.Skip()
@@ -1191,7 +1122,6 @@ class MyFrame1 ( wx.Frame ):
 	def OnSetCTRows( self, event ):
 		event.Skip()
 
-
 	def OnPlotCTratio( self, event ):
 		event.Skip()
 
@@ -1203,7 +1133,6 @@ class MyFrame1 ( wx.Frame ):
 
 	def Fit_CTphase( self, event ):
 		event.Skip()
-
 
 	def OnLoadVTInf( self, event ):
 		event.Skip()
@@ -1223,7 +1152,6 @@ class MyFrame1 ( wx.Frame ):
 	def OnSetVTRows( self, event ):
 		event.Skip()
 
-
 	def OnPlotVTratio( self, event ):
 		event.Skip()
 
@@ -1236,16 +1164,14 @@ class MyFrame1 ( wx.Frame ):
 	def Fit_VTphase( self, event ):
 		event.Skip()
 
-
-	def OnLoadSummary( self, event ):
-		event.Skip()
+	# def OnLoadSummary( self, event ):
+	# 	event.Skip()
 
 	def OnCreateLoadProfile( self, event ):
 		event.Skip()
 
 	def OnPlotLoadProfile( self, event ):
 		event.Skip()
-
 
 	def OnLoadSiteInf( self, event ):
 		event.Skip()
@@ -1261,9 +1187,6 @@ class MyFrame1 ( wx.Frame ):
 
 	def OnPrint( self, event ):
 		event.Skip()
-
-	# def OnPrintPreview( self, event ):
-	# 	event.Skip()
 
 	def OnQuit( self, event ):
 		event.Skip()
@@ -1286,12 +1209,6 @@ class MyFrame1 ( wx.Frame ):
 	def OnSiteSelect( self, event ):
 		event.Skip()
 
-	def OnSnapshot( self, event ):
-		event.Skip()
-
-	def OnPrintSnap( self, event ):
-		event.Skip()
-
 	def OnClearAllGraphs( self, event ):
 		event.Skip()
 
@@ -1304,20 +1221,21 @@ class MyFrame1 ( wx.Frame ):
 	def OnHelpTopic( self, event ):
 		event.Skip()
 
+	def OnLoadUtility(self, event):
+		event.Skip()
+
 	def OnAbout( self, event ):
 		event.Skip()
 
 
-###########################################################################
-## Class MyFrame2
-###########################################################################
-
 class MyFrame2 ( wx.Frame ):
 
 	def __init__( self, parent ):
-		wx.Frame.__init__ ( self, parent, id = wx.ID_ANY, title = wx.EmptyString, pos = wx.DefaultPosition, size = wx.Size( 600,600 ), style = wx.DEFAULT_FRAME_STYLE|wx.TAB_TRAVERSAL )
+		wx.Frame.__init__ ( self, parent, id = wx.ID_ANY, title = wx.EmptyString, pos = wx.DefaultPosition, size = wx.Size( 675,600 ), style = wx.DEFAULT_FRAME_STYLE|wx.TAB_TRAVERSAL )
 		self.cwd = os.getcwd()  # identifies working directory at startup.
-		iconFile = os.path.join(self.cwd, 'MSL2.ico')
+		# iconFile = os.path.join(self.cwd, 'MSL2.ico')
+		# iconFile = 'MSL2.ico'
+		iconFile = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'MSL2.ico')
 		icon1 = wx.Icon(iconFile, wx.BITMAP_TYPE_ICO)
 		self.SetIcon(icon1)
 		self.SetTitle(u"Help file")
@@ -1325,10 +1243,9 @@ class MyFrame2 ( wx.Frame ):
 		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
 		bSizer10 = wx.BoxSizer( wx.VERTICAL )
 
-		self.m_htmlWin2 = wx.html.HtmlWindow( self, wx.ID_ANY, wx.DefaultPosition, wx.Size( 600, 600 ), wx.html.HW_SCROLLBAR_AUTO )
+		self.m_htmlWin2 = wx.html.HtmlWindow( self, wx.ID_ANY, wx.DefaultPosition, wx.Size( 650, 600 ), wx.html.HW_SCROLLBAR_AUTO )
 
-		bSizer10.Add( self.m_htmlWin2, 0, wx.ALL, 5 )
-
+		bSizer10.Add( self.m_htmlWin2, 1, wx.EXPAND|wx.ALL, 5 )
 
 		self.SetSizer( bSizer10 )
 		self.Layout()
@@ -1341,43 +1258,6 @@ class MyFrame2 ( wx.Frame ):
 	def __del__( self ):
 		pass
 
-
 	# Virtual event handlers, overide them in your derived class
 	def OnCloseH( self, event ):
 		event.Skip()
-
-
-###########################################################################
-## Class MyDialog1
-###########################################################################
-
-class MyDialog1 ( wx.Dialog ):
-
-	def __init__( self, parent ):
-		wx.Dialog.__init__ ( self, parent, id = wx.ID_ANY, title = u"Help", pos = wx.DefaultPosition, size = wx.Size( 617,415 ), style = wx.DEFAULT_DIALOG_STYLE )
-		self.SetSizeHints( wx.DefaultSize, wx.DefaultSize )
-
-		bSizer9 = wx.BoxSizer( wx.VERTICAL )
-
-		self.m_htmlWin1 = wx.html.HtmlWindow( self, wx.ID_ANY, wx.DefaultPosition, wx.Size( 600,380 ), wx.html.HW_SCROLLBAR_AUTO )
-
-		bSizer9.Add( self.m_htmlWin1, 0, wx.ALL, 5 )
-
-
-		self.SetSizer( bSizer9 )
-		self.Layout()
-
-		self.Centre( wx.BOTH )
-
-		# Connect Events
-		self.Bind( wx.EVT_CLOSE, self.OnCloseHelp )
-
-	def __del__( self ):
-		pass
-
-
-	# Virtual event handlers, overide them in your derived class
-	def OnCloseHelp( self, event ):
-		event.Skip()
-
-
