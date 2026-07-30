@@ -307,14 +307,14 @@ class IOForm(GraphForm):
         in the selected display grid, *grid_name*.
         """
         no_of_params = len(parameters)
-        grid_name.SetCellValue(1 + no_of_params, 3, repr(ub))
-        grid_name.SetCellValue(2 + no_of_params, 1, repr(dof))
-        grid_name.SetCellValue(3 + no_of_params, 1, repr(red_chisq))
+        grid_name.SetCellValue(1 + no_of_params, 3, str(ub))
+        grid_name.SetCellValue(2 + no_of_params, 1, str(dof))
+        grid_name.SetCellValue(3 + no_of_params, 1, str(red_chisq))
         for i in range(no_of_params):
-            grid_name.SetCellValue(i + 1, 2, repr(parameters[i]))
-            grid_name.SetCellValue(i + 1, 3, repr(sqrt(cov[i, i])))
+            grid_name.SetCellValue(i + 1, 2, str(parameters[i]))
+            grid_name.SetCellValue(i + 1, 3, str(sqrt(cov[i, i])))
             for j in range(no_of_params):
-                grid_name.SetCellValue(i + 5 + no_of_params, j + 1, repr(cov[i, j]))
+                grid_name.SetCellValue(i + 5 + no_of_params, j + 1, str(cov[i, j]))
 
     def get_2Dgrid_data(self, grid_name):
         """

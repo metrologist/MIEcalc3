@@ -1,0 +1,5 @@
+4,6,,,,
+CT temperature coefficient of error,0.0039,/deg,0.00039,norm,12
+CT calibration temperature,23,deg,0.1,norm,12
+CT burden coefficient of error,0,-,0,norm,12
+CT calibration burden,1,ohm,0.1,norm,10

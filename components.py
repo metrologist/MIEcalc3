@@ -154,7 +154,7 @@ class TRAN(COMPONENT):
     """
 
     def __init__(self, name, phases, model, file):
-        self.name = name  # e.g serial number or other key
+        self.name = name  # change to being either 'CT' or 'VT'; was 'e.g serial number or other key'
         self.phases = phases  # e.g. RYB or single
         self.model = model  # gives access to the model functions
         self.file = file  # of coefficients
@@ -233,6 +233,112 @@ class TRAN(COMPONENT):
         """
         return [(burden - self.cal_burden) / self.cal_burden for x in X]
 
+    def relative_burden(self, burden):
+        """
+        Returns the relative error in *burden* with respect to the
+        calibration burden.
+        """
+        # print(self.name)  # this will be carried in as self.name in the class
+        if self.name == 'CT':
+            rel_brdn_error = (burden - self.cal_burden) / self.cal_burden
+            mag = abs(rel_brdn_error)
+            # print('mag = ', mag)
+            if mag > 0.2:  # i.e. not within 20 % of the calibration burden
+                print()
+                print('WARNING')
+                print('Actual CT burden more than 20 % away from burden used for calibration.')
+                print('CT error calculation may not be valid.', '\n')
+        elif self.name == 'VT':
+            rel_brdn_error = (burden - self.cal_burden) / self.cal_burden
+            if rel_brdn_error.x != 0:
+                print('Actual VT burden must be the same as the burden at which the VT was calibrated.')
+                print('VT error may not be valid.')
+        else:
+            print('Not named as either a CT or VT, relative error set to zero')
+            rel_brdn_error = 0
+        return rel_brdn_error
+
+    def error_delta(self, temp, rel_bdn, error):
+        """
+
+        Only the burden and temperature influences rely on knowing the measured error to estimate the change in error
+        caused by changes in burden and temperature.
+        The factor for estimating the zero burden error from the error calibrated at the calibration burden
+        could be 0.2 or 0.5.
+        Note that 'phase' or 'error' use the same method.
+        :param temp: the temperature at the installation
+        :param rel_bdn: from 0 (equal) to 1 (zero actual burden)
+        :param error: list of errors calculated for the transformer across X
+        :return: a list of the change in error due to the change in burden added to the error
+        """
+        # print(self.name)
+        rel_temp_error = self.model.influence1(temp, self.t0, self.err_alpha)  # need to check defn of err_alpha
+        factor = gtc.ureal(0.35, 0.15, label='zero burden factor')  # the factor could be 0.2 or 0.5
+        pospoints = 0  # count the number of positive error points
+        delta_list = []
+        for e in error:
+            if self.name == 'CT':
+                if e.x > 0:  # point by point but only want one error message
+                    pospoints += 1
+                    delta = 0  # zero for burden and temperature effect
+                else:
+                    min_e = e.x * factor  # disconnecting the uncertainty in cal_error
+                    delta = rel_bdn * (e.x - min_e) + rel_temp_error * min_e  # assume zero burden error has copper resistance
+            elif self.name == 'VT':  # warning already given about VT needing a burden identical to the calibration burden
+                delta = 0
+            else:
+                print('Not named as either a CT or VT, delta error set to zero')
+                delta = 0
+            delta_list.append(delta + e)
+        if pospoints > 0:
+            print (pospoints,' positive ' + self.name +' points cannot be automatically corrected for burden change.')
+        return delta_list
+
+    def b_total_error(self, delta, b):
+        """
+        This is equivalent to the old total_error.
+        Note that 'phase' or 'error' use the same method.
+        :param delta: List of errors with temperature and burden influence added
+        :param b: self.err_b or self.ph_b, the additional fit term when the fit uncertainty < cal uncertainty.
+        :return: list of errors by point
+        """
+        total = []
+        for x in delta:
+            total.append(x + b)
+        return total
+
+    def total_error(self, X, temp, burden):
+        """
+
+        Attempts automatic correction of error for burden and temperature, but error messages will be printed if a
+        correction is either not possible or at least unwise.
+        :param X: list of current/angle points
+        :param temp: site temperature
+        :param burden: site burden
+        :return: error corrected for temperature and burden where possible
+        """
+        relative_burden_error =self.relative_burden(burden)
+        transformer_error = self.cal_error(X)  # calculated from fitted function
+        corrected_bdn_temp = self.error_delta(temp, relative_burden_error, transformer_error)  # 0 bdn error used
+        add_b = self.b_total_error(corrected_bdn_temp, self.err_b)  # possible additional fit term
+        return add_b
+
+    def total_phase(self, X, temp, burden):
+        """
+
+        Attempts automatic correction of phase for burden and temperature, but error messages will be printed if a
+        correction is either not possible or at least unwise.
+        :param X: list of current/angle points
+        :param temp: site temperature
+        :param burden: site burden
+        :return: error corrected for temperature and burden where possible
+        """
+        relative_burden_error = self.relative_burden(burden)
+        transformer_phase = self.cal_phase(X)  # calculated from fitted function
+        corrected_bdn_temp = self.error_delta(temp, relative_burden_error, transformer_phase)  # 0 bdn phase used
+        add_b = self.b_total_error(corrected_bdn_temp, self.ph_b)  # possible additional fit term
+        return add_b
+
     def total_ind_error(self, X, temp, burden):
         """
         Returns a list of influence errors for each current/voltage phase point
@@ -240,6 +346,14 @@ class TRAN(COMPONENT):
         The _ind_ in the name is now redundant (at one stage errors independent
         of current/voltage were separated out).
         """
+        # print('burden', self.burden_error(X, burden)[10])
+        # print()
+        # print('temperature',self.temp_error(X, temp)[10])
+        # print()
+        # print('total',self.list_sum([self.b_error(X),
+        #                       self.list_mult([self.list_sum([self.temp_error(X, temp), self.burden_error(X, burden)]),
+        #                                       self.cal_error(X)])])[10])
+        # print()
         return self.list_sum([self.b_error(X),
                               self.list_mult([self.list_sum([self.temp_error(X, temp), self.burden_error(X, burden)]),
                                               self.cal_error(X)])])
@@ -255,7 +369,7 @@ class TRAN(COMPONENT):
                               self.list_mult([self.list_sum([self.temp_phase(X, temp), self.burden_error(X, burden)]),
                                               self.cal_phase(X)])])
 
-    def total_error(self, X, temp, burden):
+    def old_total_error(self, X, temp, burden):
         """
         This method is called externally to provide the total error (influence
         and calibration) for current/voltage points in *X* at the given *temp*
@@ -343,7 +457,7 @@ class METER(COMPONENT):
 
     def harm_error(self, X, harm):
         """
-        Error dued to harmonics is calculated for all current-phase points in
+        Error due to harmonics is calculated for all current-phase points in
         *X*.  A simple linear dependence on *harm* is assumed relative to nominal
         zero harmonics.  There is no *X* dependence.
         """
@@ -582,6 +696,7 @@ class INSTALLATION(object):
         overall_error_list = []
         # break out the current and phase angle part of X
         for j in range(len(XX)):
+            # print(j, 'th profile iteration ******************************************************')
             current = []
             angle = []
             X = XX[j]  # temporary for selecting the calculation of the first profile
@@ -592,9 +707,10 @@ class INSTALLATION(object):
                 angle.append(X[i][1])
                 voltage.append(self.volt + 100.0 - self.freq)  # volt is entered (as uncertain zero) and added to 100%
             # similarly frequency is added because varying the frequency (in %) is the same as varying the voltage (but opposite sign)
-
+            # print('current  ', current)
             meter_part = self.meter.m_total_error(X, self.temp, self.year, self.volt,
                                                   self.freq, self.field, self.harm)
+            print('start site error')
             ct_error_part = self.ct.total_error(current, self.temp, self.ct_bd)
             ct_phase_part = self.ct.total_phase(current, self.temp, self.ct_bd)
             vt_error_part = self.vt.total_error(voltage, self.temp, self.vt_bd)
@@ -603,6 +719,7 @@ class INSTALLATION(object):
             for i in range(len(X)):
                 total_error.append(meter_part[i] + ct_error_part[i] + vt_error_part[i]
                                    + np.tan(angle[i] * np.pi / 180.0) * (ct_phase_part[i] - vt_phase_part[i]))
+                # print(i, 'th iteration', ct_error_part[i])
 
             """
             Calculating the 'overall error' requires a multiplication of error with
@@ -654,6 +771,7 @@ class INSTALLATION(object):
             voltage.append(self.volt + 100.0 - self.freq)  # volt is entered (as uncertain zero) and added to 100%
         meter_part = self.meter.m_total_error(X, self.temp, self.year, self.volt,
                                               self.freq, self.field, self.harm)
+        print('start error by point')
         ct_error_part = self.ct.total_error(current, self.temp, self.ct_bd)
         ct_phase_part = self.ct.total_phase(current, self.temp, self.ct_bd)
         vt_error_part = self.vt.total_error(voltage, self.temp, self.vt_bd)

@@ -216,3 +216,76 @@ Review priorities from 18/6/23
     G:\Shared drives\MSL - Electricity - Ongoing\Power_Energy\MIEcalculator\MIEcalc3 v1.2.1-beta packaging info
     Note that these are tailored to using a convenient local directory for the packaging process and the iss file must
     be edited for the correct file paths.
+
+    31/7/26
+    It seems Numpy 2.0 in June 2024 altered the behaviour of repr() and so the fitting_grid_results method has been
+    altered to use str() instead of repr() to load the GUI grids with the fitting results. Summary of the debug below
+_____________________________________________________________________________________________________________________
+_____________________________________________________________________________________________________________________
+Need to review state of MIEcal3 in terms of CPEM.
+MIEcalc3 is set up in GTC3 environment which is missing xlrd.
+Update conda with new version of conda. Conda still missing conda.plugins.hookimpl
+Also missing openpyxl. Install.
+Also missing docx. Install python-docx.
+Now it nominally starts up.
+Try to run Example6.xlsx but strike a problem....
+
+Traceback (most recent call last):
+  File "C:\Users\k.jones\OneDrive - Callaghan Innovation\KJ\PycharmProjects\MIEcalc3\MIEcalc3.py", line 331, in OnAutoCalc
+    self.PushAutocalc()
+    ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\k.jones\OneDrive - Callaghan Innovation\KJ\PycharmProjects\MIEcalc3\MIEcalc3.py", line 373, in PushAutocalc
+    self.grand_finale()
+    ~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\k.jones\OneDrive - Callaghan Innovation\KJ\PycharmProjects\MIEcalc3\MIEcalc3.py", line 248, in grand_finale
+    meter = comp.METER('default', '1 element', model, self.e_data('_meter.csv'))
+  File "C:\Users\k.jones\OneDrive - Callaghan Innovation\KJ\PycharmProjects\MIEcalc3\components.py", line 409, in __init__
+    self.commonMakeUreals()
+    ~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\Users\k.jones\OneDrive - Callaghan Innovation\KJ\PycharmProjects\MIEcalc3\components.py", line 70, in commonMakeUreals
+    coeffs.append(float(self.summary[i][0]))
+                  ~~~~~^^^^^^^^^^^^^^^^^^^^
+ValueError: could not convert string to float: 'np.float64(0.04261661444510836)'
+
+All notebooks seem to have executed, it is the final grand_finale that is failing somewhere in components.py.
+Seems that self.summary[i][0] is a string that np.float64(0.04261661444510836), i.e. some earlier process has already
+attempted a float operation.
+
+Try with a different project, just to confirm the fault is intrinsically common. Yes it is...
+
+Note debug at line 70 + 1 of components.py
+self.summary is bringing in numbers from a csv coefficients file
+Add debug at line 46.
+Confirms that the coefficients csv file has stored np.float(text) rather than just the text or just the number.
+So it is the script that stores all the coefficients that is behaving differently?
+Creation of _CT.csv etc. is the problem?
+In MIEcalc3.py there is a create_summary() method. Add debug at line 101. This shows that the grid.GetCellValue()
+already has np.float in the string. This implies a changed behaviour of grid.GetCellValue()? No! The np.float64 is
+being entered into the grid. Given that the plots are OK it suggests that the fault is with loading the grid. This
+happens in form_i_o.py, SaveGrid() / LoadGrid().
+Add debug line at 455.
+Only seeing printout of debug1 (components.py, line 46) and debug3 (MIEcalc.py, line 101). debug2 and 5 not showing up.
+There is no debug4.
+
+***Friday 31 July 2026***
+Continue MIEcalc3 debug!
+
+So, debug3 has np.float64 issue immediately after a fit to calibration data has occurred. Then debug1 shows followed by
+debug2, which is immediately before the traceback being triggered. Remember that the CT Data page has the error in the
+coefficient tables!!
+
+debug1: line 46 of components.py prints the error
+debug3: line 101 of MIEcalc3.py prints the error
+debug2: line 71 of components.py prints the error
+debug5: line 454 of form_i_o.py does not print, possibly because SaveGrid is never used?
+
+debug4: line 46 of formequns.py prints without error.
+debug6: line 314 of form_i_o.py
+
+This might be a numpy 2 change? This was a June 2024 change.
+Replacing 'repr' with 'str' appears to work.
+
+'fitting_grid_results' renamed 'repr_fitting_grid_results' (then deleted) and the new version uses str().
+Printing debug lines removed.
+_______________________________________________________________________________________________________________________
+_______________________________________________________________________________________________________________________

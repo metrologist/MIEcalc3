@@ -1,0 +1,9 @@
+C:\Users\k.jones\OneDrive - Callaghan Innovation\KJ\PycharmProjects\MIEcalc3\Projects\mie_temp\_site.csv
+15,0.5,12,Site temperature
+0,3,12,Site voltage
+0,0.75,12,Site frequency
+0,2,12,Site harmonics
+1,0.01,12,Site CT burden
+0.000248000496000992,2.48000496000992e-06,12,Site VT burden
+0,0.05,12,Site EM field
+1,0,50,Period of certification

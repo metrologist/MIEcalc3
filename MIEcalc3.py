@@ -246,8 +246,8 @@ class MIECALC(REPORT):
         profile = comp.LOAD('default', self.csv_profile, self.profile_list)  # data files from the lists
         model = functions.MODEL('model')  # pick up the standard model functions to pass into component objects
         meter = comp.METER('default', '1 element', model, self.e_data('_meter.csv'))
-        ct = comp.TRAN('name', 'single', model, self.e_data('_CT.csv'))
-        vt = comp.TRAN('name', 'single', model, self.e_data('_VT.csv'))
+        ct = comp.TRAN('CT', 'single', model, self.e_data('_CT.csv'))
+        vt = comp.TRAN('VT', 'single', model, self.e_data('_VT.csv'))
         site = comp.INSTALLATION('name', meter, ct, vt, profile, self.e_data('_site.csv'))
         error = site.site_error_terms()  # total_error_list, overall_error_list, XX  (all are lists)
         self.m_statusBar1.SetStatusText('Calculation finished', 2)

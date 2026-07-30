@@ -1,0 +1,10 @@
+C:\Users\k.jones\OneDrive - Callaghan Innovation\KJ\PycharmProjects\MIEcalc3\Projects\mie_temp\_VTe.csv
+1
+-0.07126666666011336,0.00664262343961638,3,a0 VT_e
+0.000533333333276813,6.577177334270639e-05,3,a1 VT_e
+4.412444616054095e-05,-4.3259261334809204e-07,-4.3259261334809204e-07,4.325926168644344e-09
+0.0,0.01636363636363636,50,b0 VT_e
+0.002,0.0002,12,VT temperature coefficient of error
+23,0.5,12,VT calibration temperature
+0,0,12,VT burden coefficient of error
+0.000248000496000992,2.48000496000992e-05,12,VT calibration burden
